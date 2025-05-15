@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ info.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <h2>{{ info.title }}</h2>
+    <img src="{{ info.pic }}" width="320"><br>
+    <a href="https://www.bilibili.com/video/{{ info.bvid }}" target="_blank">在 B 站打开</a><br>
+    <h3>弹幕列表：</h3>
+    <ul>
+        {% for d in danmakus %}
+        <li>[{{ d.time_str }}] {{ d.text }}</li>
+        {% endfor %}
+    </ul>
+    <a href="/up/{{ info.owner.mid }}">← 返回 UP</a>
+</body>
+
+</html>

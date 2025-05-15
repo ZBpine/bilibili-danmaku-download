@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>UP主列表</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <h1>UP 主列表</h1>
+    <ul>
+        {% for up in ups %}
+        <li>
+            <img src="{{ up.face }}" width="40" height="40" style="border-radius: 50%; vertical-align: middle;">
+            <a href="/up/{{ up.mid }}">{{ up.name }}</a>
+            <span class="details">（{{ up.sign }}）</span>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+
+</html>

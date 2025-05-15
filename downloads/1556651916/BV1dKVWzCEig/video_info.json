@@ -1,0 +1,120 @@
+{
+  "bvid": "BV1dKVWzCEig",
+  "aid": 114460912125691,
+  "videos": 1,
+  "tid": 124,
+  "tid_v2": 2081,
+  "tname": "社科·法律·心理",
+  "tname_v2": "海外资讯",
+  "copyright": 1,
+  "pic": "http://i2.hdslb.com/bfs/archive/665d1085acb99cb170ad664b92bb37b04a4bf875.jpg",
+  "title": "【参考信息第449期】中高考全托班；特朗普逆向助选",
+  "pubdate": 1746536073,
+  "ctime": 1746535887,
+  "desc": "继续分享马督工睡前消息编辑部关注的新闻",
+  "desc_v2": [
+    {
+      "raw_text": "继续分享马督工睡前消息编辑部关注的新闻",
+      "type": 1,
+      "biz_id": 0
+    }
+  ],
+  "state": 0,
+  "duration": 1131,
+  "mission_id": 4033924,
+  "rights": {
+    "bp": 0,
+    "elec": 0,
+    "download": 1,
+    "movie": 0,
+    "pay": 0,
+    "hd5": 0,
+    "no_reprint": 1,
+    "autoplay": 1,
+    "ugc_pay": 0,
+    "is_cooperation": 0,
+    "ugc_pay_preview": 0,
+    "no_background": 0,
+    "clean_mode": 0,
+    "is_stein_gate": 0,
+    "is_360": 0,
+    "no_share": 0,
+    "arc_pay": 0,
+    "free_watch": 0
+  },
+  "owner": {
+    "mid": 1556651916,
+    "name": "小黛晨读",
+    "face": "https://i0.hdslb.com/bfs/face/01fc599bc87d7dc20ac09bb941dfd100a63bc28b.jpg"
+  },
+  "stat": {
+    "aid": 114460912125691,
+    "view": 215256,
+    "danmaku": 354,
+    "reply": 447,
+    "favorite": 1294,
+    "coin": 1599,
+    "share": 265,
+    "now_rank": 0,
+    "his_rank": 0,
+    "like": 9153,
+    "dislike": 0,
+    "evaluation": "",
+    "vt": 0
+  },
+  "argue_info": {
+    "argue_msg": "",
+    "argue_type": 0,
+    "argue_link": ""
+  },
+  "dynamic": "五一假期旅游市场升温，但电影票房和观影人次较去年同期腰斩。中日友好医院风波牵出协和“4+4”学制，我国的医学学制混乱，医学教育究竟该如何改革仍是难题。中高考倒计时，昂贵的一对一全托班冲刺班火了。新高考改革十余年，原本要打破文理分科、培养文理融通人才，但学生选科正在回归文理分科。美国国安顾问沃尔兹被解职，由国务卿卢比奥兼任，上一个这么兼任的是基辛格。特朗普效应成为多国大选保守派政党的选票毒药。",
+  "cid": 29822750396,
+  "dimension": {
+    "width": 1920,
+    "height": 1080,
+    "rotate": 0
+  },
+  "premiere": null,
+  "teenage_mode": 0,
+  "is_chargeable_season": false,
+  "is_story": false,
+  "is_upower_exclusive": false,
+  "is_upower_play": false,
+  "is_upower_preview": false,
+  "enable_vt": 0,
+  "vt_display": "",
+  "is_upower_exclusive_with_qa": false,
+  "no_cache": false,
+  "pages": [
+    {
+      "cid": 29822750396,
+      "page": 1,
+      "from": "vupload",
+      "part": "【参考信息第449期】中高考全托班；特朗普逆向助选",
+      "duration": 1131,
+      "vid": "",
+      "weblink": "",
+      "dimension": {
+        "width": 1920,
+        "height": 1080,
+        "rotate": 0
+      },
+      "first_frame": "http://i1.hdslb.com/bfs/storyff/n250506sa3c0x6gjmg4y143oq6k6nhfn_firsti.jpg",
+      "ctime": 1746535887
+    }
+  ],
+  "subtitle": {
+    "allow_submit": false,
+    "list": []
+  },
+  "is_season_display": false,
+  "user_garb": {
+    "url_image_ani_cut": ""
+  },
+  "honor_reply": {},
+  "like_icon": "",
+  "need_jump_bv": false,
+  "disable_show_up_info": false,
+  "is_story_play": 1,
+  "is_view_self": false
+}

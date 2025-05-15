@@ -1,0 +1,120 @@
+{
+  "bvid": "BV15UVdzNEcf",
+  "aid": 114483326423032,
+  "videos": 1,
+  "tid": 124,
+  "tid_v2": 2083,
+  "tname": "社科·法律·心理",
+  "tname_v2": "综合资讯",
+  "copyright": 1,
+  "pic": "http://i1.hdslb.com/bfs/archive/619e5ad194da279ecaa6064077cf2223a506023a.jpg",
+  "title": "【参考信息第451期】行人安全距离；手办淫秽标准",
+  "pubdate": 1746878587,
+  "ctime": 1746878344,
+  "desc": "继续分享马督工睡前消息编辑部关注的新闻",
+  "desc_v2": [
+    {
+      "raw_text": "继续分享马督工睡前消息编辑部关注的新闻",
+      "type": 1,
+      "biz_id": 0
+    }
+  ],
+  "state": 0,
+  "duration": 1122,
+  "mission_id": 4033924,
+  "rights": {
+    "bp": 0,
+    "elec": 0,
+    "download": 1,
+    "movie": 0,
+    "pay": 0,
+    "hd5": 1,
+    "no_reprint": 1,
+    "autoplay": 1,
+    "ugc_pay": 0,
+    "is_cooperation": 0,
+    "ugc_pay_preview": 0,
+    "no_background": 0,
+    "clean_mode": 0,
+    "is_stein_gate": 0,
+    "is_360": 0,
+    "no_share": 0,
+    "arc_pay": 0,
+    "free_watch": 0
+  },
+  "owner": {
+    "mid": 1556651916,
+    "name": "小黛晨读",
+    "face": "https://i0.hdslb.com/bfs/face/01fc599bc87d7dc20ac09bb941dfd100a63bc28b.jpg"
+  },
+  "stat": {
+    "aid": 114483326423032,
+    "view": 252737,
+    "danmaku": 628,
+    "reply": 760,
+    "favorite": 1494,
+    "coin": 2374,
+    "share": 421,
+    "now_rank": 0,
+    "his_rank": 0,
+    "like": 10648,
+    "dislike": 0,
+    "evaluation": "",
+    "vt": 0
+  },
+  "argue_info": {
+    "argue_msg": "",
+    "argue_type": 0,
+    "argue_link": ""
+  },
+  "dynamic": "寺庙已成为年轻人的“精神急诊室”，但烧香的钱给了谁？寺庙经济商业化形成产业链，但过度商业化引发伦理危机。英国年轻人重新走进教堂，天主教在18到34岁年龄段比英国国教圣公会更受欢迎。新任罗马教皇良十四世是美国人，有何来头？青岛行人转身相撞案，经调解由“未保持安全距离”的后者承担7万赔偿引发关注；上海宣判应是全国首起涉黄手办被判淫秽物品犯罪案，玩具是否应该分级？中国司法史的标志性人物赵作海去世。",
+  "cid": 29890316616,
+  "dimension": {
+    "width": 1920,
+    "height": 1080,
+    "rotate": 0
+  },
+  "premiere": null,
+  "teenage_mode": 0,
+  "is_chargeable_season": false,
+  "is_story": false,
+  "is_upower_exclusive": false,
+  "is_upower_play": false,
+  "is_upower_preview": false,
+  "enable_vt": 0,
+  "vt_display": "",
+  "is_upower_exclusive_with_qa": false,
+  "no_cache": false,
+  "pages": [
+    {
+      "cid": 29890316616,
+      "page": 1,
+      "from": "vupload",
+      "part": "【参考信息第451期】行人安全距离；手办淫秽标准",
+      "duration": 1122,
+      "vid": "",
+      "weblink": "",
+      "dimension": {
+        "width": 1920,
+        "height": 1080,
+        "rotate": 0
+      },
+      "first_frame": "http://i1.hdslb.com/bfs/storyff/n250510saf65x9bfokbt63mst1tbapto_firsti.jpg",
+      "ctime": 1746878344
+    }
+  ],
+  "subtitle": {
+    "allow_submit": false,
+    "list": []
+  },
+  "is_season_display": false,
+  "user_garb": {
+    "url_image_ani_cut": ""
+  },
+  "honor_reply": {},
+  "like_icon": "",
+  "need_jump_bv": false,
+  "disable_show_up_info": false,
+  "is_story_play": 1,
+  "is_view_self": false
+}

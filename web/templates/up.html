@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <h1>{{ name }} 的视频</h1>
+    <ul>
+        {% for v in videos %}
+        <li>
+            <a href="/up/{{ mid }}/video/{{ v.bvid }}">
+                <img src="{{ v.cover }}" width="120"> {{ v.title }}
+            </a>
+            <br>📅 {{ v.pubdate }}<br>🧠 {{ v.summary }}
+        </li>
+        {% endfor %}
+    </ul>
+    <a href="/">← 返回列表</a>
+</body>
+
+</html>

@@ -1,0 +1,120 @@
+{
+  "bvid": "BV1DV5TzoE8x",
+  "aid": 114471917850124,
+  "videos": 1,
+  "tid": 124,
+  "tid_v2": 2080,
+  "tname": "社科·法律·心理",
+  "tname_v2": "时政资讯",
+  "copyright": 1,
+  "pic": "http://i0.hdslb.com/bfs/archive/647c530989511aa71469f383d978a0b8096fac09.jpg",
+  "title": "【参考信息第450期】中欧走近&中美谈判；军官直招留学生",
+  "pubdate": 1746705439,
+  "ctime": 1746704209,
+  "desc": "继续分享马督工睡前消息团队关注的新闻",
+  "desc_v2": [
+    {
+      "raw_text": "继续分享马督工睡前消息团队关注的新闻",
+      "type": 1,
+      "biz_id": 0
+    }
+  ],
+  "state": 0,
+  "duration": 1200,
+  "mission_id": 4033924,
+  "rights": {
+    "bp": 0,
+    "elec": 0,
+    "download": 1,
+    "movie": 0,
+    "pay": 0,
+    "hd5": 0,
+    "no_reprint": 1,
+    "autoplay": 1,
+    "ugc_pay": 0,
+    "is_cooperation": 0,
+    "ugc_pay_preview": 0,
+    "no_background": 0,
+    "clean_mode": 0,
+    "is_stein_gate": 0,
+    "is_360": 0,
+    "no_share": 0,
+    "arc_pay": 0,
+    "free_watch": 0
+  },
+  "owner": {
+    "mid": 1556651916,
+    "name": "小黛晨读",
+    "face": "https://i0.hdslb.com/bfs/face/01fc599bc87d7dc20ac09bb941dfd100a63bc28b.jpg"
+  },
+  "stat": {
+    "aid": 114471917850124,
+    "view": 228343,
+    "danmaku": 279,
+    "reply": 491,
+    "favorite": 1334,
+    "coin": 1580,
+    "share": 230,
+    "now_rank": 0,
+    "his_rank": 0,
+    "like": 9329,
+    "dislike": 0,
+    "evaluation": "",
+    "vt": 0
+  },
+  "argue_info": {
+    "argue_msg": "",
+    "argue_type": 0,
+    "argue_link": ""
+  },
+  "dynamic": "包含降准降息的“一揽子金融政策”揭开面纱，房地产市场和汽车消费是重点。今年楼市小阳春没有来，前4个月超过200个城市发布超过300次各种房贷政策，发大部分城市的宽松政策已经出无可出。中欧立法机构关系缓和，中欧班列（深圳）欧洲电商快线发车；广州港开通直达秘鲁钱凯港的航线；中美官宣在瑞士谈判，宛如朝鲜战争中的边打边谈。留学生进体制通道扩大，全军不少大单位直招军官面向QS世界排名前200的留学生开放。",
+  "cid": 29854138522,
+  "dimension": {
+    "width": 1920,
+    "height": 1080,
+    "rotate": 0
+  },
+  "premiere": null,
+  "teenage_mode": 0,
+  "is_chargeable_season": false,
+  "is_story": false,
+  "is_upower_exclusive": false,
+  "is_upower_play": false,
+  "is_upower_preview": false,
+  "enable_vt": 0,
+  "vt_display": "",
+  "is_upower_exclusive_with_qa": false,
+  "no_cache": false,
+  "pages": [
+    {
+      "cid": 29854138522,
+      "page": 1,
+      "from": "vupload",
+      "part": "【参考信息第450期】中欧走近&中美谈判；军官直招留学生",
+      "duration": 1200,
+      "vid": "",
+      "weblink": "",
+      "dimension": {
+        "width": 1920,
+        "height": 1080,
+        "rotate": 0
+      },
+      "first_frame": "http://i1.hdslb.com/bfs/storyff/n250508sa274ezf8k5xi2d3p6hcxi1en_firsti.jpg",
+      "ctime": 1746704209
+    }
+  ],
+  "subtitle": {
+    "allow_submit": false,
+    "list": []
+  },
+  "is_season_display": false,
+  "user_garb": {
+    "url_image_ani_cut": ""
+  },
+  "honor_reply": {},
+  "like_icon": "",
+  "need_jump_bv": false,
+  "disable_show_up_info": false,
+  "is_story_play": 1,
+  "is_view_self": false
+}
