@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         YouTube 本地B站弹幕播放器
-// @namespace    https://chat.openai.com/
+// @namespace    https://github.com/ZBpine/bilibili-danmaku-download/
 // @version      1.0.0
 // @description  加载本地 B站弹幕 JSON文件，在 YouTube 视频上显示
 // @author       ZBpine
