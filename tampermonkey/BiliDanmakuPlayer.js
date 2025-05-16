@@ -9,6 +9,7 @@ export class BiliDanmakuPlayer {
         this.LINE_HEIGHT = 30;
         this.lastVideoElement = null;
         this.container = document.createElement('div');
+        this.container.id = 'danmaku-player-container';
         Object.assign(this.container.style, {
             position: 'absolute',
             overflow: 'hidden',
@@ -32,18 +33,18 @@ export class BiliDanmakuPlayer {
         console.error(`%c${this.logStyle.tag}`, this.logStyle.errorStyle, ...args);
     }
     init() {
-        const player = document.querySelector('.html5-video-player');
-        if (!player) return false;
-        player.style.position = 'relative'; // 确保 relative 定位
-        player.appendChild(this.container);
-
+        if (!document.getElementById('danmaku-player-container')) {
+            const player = document.querySelector('.html5-video-player');
+            if (player) return;
+            player.style.position = 'relative'; // 确保 relative 定位
+            player.appendChild(this.container);
+        }
         this.updateTracks();
         window.addEventListener('resize', () => this.updateTracks());
         this.bindVideo(document.querySelector('video'));
 
         this.observe();
         this.injectAnimationStyle();
-        return true;
     }
     injectAnimationStyle() {
         if (document.getElementById('danmaku-style')) return; // 防止重复添加
