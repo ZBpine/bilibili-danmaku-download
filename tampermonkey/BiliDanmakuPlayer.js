@@ -35,7 +35,7 @@ export class BiliDanmakuPlayer {
     init() {
         if (!document.getElementById('danmaku-player-container')) {
             const player = document.querySelector('.html5-video-player');
-            if (player) return;
+            if (!player) return;
             player.style.position = 'relative'; // 确保 relative 定位
             player.appendChild(this.container);
         }
