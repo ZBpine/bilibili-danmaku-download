@@ -185,16 +185,11 @@ export class BiliDanmakuPlayer {
             }
         }, 200);
     }
-    destroy() {
-        if (this._observerTimer) {
-            clearInterval(this._observerTimer);
-            this._observerTimer = null;
-        }
-
+    clear() {
         this.danmakuList = [];
         this.isLoaded = false;
 
         Array.from(this.container.children).forEach(el => el.remove());
-        this.logTag('🔻 弹幕已关闭并清空');
+        this.logTag('🔻 弹幕已清空');
     }
 }
