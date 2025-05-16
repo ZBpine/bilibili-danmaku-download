@@ -33,6 +33,7 @@ export class BiliDanmakuPlayer {
     }
     init() {
         const player = document.querySelector('.html5-video-player');
+        if (!player) return false;
         player.style.position = 'relative'; // 确保 relative 定位
         player.appendChild(this.container);
 
@@ -42,6 +43,7 @@ export class BiliDanmakuPlayer {
 
         this.observe();
         this.injectAnimationStyle();
+        return true;
     }
     injectAnimationStyle() {
         if (document.getElementById('danmaku-style')) return; // 防止重复添加
@@ -164,7 +166,8 @@ export class BiliDanmakuPlayer {
         this.logTag('[🎯 绑定 video 事件]');
     }
     observe() {
-        setInterval(() => {
+        if (this._observerTimer) return;
+        this._observerTimer = setInterval(() => {
             if (!this.isLoaded || !this.danmakuEnabled) return;
             const video = document.querySelector('video');
             if (video !== this.lastVideoElement) this.bindVideo(video);
@@ -180,5 +183,17 @@ export class BiliDanmakuPlayer {
                 }
             }
         }, 200);
+    }
+    destroy() {
+        if (this._observerTimer) {
+            clearInterval(this._observerTimer);
+            this._observerTimer = null;
+        }
+
+        this.danmakuList = [];
+        this.isLoaded = false;
+
+        Array.from(this.container.children).forEach(el => el.remove());
+        this.logTag('🔻 弹幕已关闭并清空');
     }
 }
