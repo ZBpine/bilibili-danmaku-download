@@ -146,7 +146,7 @@ def download_videos():
 
         except Exception as e:
             log(f"[❌ 错误] 处理 mid={mid} 时出错：{e}")
-    print(f"😊 完成一轮下载 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"😊 完成一轮下载 [{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]")
 
 
 if __name__ == "__main__":
