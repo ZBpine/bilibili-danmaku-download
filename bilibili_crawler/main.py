@@ -1,5 +1,4 @@
 import os
-import sys
 import time
 import json
 import random
@@ -28,6 +27,12 @@ def parse_args():
     parser.add_argument(
         "--days", type=int, default=10, help="下载最近几天的视频（默认10天）"
     )
+    parser.add_argument(
+        "--downloads",
+        type=str,
+        default="downloads",
+        help="保存目录（默认 ./downloads）",
+    )
     return parser.parse_args()
 
 
@@ -47,9 +52,10 @@ def load_up_mids(file_path="bilibili_crawler/up_list.txt"):
 UP_MIDS = load_up_mids()
 args = parse_args()
 VIDEO_LOOKBACK_DAYS = args.days
+DOWNLOAD_DIR = args.downloads
 
-client = BilibiliClient()
-api = BilibiliAPI(client)
+# client = BilibiliClient()
+api = BilibiliAPI(BilibiliClient("bilibili_crawler/cookie.txt"))
 
 
 def safe_sleep(min_sec=10.0, max_sec=30.0, reason="等待中..."):
@@ -57,16 +63,6 @@ def safe_sleep(min_sec=10.0, max_sec=30.0, reason="等待中..."):
     duration = round(random.uniform(min_sec, max_sec), 2)
     print(f"😴 {reason}，休眠 {duration}s")
     time.sleep(duration)
-
-
-def build_full_video_json(bvid, cid, video_info, danmaku_json):
-    return {
-        "bvid": bvid,
-        "cid": cid,
-        "videoData": video_info,
-        "danmakuData": danmaku_json,
-        "fetchtime": int(time.time()),
-    }
 
 
 # 主任务
@@ -78,7 +74,7 @@ def download_videos():
 
             # 保存 UP 主信息
             uploader_info = api.get_uploader_info(mid)
-            up_dir = os.path.join("downloads", str(mid))
+            up_dir = os.path.join(DOWNLOAD_DIR, str(mid))
             os.makedirs(up_dir, exist_ok=True)
             with open(os.path.join(up_dir, "info.json"), "w", encoding="utf-8") as f:
                 json.dump(uploader_info, f, ensure_ascii=False, indent=2)
@@ -98,7 +94,7 @@ def download_videos():
                 danmaku_xml = api.get_danmaku_xml(cid)
                 summary = api.get_ai_summary(bvid, cid, mid)
 
-                save_path = os.path.join("downloads", str(mid), bvid)
+                save_path = os.path.join(DOWNLOAD_DIR, str(mid), bvid)
                 os.makedirs(save_path, exist_ok=True)
 
                 # 保存视频信息
@@ -121,9 +117,13 @@ def download_videos():
                     danmaku_json = []
 
                 # 构建统一结构
-                combined_data = build_full_video_json(
-                    bvid, cid, video_info, danmaku_json
-                )
+                combined_data = {
+                    "bvid": bvid,
+                    "cid": cid,
+                    "videoData": video_info,
+                    "danmakuData": danmaku_json,
+                    "fetchtime": int(time.time()),
+                }
 
                 # 保存为 danmaku.json（或 full_video.json）
                 with open(
@@ -146,6 +146,7 @@ def download_videos():
 
         except Exception as e:
             log(f"[❌ 错误] 处理 mid={mid} 时出错：{e}")
+    print(f"😊 完成一轮下载 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
 
 if __name__ == "__main__":

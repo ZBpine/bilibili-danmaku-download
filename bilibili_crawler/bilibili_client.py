@@ -8,7 +8,7 @@ from hashlib import md5
 
 
 class BilibiliClient:
-    def __init__(self, cookie_file="bilibili_crawler/cookie.txt"):
+    def __init__(self, cookie_file="cookie.txt"):
         self.session = requests.Session()
         self.session.headers.update(
             {

@@ -1,8 +1,8 @@
-# 📡 Bilibili 弹幕爬虫（Wbi 签名 + AI 摘要 + 弹幕 JSON 输出）
+# 📡 Bilibili 弹幕爬虫（`main.py`）
 
 > 这是一个定时抓取指定 Bilibili UP 主的视频、弹幕、AI 摘要等信息的爬虫脚本，支持 Wbi 鉴权签名，支持弹幕解析为标准 JSON 格式，用于离线分析或前端弹幕显示。
 > 
-> 感谢 [bilibili-API-collect](https://github.com/SocialSisterYi/bilibili-API-collect/) 所有接口均获取自此文档。
+> 感谢 [bilibili-API-collect](https://github.com/SocialSisterYi/bilibili-API-collect/) ，所有接口均获取自此文档。
 
 ---
 
@@ -46,6 +46,54 @@ python main.py --days 10
 
 ## ⚠️ 注意事项
 
-* 建议使用登录 cookie 获取完整接口（包括 AI 摘要）
+* 建议使用登录 cookie 获取完整接口
 * 请求过快可能会被风控，脚本已自动添加间隔
 * 视频封面、弹幕等为公开资源，请合理合法使用数据
+
+
+
+# 📡 Bilibili 弹幕接口服务（`server.py`）
+
+该模块基于 Flask 实现，提供对B站弹幕或爬虫(`main.py`)下载到本地的弹幕统一搜索与访问接口，供前端（如 [YouTube B站弹幕播放器](../tampermonkey/README.md)）查询使用。
+
+
+
+## 🔌 提供的 API 接口
+
+### `GET /search?keyword=xxx&type=video`
+
+* 搜索 B站 视频标题（调用 B站 API）和本地已下载弹幕
+* 支持模糊匹配本地数据标题（可修改阈值`if similar(keyword, title) >= 0.5`）
+
+#### 示例：
+
+```
+/search?keyword=敢杀我的马&type=video
+```
+
+---
+
+### `GET /video?bvid=BVxxxxx`
+
+* 获取指定视频的基本信息、弹幕 XML 解析结果
+* 可用于播放弹幕
+
+#### 示例：
+
+```
+/video?bvid=BV1xx411c7qA
+```
+
+---
+
+## 🧪 前端配合
+
+推荐使用配套的 Tampermonkey 用户脚本（[YouTube B站弹幕播放器](../tampermonkey/README.md)），可在 YouTube 页面自动查询 B站视频弹幕并播放。
+
+---
+
+## ⚠ 注意事项
+
+* 请确保 `cookie.txt` 是有效登录态，否则部分 API 可能失败
+* 此服务默认运行在 `http://127.0.0.1:13245`
+
