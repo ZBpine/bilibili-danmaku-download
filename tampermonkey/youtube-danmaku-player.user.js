@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         YouTube 本地B站弹幕播放器
+// @name         YouTube B站弹幕播放器
 // @namespace    https://github.com/ZBpine/bilibili-danmaku-download/
-// @version      1.2.0
+// @version      1.2.2
 // @description  加载本地 B站弹幕 JSON文件，在 YouTube 视频上显示
 // @author       ZBpine
 // @match        https://www.youtube.com/watch*
@@ -45,13 +45,7 @@
             this.configBtn = document.createElement('button');
             this.configBtn.textContent = '⚙️';
             Object.assign(this.configBtn.style, buttonStyle);
-            this.configBtn.onclick = () => {
-                const addr = prompt('请输入服务器地址', localStorage.getItem('dm-server') || 'http://127.0.0.1:13245');
-                if (addr) {
-                    localStorage.setItem('dm-server', addr);
-                    showTip('✅ 地址已保存');
-                }
-            };
+            this.configBtn.onclick = () => this.showConfigPanel();
 
             this.toggleBtn = document.createElement('button');
             this.toggleBtn.textContent = '✅ 弹幕开';
@@ -201,47 +195,18 @@
             const returnPromise = new Promise((resolve) => {
                 resolveFn = resolve;
             });
-            const overlay = document.createElement('div');
-            Object.assign(overlay.style, {
-                position: 'fixed',
-                top: '0', left: '0', right: '0', bottom: '0',
-                background: 'rgba(0,0,0,0.3)',
-                zIndex: 9999
-            });
+            const overlay = this.createStyledEl('overlay');
 
-            const panel = document.createElement('div');
-            Object.assign(panel.style, {
-                background: '#fff',
-                color: '#000',
-                width: '500px',
-                maxHeight: '80vh',
-                overflowY: 'auto',
-                margin: '10vh auto',
-                padding: '16px',
-                borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                fontSize: '14px',
-                fontFamily: 'sans-serif',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '10px'
-            });
+            const panel = this.createStyledEl('panel');
 
             const titleEl = document.createElement('div');
             titleEl.textContent = '选择一个视频以载入弹幕：';
             titleEl.style.fontWeight = 'bold';
             titleEl.style.fontSize = '16px';
 
-            const input = document.createElement('input');
+            const input = this.createStyledEl('input');
             input.type = 'text';
             input.value = initialKeyword;
-            Object.assign(input.style, {
-                padding: '6px 10px',
-                fontSize: '14px',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                width: '100%'
-            });
 
             const resultsBox = document.createElement('div');
             resultsBox.style.display = 'flex';
@@ -271,6 +236,11 @@
                 if (n >= 1e4) return (n / 1e4).toFixed(1) + '万';
                 return n.toString();
             };
+            const normalizeTimeStr = (timeStr) => {
+                const [min, sec] = timeStr.split(':').map(Number);
+                if (isNaN(min) || isNaN(sec)) return timeStr; // 原样返回不合法值
+                return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+            };
 
             const renderResults = async (keyword) => {
                 resultsBox.textContent = '🔍 搜索中...';
@@ -281,69 +251,97 @@
                         resultsBox.textContent = '❌ 没有找到相关视频';
                         return;
                     }
+
                     resultsBox.textContent = '';
-                    list.forEach(item => {
-                        const row = document.createElement('div');
-                        Object.assign(row.style, {
-                            padding: '8px 10px',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            background: '#f8f8f8',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '4px'
+
+                    // ➤ 按来源分组
+                    const localResults = list.filter(item => item.source === 'local');
+                    const onlineResults = list.filter(item => item.source !== 'local');
+
+                    // ➤ 渲染分组函数
+                    const renderGroup = (titleText, groupList) => {
+                        if (groupList.length === 0) return;
+
+                        const titleRow = document.createElement('div');
+                        titleRow.textContent = titleText;
+                        Object.assign(titleRow.style, {
+                            fontWeight: 'bold',
+                            marginTop: '10px',
+                            marginBottom: '4px',
+                            borderBottom: '1px solid #ccc',
+                            paddingBottom: '4px'
                         });
-                        row.addEventListener('mouseenter', () => row.style.background = '#e0e0e0');
-                        row.addEventListener('mouseleave', () => row.style.background = '#f8f8f8');
+                        resultsBox.appendChild(titleRow);
 
-                        const titleLine = document.createElement('div');
-                        titleLine.textContent = `📺 ${item.title.replace(/<[^>]+>/g, '')}`;
-                        titleLine.style.fontWeight = '500';
-                        row.appendChild(titleLine);
+                        groupList.forEach(item => {
+                            const row = document.createElement('div');
+                            Object.assign(row.style, {
+                                padding: '8px 10px',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                background: '#f8f8f8',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '4px'
+                            });
+                            row.addEventListener('mouseenter', () => row.style.background = '#e0e0e0');
+                            row.addEventListener('mouseleave', () => row.style.background = '#f8f8f8');
 
-                        const infoLine = document.createElement('div');
-                        Object.assign(infoLine.style, {
-                            display: 'flex',
-                            gap: '12px',
-                            fontSize: '12px',
-                            color: '#666',
-                            flexWrap: 'wrap'
+                            const titleLine = document.createElement('div');
+                            titleLine.textContent = `📺 ${item.title.replace(/<[^>]+>/g, '')}`
+                            titleLine.style.fontWeight = '500';
+
+                            const infoLine = document.createElement('div');
+                            Object.assign(infoLine.style, {
+                                display: 'flex',
+                                gap: '12px',
+                                fontSize: '12px',
+                                color: '#666',
+                                flexWrap: 'wrap'
+                            });
+                            const author = document.createElement('span');
+                            author.textContent = `👤 ${item.author || 'UP未知'}`;
+                            const play = document.createElement('span');
+                            play.textContent = `👁 ${formatCount(item.play)}`;
+                            const danmu = document.createElement('span');
+                            danmu.textContent = `💬 ${formatCount(item.video_review)}`;
+                            const duration = document.createElement('span');
+                            if (item.duration) {
+                                duration.textContent = `🕒 ${normalizeTimeStr(item.duration)}`;
+                            }
+                            const link = document.createElement('a');
+                            link.href = `https://www.bilibili.com/video/${item.bvid}`;
+                            link.textContent = '🔗 打开';
+                            link.target = '_blank';
+                            Object.assign(link.style, {
+                                fontSize: '12px',
+                                color: '#1a73e8',
+                                textDecoration: 'none'
+                            });
+                            link.addEventListener('click', e => e.stopPropagation());
+
+                            infoLine.append(author, play, danmu, duration, link);
+
+                            row.onclick = () => cleanup(item);
+                            row.appendChild(titleLine);
+                            row.appendChild(infoLine);
+                            resultsBox.appendChild(row);
                         });
-                        const author = document.createElement('span');
-                        author.textContent = `👤 ${item.author || 'UP未知'}`;
-                        const play = document.createElement('span');
-                        play.textContent = `👁 ${formatCount(item.play)}`;
-                        const danmu = document.createElement('span');
-                        danmu.textContent = `💬 ${formatCount(item.video_review)}`;
-                        const link = document.createElement('a');
-                        link.href = `https://www.bilibili.com/video/${item.bvid}`;
-                        link.textContent = '🔗 打开';
-                        link.target = '_blank';
-                        Object.assign(link.style, {
-                            fontSize: '12px',
-                            color: '#1a73e8',
-                            textDecoration: 'none'
-                        });
-                        link.addEventListener('click', e => e.stopPropagation()); // 防止触发选择
+                    };
+                    // ➤ 渲染两组
+                    renderGroup('📦 本地弹幕：', localResults);
+                    renderGroup('🌐 B站视频：', onlineResults);
 
-                        infoLine.append(author, play, danmu, link);
-                        row.appendChild(infoLine);
-
-                        row.onclick = () => cleanup(item);
-                        resultsBox.appendChild(row);
-                    });
                 } catch (e) {
                     resultsBox.textContent = `❌ 搜索失败：${e.message}`;
                 }
             };
-
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     const kw = input.value.trim();
                     if (kw) renderResults(kw);
                 }
             });
-
             panel.append(titleEl, input, resultsBox);
             overlay.appendChild(panel);
             document.body.appendChild(overlay);
@@ -352,7 +350,180 @@
 
             return returnPromise;
         }
+        showConfigPanel() {
+            const existing = document.getElementById('dm-config-panel');
+            if (existing) existing.remove();
 
+            const overlay = this.createStyledEl('overlay');
+            overlay.id = 'dm-config-panel';
+
+            overlay.onclick = (e) => {
+                if (e.target === overlay) overlay.remove();
+            };
+
+            const panel = this.createStyledEl('panel');
+
+            const title = document.createElement('div');
+            title.textContent = '⚙️ 设置';
+            title.style.fontSize = '18px';
+            title.style.fontWeight = 'bold';
+
+            function createLabeledButtonRow(labelText, buttonText, onClick) {
+                const row = document.createElement('div');
+                row.style.display = 'flex';
+                row.style.justifyContent = 'space-between';
+                row.style.alignItems = 'center';
+                row.style.borderTop = '1px solid #ccc';
+
+                const label = document.createElement('div');
+                label.textContent = labelText;
+                label.style.fontWeight = 'bold';
+                label.style.fontSize = '16px'
+                label.style.margin = '10px 0'
+
+                const button = document.createElement('button');
+                button.textContent = buttonText;
+                Object.assign(button.style, {
+                    width: '130px',
+                    height: '28px',
+                    fontSize: '14px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    background: '#f0f0f0',
+                    cursor: 'pointer',
+                    flexShrink: '0'
+                });
+                button.onclick = onClick;
+
+                row.appendChild(label);
+                row.appendChild(button);
+                return row;
+            }
+            const SectionStyle = {
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px',
+            }
+
+            // --- 服务器设置模块 ---
+            const serverSection = document.createElement('div');
+            Object.assign(serverSection.style, SectionStyle);
+
+            const serverHeader = createLabeledButtonRow('🌐 服务器地址：', '💾 保存', () => {
+                localStorage.setItem('dm-server', serverInput.value.trim());
+                showTip('✅ 地址已保存');
+            });
+
+            const serverInput = this.createStyledEl('input');
+            serverInput.value = localStorage.getItem('dm-server') || '';
+
+            serverSection.appendChild(serverHeader);
+            serverSection.appendChild(serverInput);
+
+            // --- 缓存管理模块 ---
+            const cacheSection = document.createElement('div');
+            Object.assign(cacheSection.style, SectionStyle);
+
+            const cacheHeader = createLabeledButtonRow('📦 本地缓存弹幕', '🧹 清空所有缓存', () => {
+                if (confirm('确定要清空所有本地缓存弹幕吗？')) {
+                    keys.forEach(k => localStorage.removeItem(k));
+                    cacheList.textContent = '📭 所有缓存已清除';
+                    showTip('🧹 所有弹幕缓存已清空');
+                }
+            });
+
+            const cacheList = document.createElement('div');
+            cacheList.style.display = 'flex';
+            cacheList.style.flexDirection = 'column';
+            cacheList.style.gap = '8px';
+
+            const keys = Object.keys(localStorage).filter(k => k.startsWith('dm-save-'));
+
+            if (keys.length === 0) {
+                cacheList.textContent = '📭 当前没有缓存弹幕';
+            } else {
+                keys.forEach(key => {
+                    try {
+                        const json = JSON.parse(localStorage.getItem(key));
+                        const title = json.videoData?.title || key.replace('dm-save-', '');
+                        const row = document.createElement('div');
+                        row.style.display = 'flex';
+                        row.style.justifyContent = 'space-between';
+                        row.style.alignItems = 'center';
+
+                        const label = document.createElement('div');
+                        label.textContent = `📁 ${title}`;
+                        label.style.flex = '1';
+
+                        const delBtn = document.createElement('button');
+                        delBtn.textContent = '🗑 删除';
+                        Object.assign(delBtn.style, {
+                            cursor: 'pointer'
+                        });
+
+                        delBtn.onclick = () => {
+                            localStorage.removeItem(key);
+                            row.remove();
+                            showTip(`🗑 已删除缓存：${title}`);
+                        };
+
+                        row.appendChild(label);
+                        row.appendChild(delBtn);
+                        cacheList.appendChild(row);
+                    } catch { }
+                });
+            }
+
+            cacheSection.appendChild(cacheHeader);
+            cacheSection.appendChild(cacheList);
+
+            // Assemble panel
+            panel.appendChild(title);
+            panel.appendChild(serverSection);
+            panel.appendChild(cacheSection);
+
+            overlay.appendChild(panel);
+            document.body.appendChild(overlay);
+        }
+        createStyledEl(type) {
+            const el = document.createElement(type === 'input' ? 'input' : 'div');
+            // 样式模板
+            const styles = {
+                overlay: {
+                    position: 'fixed',
+                    top: '0', left: '0', right: '0', bottom: '0',
+                    background: 'rgba(0, 0, 0, 0.4)',
+                    zIndex: 9999,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                },
+                panel: {
+                    background: '#fff',
+                    width: '500px',
+                    maxHeight: '80vh',
+                    overflowY: 'auto',
+                    padding: '20px',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                    fontSize: '14px',
+                    fontFamily: 'sans-serif',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '16px'
+                },
+                input: {
+                    padding: '6px 10px',
+                    fontSize: '14px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    width: '100%',
+                    boxSizing: 'border-box'
+                }
+            };
+            if (styles[type]) Object.assign(el.style, styles[type]);
+            return el;
+        }
     }
 
     function showTip(message, { dark = true, duration = 3000 } = {}) {
@@ -416,7 +587,6 @@
 
     const urlOfPlayer = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download/tampermonkey/BiliDanmakuPlayer.js';
     const { BiliDanmakuPlayer } = await import(urlOfPlayer);
-
     const dmPanel = new DanmakuControlPanel();
     try {
         await waitForVideo();
