@@ -32,7 +32,11 @@
 
 ### 📎 2. 设置 Cookie
 
-将你登录 B 站后的 Cookie 复制粘贴到 `cookie.txt` 中（整段字符串一行即可）。
+将 Cookie 复制粘贴到 `cookie.txt` 中（整段字符串一行即可）。
+
+**Cookie要求：**
+* `main.py` 可用可不用。使用已登录的cookie可以获取up信息、AI总结（不是重要信息），未登陆的cookie/不设置cookie 就获取不到。
+* `server.py` 必须cookie，已登录的未登录的都行。
 
 ---
 
@@ -94,6 +98,6 @@ python main.py --days 10
 
 ## ⚠ 注意事项
 
-* 请确保 `cookie.txt` 是有效登录态，否则部分 API 可能失败
+* 请确保 `cookie.txt` Cookie 中含有 buvid3 字段（未登录的cookie也行），否则无法搜索B站视频
 * 此服务默认运行在 `http://127.0.0.1:13245`
 

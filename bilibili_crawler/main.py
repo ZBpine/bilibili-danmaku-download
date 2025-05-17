@@ -4,7 +4,7 @@ import json
 import random
 import argparse
 import schedule
-from datetime import datetime, timedelta
+from datetime import datetime
 from bilibili_client import BilibiliClient
 from bilibili_api import BilibiliAPI
 from danmaku_util import parse_danmaku_xml
@@ -49,15 +49,6 @@ def load_up_mids(file_path="bilibili_crawler/up_list.txt"):
     return mids
 
 
-UP_MIDS = load_up_mids()
-args = parse_args()
-VIDEO_LOOKBACK_DAYS = args.days
-DOWNLOAD_DIR = args.downloads
-
-# client = BilibiliClient()
-api = BilibiliAPI(BilibiliClient("bilibili_crawler/cookie.txt"))
-
-
 def safe_sleep(min_sec=10.0, max_sec=30.0, reason="等待中..."):
     """人类化 sleep，防止触发 B 站风控"""
     duration = round(random.uniform(min_sec, max_sec), 2)
@@ -67,96 +58,121 @@ def safe_sleep(min_sec=10.0, max_sec=30.0, reason="等待中..."):
 
 # 主任务
 def download_videos():
+    login_info = api.get_login_info()
+    is_login = login_info.get("isLogin", False)
+    if is_login:
+        print(
+            f"😄 登录账号：{login_info.get('mid',0)}，账号名：{login_info.get('uname','未知')}"
+        )
+    else:
+        print("😢 未登录状态...")
+
     UP_MIDS = load_up_mids()
     for mid in UP_MIDS:
         try:
             log(f"[{datetime.now()}] 正在处理 UP 主：{mid}")
 
-            # 保存 UP 主信息
-            uploader_info = api.get_uploader_info(mid)
-            up_dir = os.path.join(DOWNLOAD_DIR, str(mid))
-            os.makedirs(up_dir, exist_ok=True)
-            with open(os.path.join(up_dir, "info.json"), "w", encoding="utf-8") as f:
-                json.dump(uploader_info, f, ensure_ascii=False, indent=2)
+            if is_login:
+                uploader_info = api.get_uploader_info(mid)
+                up_dir = os.path.join(DOWNLOAD_DIR, str(mid))
+                os.makedirs(up_dir, exist_ok=True)
+                with open(
+                    os.path.join(up_dir, "info.json"), "w", encoding="utf-8"
+                ) as f:
+                    json.dump(uploader_info, f, ensure_ascii=False, indent=2)
 
-            videos = api.get_videos(mid)
+            if is_login:
+                videos = api.get_videos(mid)
+            else:
+                videos = api.get_videos_public(mid)
 
             for video in videos:
-                bvid = video["bvid"]
-                title = video["title"]
-                pub_time = datetime.fromtimestamp(video["created"]).strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                )
-                log(f"  ⏬ 下载视频：{title} ({bvid})")
-
-                video_info = api.get_video_info(bvid)
-                cid = video_info["cid"]
-                danmaku_xml = api.get_danmaku_xml(cid)
-                summary = api.get_ai_summary(bvid, cid, mid)
-
-                save_path = os.path.join(DOWNLOAD_DIR, str(mid), bvid)
-                os.makedirs(save_path, exist_ok=True)
-
-                # 保存视频信息
-                with open(
-                    os.path.join(save_path, "video_info.json"), "w", encoding="utf-8"
-                ) as f:
-                    json.dump(video_info, f, ensure_ascii=False, indent=2)
-
-                # 保存弹幕
-                with open(
-                    os.path.join(save_path, "danmaku.xml"), "w", encoding="utf-8"
-                ) as f:
-                    f.write(danmaku_xml)
-
-                # 解析 danmaku.xml 为 JSON
                 try:
-                    danmaku_json = parse_danmaku_xml(danmaku_xml)
+                    bvid = video["bvid"]
+                    title = video["title"]
+                    log(f"  ⏬ 下载视频：{title} ({bvid})")
+
+                    video_info = api.get_video_info(bvid)
+                    cid = video_info["cid"]
+                    danmaku_xml = api.get_danmaku_xml(cid)
+                    if is_login:
+                        summary = api.get_ai_summary(bvid, cid, mid)
+
+                    save_path = os.path.join(DOWNLOAD_DIR, str(mid), bvid)
+                    os.makedirs(save_path, exist_ok=True)
+
+                    # 保存视频信息
+                    with open(
+                        os.path.join(save_path, "video_info.json"),
+                        "w",
+                        encoding="utf-8",
+                    ) as f:
+                        json.dump(video_info, f, ensure_ascii=False, indent=2)
+
+                    # 保存弹幕
+                    with open(
+                        os.path.join(save_path, "danmaku.xml"), "w", encoding="utf-8"
+                    ) as f:
+                        f.write(danmaku_xml)
+
+                    # 解析 danmaku.xml 为 JSON
+                    try:
+                        danmaku_json = parse_danmaku_xml(danmaku_xml)
+                    except Exception as e:
+                        log(f"[⚠️ 弹幕解析失败] bvid={bvid} 错误：{type(e).__name__}: {e}")
+                        danmaku_json = []
+
+                    # 构建统一结构
+                    combined_data = {
+                        "bvid": bvid,
+                        "cid": cid,
+                        "videoData": video_info,
+                        "danmakuData": danmaku_json,
+                        "fetchtime": int(time.time()),
+                    }
+
+                    # 保存为 danmaku.json（或 full_video.json）
+                    with open(
+                        os.path.join(save_path, f"{bvid}.json"), "w", encoding="utf-8"
+                    ) as f:
+                        json.dump(combined_data, f, ensure_ascii=False, indent=2)
+
+                    # 保存摘要和下载时间
+                    with open(
+                        os.path.join(save_path, "summary.txt"), "w", encoding="utf-8"
+                    ) as f:
+                        f.write(
+                            f"{title}\n下载时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+                        )
+                        if is_login:
+                            f.write(f"AI摘要：{summary}\n")
+
+                    safe_sleep(reason=f"处理完一个视频（bvid={bvid}）后冷却")
                 except Exception as e:
-                    log(f"[⚠️ 弹幕解析失败] bvid={bvid} 错误：{e}")
-                    danmaku_json = []
-
-                # 构建统一结构
-                combined_data = {
-                    "bvid": bvid,
-                    "cid": cid,
-                    "videoData": video_info,
-                    "danmakuData": danmaku_json,
-                    "fetchtime": int(time.time()),
-                }
-
-                # 保存为 danmaku.json（或 full_video.json）
-                with open(
-                    os.path.join(save_path, f"{bvid}.json"), "w", encoding="utf-8"
-                ) as f:
-                    json.dump(combined_data, f, ensure_ascii=False, indent=2)
-
-                # 保存摘要和下载时间
-                with open(
-                    os.path.join(save_path, "summary.txt"), "w", encoding="utf-8"
-                ) as f:
-                    f.write(
-                        f"下载时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+                    log(
+                        f"[❌ 错误] 处理 mid = {mid}, bvid = {bvid} 时出错：{type(e).__name__}: {e}"
                     )
-                    f.write(f"AI摘要：{summary}\n")
-
-                safe_sleep(reason=f"处理完一个视频（bvid={bvid}）后冷却")
 
             safe_sleep(reason=f"处理完一个UP主（mid={mid}）后冷却")
 
         except Exception as e:
-            log(f"[❌ 错误] 处理 mid={mid} 时出错：{e}")
+            log(f"[❌ 错误] 处理 mid = {mid} 时出错：{type(e).__name__}: {e}")
     print(f"😊 完成一轮下载 [{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]")
 
+
+UP_MIDS = load_up_mids()
+args = parse_args()
+VIDEO_LOOKBACK_DAYS = args.days
+DOWNLOAD_DIR = args.downloads
+
+# client = BilibiliClient()
+api = BilibiliAPI(BilibiliClient("bilibili_crawler/cookie.txt"))
 
 if __name__ == "__main__":
     # 定时任务：每小时执行一次
     schedule.every(1).hours.do(download_videos)
 
     log("[启动] 正在立即执行首次任务...")
-    if not api.check_login():
-        log("❌ Cookie 登录失败，退出")
-        exit()
 
     download_videos()
 

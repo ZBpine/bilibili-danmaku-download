@@ -8,7 +8,7 @@ from hashlib import md5
 
 
 class BilibiliClient:
-    def __init__(self, cookie_file="cookie.txt"):
+    def __init__(self, cookie_file="cookie.txt", cookie_string=None):
         self.session = requests.Session()
         self.session.headers.update(
             {
@@ -16,7 +16,10 @@ class BilibiliClient:
                 "Referer": "https://www.bilibili.com/",
             }
         )
-        self._load_cookie(cookie_file)
+        if cookie_string:
+            self.session.headers["Cookie"] = cookie_string
+        else:
+            self._load_cookie(cookie_file)
         self.img_key, self.sub_key = self._get_wbi_keys()
 
     def _load_cookie(self, path):
@@ -26,7 +29,7 @@ class BilibiliClient:
                 if cookie:
                     self.session.headers["Cookie"] = cookie
         except FileNotFoundError:
-            print("⚠️ 警告：未找到 cookie.txt，部分接口可能请求失败")
+            print(f"⚠️ 警告：未找到 {path}，部分接口可能请求失败")
 
     def _get_wbi_keys(self) -> tuple[str, str]:
         url = "https://api.bilibili.com/x/web-interface/nav"
@@ -128,7 +131,13 @@ class BilibiliClient:
             print(f"  ↳ URL: {res.url}")
             res.raise_for_status()
             try:
-                return res.json()
+                data = res.json()
+                # 输出 B 站 API 的 code/message 字段（如果有）
+                code = data.get("code")
+                message = data.get("message")
+                if code is not None and message is not None:
+                    print(f'  ↳ B站返回: code={code}, message="{message}"')
+                return data
             except Exception:
                 print("❌ JSON解析失败，返回前200字符：")
                 print(res.text[:200])

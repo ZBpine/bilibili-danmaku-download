@@ -8,14 +8,20 @@ class BilibiliAPI:
     def __init__(self, client: BilibiliClient):
         self.client = client
 
+    def get_login_info(self) -> dict:
+        """
+        获取当前登录用户的基本信息
+        """
+        res = self.client.get(
+            "https://api.bilibili.com/x/web-interface/nav", desc="获取登录信息"
+        )
+        return res.get("data", {})
+
     def check_login(self) -> bool:
         """
         判断当前 cookie 是否有效
         """
-        res = self.client.get(
-            "https://api.bilibili.com/x/web-interface/nav", desc="验证登录状态"
-        )
-        return res.get("data", {}).get("isLogin", False)
+        return self.get_login_info.get("isLogin", False)
 
     def get_uploader_info(self, mid: int) -> dict:
         """
@@ -53,6 +59,43 @@ class BilibiliAPI:
 
             if not vlist:
                 break
+            page += 1
+
+        return videos
+
+    def get_videos_public(self, mid: int, days: int = 10, keyword: str = "") -> list:
+        """
+        使用无需鉴权的新接口，根据 UP 主 mid 获取指定关键词的视频（默认所有），并过滤最近 days 天内发布的
+        https://api.bilibili.com/x/series/recArchivesByKeywords
+        """
+        url = "https://api.bilibili.com/x/series/recArchivesByKeywords"
+        cutoff_time = datetime.now() - timedelta(days=days)
+        videos = []
+        page = 1
+
+        while True:
+            params = {
+                "mid": str(mid),
+                "keywords": keyword,
+                "ps": "20",
+                "pn": str(page),
+                "orderby": "pubdate",
+            }
+
+            res = self.client.get(url, params=params, desc=f"获取视频 page={page}")
+            if res.get("code") != 0 or "archives" not in res.get("data", {}):
+                break
+
+            archive_list = res["data"]["archives"]
+            if not archive_list:
+                break
+
+            for video in archive_list:
+                pub_time = datetime.fromtimestamp(video.get("pubdate", 0))
+                if pub_time < cutoff_time:
+                    return videos
+                videos.append(video)
+
             page += 1
 
         return videos
@@ -98,7 +141,7 @@ class BilibiliAPI:
         self, keyword: str, content_type: str = "video", limit: int = 20
     ) -> list:
         """
-        通用搜索接口，返回原始结构
+        通用搜索接口
         - content_type 可选: video, media_bangumi
         """
         url = "https://api.bilibili.com/x/web-interface/search/type"
