@@ -92,7 +92,9 @@ export class BiliDanmakuPlayer {
                 return i;
             }
         }
-        return Math.floor(Math.random() * tracks.length);
+        const index = Math.floor(Math.random() * tracks.length);    //未找到则随机一条
+        tracks[index] = dmid;
+        return index;
     }
     showDanmaku(dm) {
         if (!this.danmakuEnabled) return;
@@ -119,7 +121,7 @@ export class BiliDanmakuPlayer {
             setTimeout(() => {
                 if (this.topTracks[track] === dm.dmid) this.topTracks[track] = null;
                 el.remove();
-            }, 6000);
+            }, 4000);
         } else if (dm.mode === 4) {
             // 底部弹幕
             const track = this.getFreeTrack(this.bottomTracks, dm.dmid);
@@ -130,7 +132,7 @@ export class BiliDanmakuPlayer {
             setTimeout(() => {
                 if (this.bottomTracks[track] === dm.dmid) this.bottomTracks[track] = null;
                 el.remove();
-            }, 6000);
+            }, 4000);
         } else {
             // 滚动弹幕
             const track = this.getFreeTrack(this.scrollTracks, dm.dmid);
@@ -145,9 +147,11 @@ export class BiliDanmakuPlayer {
                 el.style.transform = `translateX(-${window.innerWidth + totalWidth}px)`;
             });
 
-            // 释放轨道
+            // 提前释放轨道
             setTimeout(() => {
                 if (this.scrollTracks[track] === dm.dmid) this.scrollTracks[track] = null;
+            }, 2000);
+            setTimeout(() => {
                 el.remove();
             }, 6500);
         }
