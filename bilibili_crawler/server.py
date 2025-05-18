@@ -65,6 +65,7 @@ def search():
                                 ),
                                 "play": info.get("stat", {}).get("view", 0),
                                 "video_review": info.get("stat", {}).get("danmaku", 0),
+                                "duration": info.get("duration", 0),
                                 "source": "local",
                             }
                         )
@@ -77,8 +78,25 @@ def search():
 @app.route("/video")
 def get_video():
     bvid = request.args.get("bvid", "")
+    source = request.args.get("source", "bilibili")
     if not bvid:
         return jsonify({"error": "Missing bvid"}), 400
+
+    if source == "local":
+        try:
+            base_dir = "downloads"
+            for mid in os.listdir(base_dir):
+                mid_dir = os.path.join(base_dir, mid)
+                bvid_dir = os.path.join(mid_dir, bvid)
+                json_path = os.path.join(bvid_dir, f"{bvid}.json")
+                if os.path.exists(json_path):
+                    with open(json_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                        data["source"] = "local"
+                        return jsonify(data)
+            return jsonify({"error": f"未找到本地弹幕：{bvid}"}), 404
+        except Exception as e:
+            return jsonify({"error": f"读取本地弹幕失败：{e}"}), 500
 
     try:
         video_info = api.get_video_info(bvid)
