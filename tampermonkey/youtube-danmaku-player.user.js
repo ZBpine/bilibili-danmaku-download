@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube B站弹幕播放器
 // @namespace    https://github.com/ZBpine/bilibili-danmaku-download/
-// @version      1.2.2
+// @version      1.2.3
 // @description  加载本地 B站弹幕 JSON文件，在 YouTube 视频上显示
 // @author       ZBpine
 // @match        https://www.youtube.com/watch*
@@ -178,7 +178,8 @@
                 const selected = await this.showSearchSelector(keyword);
                 if (!selected) return;
 
-                const data = await fetch(`${server}/video?bvid=${selected.bvid}`).then(r => r.json());
+                const source = selected.source || 'bilibili';
+                const data = await fetch(`${server}/video?bvid=${selected.bvid}&source=${source}`).then(r => r.json());
                 this.dmPlayer.init();
                 this.dmPlayer.load(data.danmakuData);
 
@@ -186,7 +187,7 @@
                 this.setSave(data);
             } catch (err) {
                 showTip(`❌ 请求失败：${err.message}`);
-                dmPlayer.logTagError('❌ 请求失败：', e, data);
+                dmPlayer.logTagError('❌ 请求失败：', err);
             }
         }
         async showSearchSelector(initialKeyword) {
@@ -236,10 +237,32 @@
                 if (n >= 1e4) return (n / 1e4).toFixed(1) + '万';
                 return n.toString();
             };
-            const normalizeTimeStr = (timeStr) => {
-                const [min, sec] = timeStr.split(':').map(Number);
-                if (isNaN(min) || isNaN(sec)) return timeStr; // 原样返回不合法值
-                return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+            const normalizeTimeStr = (duration) => {
+                if (typeof duration === 'number' && !isNaN(duration)) {
+                    // duration 是秒数，直接格式化为 h:mm:ss
+                    const totalSeconds = duration;
+                    const hours = Math.floor(totalSeconds / 3600);
+                    const minutes = Math.floor((totalSeconds % 3600) / 60);
+                    const seconds = totalSeconds % 60;
+                    if (hours > 0) {
+                        return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    }
+                    else {
+                        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    }
+                }
+                if (typeof duration === 'string' && /^\d+:\d{1,2}$/.test(duration)) {
+                    const [min, sec] = duration.split(':').map(Number);
+                    if (isNaN(min) || isNaN(sec)) return duration; // 原样返回不合法值
+                    if (min > 99) {
+                        const hours = Math.floor(min / 60);
+                        const minutes = min % 60;
+                        return `${hours}:${String(minutes).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+                    } else {
+                        return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+                    }
+                }
+                return duration; // 不合法或未知格式，原样返回
             };
 
             const renderResults = async (keyword) => {
