@@ -27,10 +27,10 @@
 
 * 主要接口
 
-| 路径                    | 描述               |
-| --------------------- | ---------------- |
-| `/search?keyword=xxx` | 模糊搜索视频（包括本地与 B站） |
-| `/video?bvid=xxx`     | 获取视频信息 + 弹幕      |
+| 路径                         | 描述                                             |
+| ---------------------------- | ------------------------------------------------ |
+| `/search?keyword=xxx`        | 模糊搜索视频（包括本地与 B站）                   |
+| `/video?bvid=xxx&source=xxx` | 获取视频信息 + 弹幕 (source=local则获取本地数据) |
 
 📄 详细说明：[📡 弹幕接口服务 README](./bilibili_crawler/README.md#-bilibili-弹幕接口服务serverpy)
 
