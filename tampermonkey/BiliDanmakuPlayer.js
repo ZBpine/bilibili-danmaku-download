@@ -219,7 +219,6 @@ export class BiliDanmakuPlayer {
     }
     setDisplayArea(value) {
         this.displayArea = value;
-        this.logTag(value);
         this.updateTracks();
     }
 }
