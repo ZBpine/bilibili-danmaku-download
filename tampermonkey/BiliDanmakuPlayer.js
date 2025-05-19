@@ -7,7 +7,8 @@ export class BiliDanmakuPlayer {
         this.topTracks = [];
         this.bottomTracks = [];
         this.LINE_HEIGHT = 30;
-        this.lastVideoElement = null;
+        this.displayArea = 1;
+        this.videoEl = null;
         this.container = document.createElement('div');
         this.container.id = 'danmaku-player-container';
         Object.assign(this.container.style, {
@@ -91,9 +92,10 @@ export class BiliDanmakuPlayer {
         const rect = player?.getBoundingClientRect();
         if (!rect) return;
 
-        const height = rect.height;
+        const height = rect.height * this.displayArea;
         const maxTracks = Math.floor(height / this.LINE_HEIGHT);
-        const trackCount = Math.max(3, Math.min(maxTracks, 30)); // 最少 3 条，最多 30 条
+        // const trackCount = Math.max(3, Math.min(maxTracks, 30)); // 最少 3 条，最多 30 条
+        const trackCount = Math.max(3, maxTracks); // 最少 3 条
 
         this.scrollTracks = new Array(trackCount).fill(null);
         this.topTracks = new Array(Math.floor(trackCount / 3)).fill(null);
@@ -158,8 +160,9 @@ export class BiliDanmakuPlayer {
 
             // 启动滚动动画
             requestAnimationFrame(() => {
+                const containerWidth = this.container.getBoundingClientRect().width;
                 const totalWidth = el.getBoundingClientRect().width;
-                el.style.transform = `translateX(-${window.innerWidth + totalWidth}px)`;
+                el.style.transform = `translateX(-${containerWidth + totalWidth}px)`;
             });
 
             // 提前释放轨道
@@ -173,7 +176,7 @@ export class BiliDanmakuPlayer {
     }
     bindVideo(video) {
         if (!video) return;
-        this.lastVideoElement = video;
+        this.videoEl = video;
 
         video.addEventListener('seeked', () => {
             this.danmakuList.forEach(dm => dm._shown = false);
@@ -190,7 +193,7 @@ export class BiliDanmakuPlayer {
         this._observerTimer = setInterval(() => {
             if (!this.isLoaded || !this.danmakuEnabled) return;
             const video = document.querySelector('video');
-            if (video !== this.lastVideoElement) this.bindVideo(video);
+            if (video !== this.videoEl) this.bindVideo(video);
             if (!video || video.paused) return;
 
             const now = video.currentTime * 1000;
@@ -210,5 +213,13 @@ export class BiliDanmakuPlayer {
 
         Array.from(this.container.children).forEach(el => el.remove());
         this.logTag('🔻 弹幕已清空');
+    }
+    setOpacity(value) {
+        this.container.style.opacity = value;
+    }
+    setDisplayArea(value) {
+        this.displayArea = value;
+        this.logTag(value);
+        this.updateTracks();
     }
 }
