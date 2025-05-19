@@ -7,6 +7,7 @@ import schedule
 from datetime import datetime
 from bilibili_client import BilibiliClient
 from bilibili_api import BilibiliAPI
+from structure_tracker import StructureTracker
 from danmaku_util import parse_danmaku_xml
 
 log_dir = "bilibili_crawler/logs"
@@ -33,6 +34,9 @@ def parse_args():
         default="downloads",
         help="保存目录（默认 ./downloads）",
     )
+    parser.add_argument(
+        "--save-xml", action="store_true", help="是否保存原始弹幕 XML 文件"
+    )
     return parser.parse_args()
 
 
@@ -58,6 +62,7 @@ def safe_sleep(min_sec=10.0, max_sec=30.0, reason="等待中..."):
 
 # 主任务
 def download_videos():
+    tracker = StructureTracker(DOWNLOAD_DIR)
     login_info = api.get_login_info()
     is_login = login_info.get("isLogin", False)
     if is_login:
@@ -107,19 +112,24 @@ def download_videos():
                         "w",
                         encoding="utf-8",
                     ) as f:
-                        json.dump(video_info, f, ensure_ascii=False, indent=2)
+                        json.dump(video_info, f, ensure_ascii=False)
 
                     # 保存弹幕
-                    with open(
-                        os.path.join(save_path, "danmaku.xml"), "w", encoding="utf-8"
-                    ) as f:
-                        f.write(danmaku_xml)
+                    if args.save_xml:
+                        with open(
+                            os.path.join(save_path, "danmaku.xml"),
+                            "w",
+                            encoding="utf-8",
+                        ) as f:
+                            f.write(danmaku_xml)
 
                     # 解析 danmaku.xml 为 JSON
                     try:
                         danmaku_json = parse_danmaku_xml(danmaku_xml)
                     except Exception as e:
-                        log(f"[⚠️ 弹幕解析失败] bvid={bvid} 错误：{type(e).__name__}: {e}")
+                        log(
+                            f"[⚠️ 弹幕解析失败] bvid={bvid} 错误：{type(e).__name__}: {e}"
+                        )
                         danmaku_json = []
 
                     # 构建统一结构
@@ -131,32 +141,41 @@ def download_videos():
                         "fetchtime": int(time.time()),
                     }
 
-                    # 保存为 danmaku.json（或 full_video.json）
+                    # 保存为 BVxxxxx.json（或 full_video.json）
                     with open(
                         os.path.join(save_path, f"{bvid}.json"), "w", encoding="utf-8"
                     ) as f:
-                        json.dump(combined_data, f, ensure_ascii=False, indent=2)
+                        json.dump(combined_data, f, ensure_ascii=False)
 
+                    public_time = datetime.fromtimestamp(
+                        video_info.get("pubdate", 0)
+                    ).strftime("%Y-%m-%d %H:%M:%S")
+                    download_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     # 保存摘要和下载时间
                     with open(
                         os.path.join(save_path, "summary.txt"), "w", encoding="utf-8"
                     ) as f:
-                        f.write(
-                            f"{title}\n下载时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-                        )
+                        f.write(f"视频标题：{title}\n")
+                        f.write(f"发布时间：{public_time}\n")
+                        f.write(f"下载时间：{download_time}\n")
                         if is_login:
                             f.write(f"AI摘要：{summary}\n")
+
+                    tracker.update(
+                        mid, bvid, title, public_time, download_time, save_path
+                    )
 
                     safe_sleep(reason=f"处理完一个视频（bvid={bvid}）后冷却")
                 except Exception as e:
                     log(
                         f"[❌ 错误] 处理 mid = {mid}, bvid = {bvid} 时出错：{type(e).__name__}: {e}"
                     )
-
             safe_sleep(reason=f"处理完一个UP主（mid={mid}）后冷却")
 
         except Exception as e:
             log(f"[❌ 错误] 处理 mid = {mid} 时出错：{type(e).__name__}: {e}")
+
+    tracker.save()
     print(f"😊 完成一轮下载 [{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]")
 
 
