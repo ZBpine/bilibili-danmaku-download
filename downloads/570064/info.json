@@ -10,7 +10,7 @@
   "level": 6,
   "jointime": 0,
   "moral": 0,
-  "silence": 0,
+  "silence": 1,
   "coins": 0,
   "fans_badge": true,
   "fans_medal": {
@@ -68,8 +68,8 @@
   "nameplate": {
     "nid": 1,
     "name": "黄金殿堂",
-    "image": "https://i1.hdslb.com/bfs/face/82896ff40fcb4e7c7259cb98056975830cb55695.png",
-    "image_small": "https://i0.hdslb.com/bfs/face/627e342851dfda6fe7380c2fa0cbd7fae2e61533.png",
+    "image": "https://i0.hdslb.com/bfs/face/82896ff40fcb4e7c7259cb98056975830cb55695.png",
+    "image_small": "https://i1.hdslb.com/bfs/face/627e342851dfda6fe7380c2fa0cbd7fae2e61533.png",
     "level": "稀有勋章",
     "condition": "单个自制视频总播放数>=100万"
   },
@@ -80,7 +80,7 @@
     "is_latest_100honour": 0
   },
   "is_followed": false,
-  "top_photo": "http://i0.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png",
+  "top_photo": "http://i1.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png",
   "sys_notice": {},
   "live_room": {
     "roomStatus": 1,
@@ -137,7 +137,7 @@
   "top_photo_v2": {
     "sid": 1,
     "l_img": "https://i2.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png",
-    "l_200h_img": "https://i2.hdslb.com/bfs/activity-plat/static/0977767b2e79d8ad0a36a731068a83d7/1sz3p8w2Sk.png"
+    "l_200h_img": "https://i1.hdslb.com/bfs/activity-plat/static/0977767b2e79d8ad0a36a731068a83d7/1sz3p8w2Sk.png"
   },
   "theme": null,
   "attestation": {

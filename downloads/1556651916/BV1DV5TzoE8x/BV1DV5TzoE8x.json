@@ -52,15 +52,15 @@
     },
     "stat": {
       "aid": 114471917850124,
-      "view": 228343,
-      "danmaku": 279,
-      "reply": 491,
-      "favorite": 1334,
-      "coin": 1580,
-      "share": 230,
+      "view": 233235,
+      "danmaku": 281,
+      "reply": 496,
+      "favorite": 1309,
+      "coin": 1596,
+      "share": 233,
       "now_rank": 0,
       "his_rank": 0,
-      "like": 9329,
+      "like": 9454,
       "dislike": 0,
       "evaluation": "",
       "vt": 0
@@ -135,18 +135,6 @@
       "content": "大概率依然在金融体系里空转。"
     },
     {
-      "progress": 160117,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746712427,
-      "pool": 0,
-      "midHash": "b711d76f",
-      "dmid": "1842316384735356928",
-      "weight": 10,
-      "content": "85年到95年生的人，应该是银行优质资产。"
-    },
-    {
       "progress": 21291,
       "mode": 1,
       "fontsize": 25,
@@ -157,6 +145,18 @@
       "dmid": "1842312965891118336",
       "weight": 10,
       "content": "现在的年轻人普遍对国家未来十分自信，却对个人命运充满担忧。"
+    },
+    {
+      "progress": 160117,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746712427,
+      "pool": 0,
+      "midHash": "b711d76f",
+      "dmid": "1842316384735356928",
+      "weight": 10,
+      "content": "85年到95年生的人，应该是银行优质资产。"
     },
     {
       "progress": 270257,
@@ -231,6 +231,18 @@
       "content": "海外经济也不好，要回来要理解"
     },
     {
+      "progress": 568782,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746713066,
+      "pool": 0,
+      "midHash": "b711d76f",
+      "dmid": "1842321749216795648",
+      "weight": 10,
+      "content": "俄罗斯是不是也在搞反倾销"
+    },
+    {
       "progress": 579325,
       "mode": 1,
       "fontsize": 25,
@@ -265,18 +277,6 @@
       "dmid": "1842324351907753728",
       "weight": 10,
       "content": "毕竟二代们都是留学生"
-    },
-    {
-      "progress": 568782,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746713066,
-      "pool": 0,
-      "midHash": "b711d76f",
-      "dmid": "1842321749216795648",
-      "weight": 10,
-      "content": "俄罗斯是不是也在搞反倾销"
     },
     {
       "progress": 1068159,
@@ -467,7 +467,7 @@
       "pool": 0,
       "midHash": "3bbf21f7",
       "dmid": "1842270927279687936",
-      "weight": 9,
+      "weight": 10,
       "content": "哈哈哈哈哈哈哈"
     },
     {
@@ -699,6 +699,18 @@
       "content": "苏联留学生"
     },
     {
+      "progress": 1038539,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746839256,
+      "pool": 0,
+      "midHash": "b3b98780",
+      "dmid": "1843380302308334080",
+      "weight": 9,
+      "content": "世界还是和平的"
+    },
+    {
       "progress": 1035089,
       "mode": 1,
       "fontsize": 25,
@@ -927,6 +939,30 @@
       "content": "哈哈哈哈哈哈哈"
     },
     {
+      "progress": 963257,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747406696,
+      "pool": 0,
+      "midHash": "6e01f2",
+      "dmid": "1848140334862073088",
+      "weight": 8,
+      "content": "？？？"
+    },
+    {
+      "progress": 483196,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747358187,
+      "pool": 0,
+      "midHash": "d1a3031",
+      "dmid": "1847733411071628288",
+      "weight": 8,
+      "content": "哈哈哈哈哈哈哈哈好"
+    },
+    {
       "progress": 176570,
       "mode": 1,
       "fontsize": 25,
@@ -1115,7 +1151,7 @@
       "pool": 0,
       "midHash": "4b331ca1",
       "dmid": "1845649109034217728",
-      "weight": 8,
+      "weight": 7,
       "content": "铁路运输成本高但是比海运快很多"
     },
     {
@@ -1127,7 +1163,7 @@
       "pool": 0,
       "midHash": "2aa15e45",
       "dmid": "1845237513989026304",
-      "weight": 8,
+      "weight": 7,
       "content": "哈哈哈哈哈哈哈哈哈哈哈"
     },
     {
@@ -1451,7 +1487,7 @@
       "pool": 0,
       "midHash": "3b201a07",
       "dmid": "1844064657128927488",
-      "weight": 7,
+      "weight": 6,
       "content": "哈哈哈哈哈哈"
     },
     {
@@ -1463,7 +1499,7 @@
       "pool": 0,
       "midHash": "a099304e",
       "dmid": "1844063308743841792",
-      "weight": 7,
+      "weight": 6,
       "content": "哈哈哈哈哈哈哈哈哈哈哈哈好哈哈哈哈哈哈哈哈哈哈哈哈好哈哈哈哈哈哈哈哈哈哈哈哈好"
     },
     {
@@ -1707,18 +1743,6 @@
       "content": "???"
     },
     {
-      "progress": 1038539,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746839256,
-      "pool": 0,
-      "midHash": "b3b98780",
-      "dmid": "1843380302308334080",
-      "weight": 6,
-      "content": "世界还是和平的"
-    },
-    {
       "progress": 11400,
       "mode": 1,
       "fontsize": 25,
@@ -1799,7 +1823,7 @@
       "pool": 0,
       "midHash": "bc78cbcd",
       "dmid": "1843086409062865920",
-      "weight": 6,
+      "weight": 5,
       "content": "哈哈哈哈"
     },
     {
@@ -2135,7 +2159,7 @@
       "pool": 0,
       "midHash": "8ca90916",
       "dmid": "1842774981370071296",
-      "weight": 5,
+      "weight": 4,
       "content": "欧洲就是乡下人 没见识"
     },
     {
@@ -2471,7 +2495,7 @@
       "pool": 0,
       "midHash": "48b24fef",
       "dmid": "1842635158306512384",
-      "weight": 4,
+      "weight": 3,
       "content": "同诗常来我要看美女姐姐"
     },
     {
@@ -2807,7 +2831,7 @@
       "pool": 0,
       "midHash": "21494e73",
       "dmid": "1842564036786046464",
-      "weight": 3,
+      "weight": 2,
       "content": "哈哈哈哈哈哈哈"
     },
     {
@@ -3143,7 +3167,7 @@
       "pool": 0,
       "midHash": "80f50c3d",
       "dmid": "1842301146258009344",
-      "weight": 2,
+      "weight": 1,
       "content": "哈哈哈哈哈哈"
     },
     {
@@ -3470,5 +3494,6 @@
       "weight": 1,
       "content": "哈哈哈哈哈哈"
     }
-  ]
+  ],
+  "fetchtime": 1747568177
 }

@@ -52,15 +52,15 @@
     },
     "stat": {
       "aid": 114461197209796,
-      "view": 561406,
-      "danmaku": 1934,
-      "reply": 2402,
-      "favorite": 4674,
-      "coin": 8752,
-      "share": 3963,
+      "view": 565164,
+      "danmaku": 1956,
+      "reply": 2415,
+      "favorite": 4699,
+      "coin": 8797,
+      "share": 4005,
       "now_rank": 0,
       "his_rank": 0,
-      "like": 21670,
+      "like": 21783,
       "dislike": 0,
       "evaluation": "",
       "vt": 0
@@ -291,18 +291,6 @@
       "content": "你说这是为什么呢？"
     },
     {
-      "progress": 1096375,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746544141,
-      "pool": 0,
-      "midHash": "16c5435c",
-      "dmid": "1840904697679549952",
-      "weight": 10,
-      "content": "放你跟防贼一样，还想要名额"
-    },
-    {
       "progress": 954227,
       "mode": 1,
       "fontsize": 25,
@@ -313,6 +301,18 @@
       "dmid": "1840889533080694272",
       "weight": 10,
       "content": "科举应该和考公类比"
+    },
+    {
+      "progress": 1096375,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746544141,
+      "pool": 0,
+      "midHash": "16c5435c",
+      "dmid": "1840904697679549952",
+      "weight": 10,
+      "content": "放你跟防贼一样，还想要名额"
     },
     {
       "progress": 1030854,
@@ -687,6 +687,18 @@
       "content": "这是好事啊"
     },
     {
+      "progress": 755377,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746543484,
+      "pool": 0,
+      "midHash": "81dbe4e8",
+      "dmid": "1840899190944410880",
+      "weight": 10,
+      "content": "为什么武汉会单列出来而不是放在湖北"
+    },
+    {
       "progress": 89318,
       "mode": 1,
       "fontsize": 25,
@@ -769,18 +781,6 @@
       "dmid": "1840904051069035520",
       "weight": 10,
       "content": "其实长期以来武汉一直是珠三角人才基地。。。"
-    },
-    {
-      "progress": 755377,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746543484,
-      "pool": 0,
-      "midHash": "81dbe4e8",
-      "dmid": "1840899190944410880",
-      "weight": 10,
-      "content": "为什么武汉会单列出来而不是放在湖北"
     },
     {
       "progress": 755462,
@@ -987,6 +987,18 @@
       "content": "上缴财政的养老金总额广东也是全国第一"
     },
     {
+      "progress": 84924,
+      "mode": 5,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746545872,
+      "pool": 0,
+      "midHash": "4dc66743",
+      "dmid": "1840919221606190592",
+      "weight": 10,
+      "content": "广财路过被踢了一脚"
+    },
+    {
       "progress": 315041,
       "mode": 1,
       "fontsize": 25,
@@ -1047,18 +1059,6 @@
       "content": "最后一栏太强了"
     },
     {
-      "progress": 84924,
-      "mode": 5,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746545872,
-      "pool": 0,
-      "midHash": "4dc66743",
-      "dmid": "1840919221606190592",
-      "weight": 10,
-      "content": "广财路过被踢了一脚"
-    },
-    {
       "progress": 477633,
       "mode": 1,
       "fontsize": 25,
@@ -1069,6 +1069,18 @@
       "dmid": "1840883510656215552",
       "weight": 10,
       "content": "这你就搞错了，靠海不是发展水上项目优势，靠海的地方多了并没有体现出什么优势，广东真正的优势是热，可以用较低成本发展水上项目"
+    },
+    {
+      "progress": 1040147,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746681553,
+      "pool": 0,
+      "midHash": "e725beb",
+      "dmid": "1842057394239071744",
+      "weight": 10,
+      "content": "广东近代名人也不少，从政意愿也不差。至少不应该远低于全国水平"
     },
     {
       "progress": 804595,
@@ -1129,18 +1141,6 @@
       "dmid": "1840885820089757696",
       "weight": 10,
       "content": "武汉为啥单列？"
-    },
-    {
-      "progress": 1040147,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746681553,
-      "pool": 0,
-      "midHash": "e725beb",
-      "dmid": "1842057394239071744",
-      "weight": 10,
-      "content": "广东近代名人也不少，从政意愿也不差。至少不应该远低于全国水平"
     },
     {
       "progress": 957375,
@@ -1213,6 +1213,18 @@
       "dmid": "1840923929469278464",
       "weight": 10,
       "content": "是真的广东并不会强迫不会读书的子女读书，不会读书的会让他们找手艺或者出去做生意"
+    },
+    {
+      "progress": 1064794,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746591740,
+      "pool": 0,
+      "midHash": "deba3e31",
+      "dmid": "1841303986863808000",
+      "weight": 10,
+      "content": "可能广东会加州化倾向"
     },
     {
       "progress": 737030,
@@ -1323,18 +1335,6 @@
       "content": "考研才是最像科举的hh"
     },
     {
-      "progress": 1064794,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746591740,
-      "pool": 0,
-      "midHash": "deba3e31",
-      "dmid": "1841303986863808000",
-      "weight": 10,
-      "content": "可能广东会加州化倾向"
-    },
-    {
       "progress": 1047237,
       "mode": 1,
       "fontsize": 25,
@@ -1393,6 +1393,18 @@
       "dmid": "1840947455546590976",
       "weight": 10,
       "content": "揭阳这边结婚生育是真的挺高的，至少没有宣传的全国低生育率那么严重"
+    },
+    {
+      "progress": 255526,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746545115,
+      "pool": 0,
+      "midHash": "89b81609",
+      "dmid": "1840912873224901632",
+      "weight": 10,
+      "content": "信宜中学，我的母校，基本每年都有一个清华或北大"
     },
     {
       "progress": 332797,
@@ -1527,18 +1539,6 @@
       "content": "但广东是考公大省"
     },
     {
-      "progress": 255526,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746545115,
-      "pool": 0,
-      "midHash": "89b81609",
-      "dmid": "1840912873224901632",
-      "weight": 10,
-      "content": "信宜中学，我的母校，基本每年都有一个清华或北大"
-    },
-    {
       "progress": 796572,
       "mode": 1,
       "fontsize": 25,
@@ -1549,6 +1549,18 @@
       "dmid": "1840888983786380800",
       "weight": 10,
       "content": "这结论是怎么得出来的"
+    },
+    {
+      "progress": 1116489,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746541390,
+      "pool": 0,
+      "midHash": "e79bc3cd",
+      "dmid": "1840881621457816576",
+      "weight": 10,
+      "content": "不敢说了"
     },
     {
       "progress": 668324,
@@ -1587,6 +1599,18 @@
       "content": "提到广东就说经商，你们真的无知"
     },
     {
+      "progress": 1045675,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746583768,
+      "pool": 0,
+      "midHash": "58ec5983",
+      "dmid": "1841237113291575552",
+      "weight": 10,
+      "content": "我很好奇 能不能统计一下山东"
+    },
+    {
       "progress": 913878,
       "mode": 1,
       "fontsize": 25,
@@ -1621,6 +1645,18 @@
       "dmid": "1840988838001639936",
       "weight": 10,
       "content": "不能这么看吧，深圳成立才多少年？"
+    },
+    {
+      "progress": 1094752,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746545766,
+      "pool": 0,
+      "midHash": "89e26a11",
+      "dmid": "1840918331096733184",
+      "weight": 10,
+      "content": "哈哈，教育平权走起"
     },
     {
       "progress": 234166,
@@ -1683,18 +1719,6 @@
       "content": "这不是清迈的吗，哈哈哈，去吃过"
     },
     {
-      "progress": 1116489,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746541390,
-      "pool": 0,
-      "midHash": "e79bc3cd",
-      "dmid": "1840881621457816576",
-      "weight": 10,
-      "content": "不敢说了"
-    },
-    {
       "progress": 83678,
       "mode": 1,
       "fontsize": 25,
@@ -1753,18 +1777,6 @@
       "dmid": "1841249308314250752",
       "weight": 10,
       "content": "看到标题就笑了"
-    },
-    {
-      "progress": 1045675,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746583768,
-      "pool": 0,
-      "midHash": "58ec5983",
-      "dmid": "1841237113291575552",
-      "weight": 10,
-      "content": "我很好奇 能不能统计一下山东"
     },
     {
       "progress": 285183,
@@ -1993,18 +2005,6 @@
       "dmid": "1840922779223062528",
       "weight": 10,
       "content": "宗族观念强烈，广东经商的人会更多吧"
-    },
-    {
-      "progress": 1094752,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746545766,
-      "pool": 0,
-      "midHash": "89e26a11",
-      "dmid": "1840918331096733184",
-      "weight": 10,
-      "content": "哈哈，教育平权走起"
     },
     {
       "progress": 321057,
@@ -2459,7 +2459,7 @@
       "pool": 0,
       "midHash": "c368cbc2",
       "dmid": "1841153727231783424",
-      "weight": 9,
+      "weight": 10,
       "content": "经济好，考公自然少"
     },
     {
@@ -2471,7 +2471,7 @@
       "pool": 0,
       "midHash": "d9ff7bda",
       "dmid": "1841050480311281152",
-      "weight": 9,
+      "weight": 10,
       "content": "但是这里面还有一半人是没法上高中"
     },
     {
@@ -2497,6 +2497,18 @@
       "dmid": "1840909624283356672",
       "weight": 9,
       "content": "安徽：猜猜我在哪"
+    },
+    {
+      "progress": 1075658,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746543670,
+      "pool": 0,
+      "midHash": "694fcdeb",
+      "dmid": "1840900751015761664",
+      "weight": 9,
+      "content": "这个问题感觉需要站在全国的视角来看，纠结一个省怎么样好像也不太对"
     },
     {
       "progress": 275699,
@@ -2893,18 +2905,6 @@
       "dmid": "1840903449882648320",
       "weight": 9,
       "content": "哈哈哈哈哈哈哈哈"
-    },
-    {
-      "progress": 1075658,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746543670,
-      "pool": 0,
-      "midHash": "694fcdeb",
-      "dmid": "1840900751015761664",
-      "weight": 9,
-      "content": "这个问题感觉需要站在全国的视角来看，纠结一个省怎么样好像也不太对"
     },
     {
       "progress": 297483,
@@ -4263,6 +4263,18 @@
       "content": "潮汕地区人才就是多，不管是搞科研的还是搞商业的，有点良心的话国家请多给点资源"
     },
     {
+      "progress": 1080292,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746765607,
+      "pool": 0,
+      "midHash": "63931d4f",
+      "dmid": "1842762490505740800",
+      "weight": 9,
+      "content": "东南互保？"
+    },
+    {
       "progress": 375326,
       "mode": 1,
       "fontsize": 25,
@@ -4273,6 +4285,18 @@
       "dmid": "1842670052710123520",
       "weight": 9,
       "content": "对的，我在广东惠州属粤东，这边一半人是2个及3个小孩。"
+    },
+    {
+      "progress": 83391,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746720390,
+      "pool": 0,
+      "midHash": "407c8a77",
+      "dmid": "1842383188295855616",
+      "weight": 9,
+      "content": "怎么单拎广财出来"
     },
     {
       "progress": 352559,
@@ -4775,7 +4799,7 @@
       "pool": 0,
       "midHash": "3cb61e36",
       "dmid": "1841338670587135744",
-      "weight": 8,
+      "weight": 9,
       "content": "好了知道你是专升本了"
     },
     {
@@ -4787,7 +4811,7 @@
       "pool": 0,
       "midHash": "e5401978",
       "dmid": "1841332041707744512",
-      "weight": 8,
+      "weight": 9,
       "content": "唉，梅州现在没落了"
     },
     {
@@ -4799,7 +4823,7 @@
       "pool": 0,
       "midHash": "f4a89670",
       "dmid": "1841330052500383744",
-      "weight": 8,
+      "weight": 9,
       "content": "老马你是真的敢啊"
     },
     {
@@ -5931,6 +5955,18 @@
       "content": "我不爱生也不影响我当很多人的七姑八姨。"
     },
     {
+      "progress": 323269,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746898053,
+      "pool": 0,
+      "midHash": "96925c65",
+      "dmid": "1843873533106266112",
+      "weight": 8,
+      "content": "很尖锐啊！"
+    },
+    {
       "progress": 236260,
       "mode": 1,
       "fontsize": 25,
@@ -6037,6 +6073,18 @@
       "dmid": "1843452488821938944",
       "weight": 8,
       "content": "河南人这辈子也得定居广东"
+    },
+    {
+      "progress": 691265,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746841166,
+      "pool": 0,
+      "midHash": "3b3cb405",
+      "dmid": "1843396325254299136",
+      "weight": 8,
+      "content": "深圳理工之所以设立吗"
     },
     {
       "progress": 817925,
@@ -6195,18 +6243,6 @@
       "content": "潮汕 兄弟姐妹十几个都很多"
     },
     {
-      "progress": 1080292,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746765607,
-      "pool": 0,
-      "midHash": "63931d4f",
-      "dmid": "1842762490505740800",
-      "weight": 8,
-      "content": "东南互保？"
-    },
-    {
       "progress": 401903,
       "mode": 1,
       "fontsize": 25,
@@ -6241,18 +6277,6 @@
       "dmid": "1842439171928176640",
       "weight": 8,
       "content": "长期来说 潮汕一直是广州深圳的人才基地"
-    },
-    {
-      "progress": 83391,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746720390,
-      "pool": 0,
-      "midHash": "407c8a77",
-      "dmid": "1842383188295855616",
-      "weight": 8,
-      "content": "怎么单拎广财出来"
     },
     {
       "progress": 65964,
@@ -7103,7 +7127,7 @@
       "pool": 0,
       "midHash": "ee434de8",
       "dmid": "1841423072658972416",
-      "weight": 7,
+      "weight": 8,
       "content": "哪里没抱怨了"
     },
     {
@@ -7115,7 +7139,7 @@
       "pool": 0,
       "midHash": "2679ad8c",
       "dmid": "1841413100801753856",
-      "weight": 7,
+      "weight": 8,
       "content": "最后一个分类武汉是什么鬼？"
     },
     {
@@ -7127,7 +7151,7 @@
       "pool": 0,
       "midHash": "409caa3",
       "dmid": "1841402338226188544",
-      "weight": 7,
+      "weight": 8,
       "content": "《虽然》"
     },
     {
@@ -7139,7 +7163,7 @@
       "pool": 0,
       "midHash": "91d41091",
       "dmid": "1841401548648322048",
-      "weight": 7,
+      "weight": 8,
       "content": "东北城市里没有彩礼"
     },
     {
@@ -9111,6 +9135,270 @@
       "content": "来了来了"
     },
     {
+      "progress": 1053109,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747396294,
+      "pool": 0,
+      "midHash": "5ccca230",
+      "dmid": "1848053081964263680",
+      "weight": 7,
+      "content": "广东省考公不限籍贯"
+    },
+    {
+      "progress": 674924,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747395658,
+      "pool": 0,
+      "midHash": "5ccca230",
+      "dmid": "1848047744443968256",
+      "weight": 7,
+      "content": "赶紧把广州弄出来做直辖市吧 求你了"
+    },
+    {
+      "progress": 460032,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747395319,
+      "pool": 0,
+      "midHash": "5ccca230",
+      "dmid": "1848044895211286784",
+      "weight": 7,
+      "content": "潮汕嘛，那太正常了（doge）"
+    },
+    {
+      "progress": 65352,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747394735,
+      "pool": 0,
+      "midHash": "5ccca230",
+      "dmid": "1848040002471821056",
+      "weight": 7,
+      "content": "错误的，北师珠去年就已经全部毕业了，已经完全从世界上消失了"
+    },
+    {
+      "progress": 570091,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747390658,
+      "pool": 0,
+      "midHash": "2ff5a482",
+      "dmid": "1848005798837068544",
+      "weight": 7,
+      "content": "三四百是不是加项目了"
+    },
+    {
+      "progress": 491112,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747390508,
+      "pool": 0,
+      "midHash": "a6cbd947",
+      "dmid": "1848004545511812352",
+      "weight": 7,
+      "content": "这时候放我们金山中学干嘛哈哈"
+    },
+    {
+      "progress": 1112892,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747375070,
+      "pool": 0,
+      "midHash": "4d52f9d5",
+      "dmid": "1847875039748538112",
+      "weight": 7,
+      "content": "海南高考难度太低"
+    },
+    {
+      "progress": 1102641,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747375060,
+      "pool": 0,
+      "midHash": "4d52f9d5",
+      "dmid": "1847874954704822016",
+      "weight": 7,
+      "content": "从海南吧"
+    },
+    {
+      "progress": 1079318,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747375037,
+      "pool": 0,
+      "midHash": "4d52f9d5",
+      "dmid": "1847874757723182848",
+      "weight": 7,
+      "content": "大家都是广东人"
+    },
+    {
+      "progress": 918409,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747374875,
+      "pool": 0,
+      "midHash": "4d52f9d5",
+      "dmid": "1847873402124397568",
+      "weight": 7,
+      "content": "社会化抚养"
+    },
+    {
+      "progress": 797439,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747367818,
+      "pool": 0,
+      "midHash": "9790437a",
+      "dmid": "1847814206847180800",
+      "weight": 7,
+      "content": "能当院士的人，高考也脱颖而出"
+    },
+    {
+      "progress": 720428,
+      "mode": 5,
+      "fontsize": 25,
+      "color": 16646914,
+      "ctime": 1747364139,
+      "pool": 0,
+      "midHash": "ad046bb3",
+      "dmid": "1847783338455200512",
+      "weight": 7,
+      "content": "支撑！"
+    },
+    {
+      "progress": 1108136,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747361657,
+      "pool": 0,
+      "midHash": "9c16797b",
+      "dmid": "1847762524943239424",
+      "weight": 7,
+      "content": "不可能"
+    },
+    {
+      "progress": 933258,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747361459,
+      "pool": 0,
+      "midHash": "9c16797b",
+      "dmid": "1847760863520412416",
+      "weight": 7,
+      "content": "呵呵"
+    },
+    {
+      "progress": 474212,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747360747,
+      "pool": 0,
+      "midHash": "9c16797b",
+      "dmid": "1847754890814914048",
+      "weight": 7,
+      "content": "潮汕男女比例很正常哦"
+    },
+    {
+      "progress": 909820,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747360635,
+      "pool": 0,
+      "midHash": "68ed7882",
+      "dmid": "1847753946073519616",
+      "weight": 7,
+      "content": "社会化抚养！"
+    },
+    {
+      "progress": 415126,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747360616,
+      "pool": 0,
+      "midHash": "9c16797b",
+      "dmid": "1847753791974160896",
+      "weight": 7,
+      "content": "广东彩礼很随意的好吧，都是看双方能力和气讨论的"
+    },
+    {
+      "progress": 166507,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747358750,
+      "pool": 0,
+      "midHash": "9c16797b",
+      "dmid": "1847738134176130304",
+      "weight": 7,
+      "content": "一直在抱怨，只不过河南这种最难的才会被关注"
+    },
+    {
+      "progress": 225257,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747356721,
+      "pool": 0,
+      "midHash": "92163265",
+      "dmid": "1847721119562737152",
+      "weight": 7,
+      "content": "重点高中分布图"
+    },
+    {
+      "progress": 448061,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747332833,
+      "pool": 0,
+      "midHash": "ccd72d46",
+      "dmid": "1847520726094458880",
+      "weight": 7,
+      "content": "不是广东重男轻女严重，是穷的地方都严重，粤东粤北粤西相对穷"
+    },
+    {
+      "progress": 406077,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747332592,
+      "pool": 0,
+      "midHash": "ccd72d46",
+      "dmid": "1847518703576133376",
+      "weight": 7,
+      "content": "广东要男方全款房车？没有这种硬性要求，别乱说"
+    },
+    {
+      "progress": 127550,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747331139,
+      "pool": 0,
+      "midHash": "ccd72d46",
+      "dmid": "1847506516958636800",
+      "weight": 7,
+      "content": "因为外来打工人多"
+    },
+    {
       "progress": 1098969,
       "mode": 1,
       "fontsize": 25,
@@ -9239,7 +9527,7 @@
       "pool": 0,
       "midHash": "d827d4bb",
       "dmid": "1846562089972369152",
-      "weight": 7,
+      "weight": 6,
       "content": "我去深大附中"
     },
     {
@@ -9251,7 +9539,7 @@
       "pool": 0,
       "midHash": "a19854d5",
       "dmid": "1846551040900701952",
-      "weight": 7,
+      "weight": 6,
       "content": "粤R哭了"
     },
     {
@@ -9263,7 +9551,7 @@
       "pool": 0,
       "midHash": "587d403d",
       "dmid": "1846506804842884352",
-      "weight": 7,
+      "weight": 6,
       "content": "只有"
     },
     {
@@ -9275,7 +9563,7 @@
       "pool": 0,
       "midHash": "7ccf14d",
       "dmid": "1846326962600448000",
-      "weight": 7,
+      "weight": 6,
       "content": "科举难多了吧"
     },
     {
@@ -9287,7 +9575,7 @@
       "pool": 0,
       "midHash": "7ccf14d",
       "dmid": "1846318678556204800",
-      "weight": 7,
+      "weight": 6,
       "content": "可能因为广东人觉得高考不是唯一的路子吧，也没有说很卷很卷的样子"
     },
     {
@@ -9299,7 +9587,7 @@
       "pool": 0,
       "midHash": "1b6510b4",
       "dmid": "1845960799860874752",
-      "weight": 7,
+      "weight": 6,
       "content": "我作为父母不赞同孩子交给社会抚养"
     },
     {
@@ -9311,7 +9599,7 @@
       "pool": 0,
       "midHash": "7aeb6d2c",
       "dmid": "1845937043516479744",
-      "weight": 7,
+      "weight": 6,
       "content": "科学家还按国家划分呢，院士为什么不能按地域划分"
     },
     {
@@ -9323,7 +9611,7 @@
       "pool": 0,
       "midHash": "7aeb6d2c",
       "dmid": "1845934189376610560",
-      "weight": 7,
+      "weight": 6,
       "content": "难道不应该吗，本来现在的教育就和经济第一大省不匹配"
     },
     {
@@ -9335,7 +9623,7 @@
       "pool": 0,
       "midHash": "8b37bc2a",
       "dmid": "1845925695742721792",
-      "weight": 7,
+      "weight": 6,
       "content": "广东院士少和深大评不上双一流有点关系的，看看宁波大学，比深大晚一年成立，都双一流了，人家宁波院士之乡"
     },
     {
@@ -9347,7 +9635,7 @@
       "pool": 0,
       "midHash": "cd64ba58",
       "dmid": "1845876304147367936",
-      "weight": 7,
+      "weight": 6,
       "content": "中央选调生才是科举"
     },
     {
@@ -9359,7 +9647,7 @@
       "pool": 0,
       "midHash": "62c57ce7",
       "dmid": "1845841072371706112",
-      "weight": 7,
+      "weight": 6,
       "content": "朱时茂"
     },
     {
@@ -9371,7 +9659,7 @@
       "pool": 0,
       "midHash": "62c57ce7",
       "dmid": "1845834364941319680",
-      "weight": 7,
+      "weight": 6,
       "content": "嘟噜嘟噜"
     },
     {
@@ -9383,7 +9671,7 @@
       "pool": 0,
       "midHash": "62c57ce7",
       "dmid": "1845834261115566592",
-      "weight": 7,
+      "weight": 6,
       "content": "嘟噜嘟噜"
     },
     {
@@ -9395,7 +9683,7 @@
       "pool": 0,
       "midHash": "ac97e2e9",
       "dmid": "1845826238267770112",
-      "weight": 7,
+      "weight": 6,
       "content": "来四川试试"
     },
     {
@@ -9407,7 +9695,7 @@
       "pool": 0,
       "midHash": "aba90c54",
       "dmid": "1845816510242300672",
-      "weight": 7,
+      "weight": 6,
       "content": "666666"
     },
     {
@@ -10651,18 +10939,6 @@
       "mode": 1,
       "fontsize": 25,
       "color": 16777215,
-      "ctime": 1746898053,
-      "pool": 0,
-      "midHash": "96925c65",
-      "dmid": "1843873533106266112",
-      "weight": 6,
-      "content": "很尖锐啊！"
-    },
-    {
-      "progress": 323269,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
       "ctime": 1746898045,
       "pool": 0,
       "midHash": "96925c65",
@@ -11451,18 +11727,6 @@
       "content": "6666"
     },
     {
-      "progress": 691265,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746841166,
-      "pool": 0,
-      "midHash": "3b3cb405",
-      "dmid": "1843396325254299136",
-      "weight": 6,
-      "content": "深圳理工之所以设立吗"
-    },
-    {
       "progress": 878664,
       "mode": 1,
       "fontsize": 25,
@@ -11603,7 +11867,7 @@
       "pool": 0,
       "midHash": "b1cf1225",
       "dmid": "1843100831152036864",
-      "weight": 6,
+      "weight": 5,
       "content": "母校！！！"
     },
     {
@@ -11615,7 +11879,7 @@
       "pool": 0,
       "midHash": "b1cf1225",
       "dmid": "1843100615095011584",
-      "weight": 6,
+      "weight": 5,
       "content": "我天 母校！"
     },
     {
@@ -11627,7 +11891,7 @@
       "pool": 0,
       "midHash": "f66f8c60",
       "dmid": "1843094637523539968",
-      "weight": 6,
+      "weight": 5,
       "content": "666"
     },
     {
@@ -11639,7 +11903,7 @@
       "pool": 0,
       "midHash": "f66f8c60",
       "dmid": "1843089581113739776",
-      "weight": 6,
+      "weight": 5,
       "content": "我的天"
     },
     {
@@ -11651,7 +11915,7 @@
       "pool": 0,
       "midHash": "1dd709f5",
       "dmid": "1843089360761844736",
-      "weight": 6,
+      "weight": 5,
       "content": "+"
     },
     {
@@ -11663,7 +11927,7 @@
       "pool": 0,
       "midHash": "d1486a20",
       "dmid": "1843075243053841920",
-      "weight": 6,
+      "weight": 5,
       "content": "深圳好多大学只招深圳户口"
     },
     {
@@ -11675,7 +11939,7 @@
       "pool": 0,
       "midHash": "d1486a20",
       "dmid": "1843073777471776768",
-      "weight": 6,
+      "weight": 5,
       "content": "确实，朋友家两个女儿，早几年基本就是全力在给小女儿供读，现在也确实保证了阶级"
     },
     {
@@ -11687,7 +11951,7 @@
       "pool": 0,
       "midHash": "3d3e4f23",
       "dmid": "1843060844108724480",
-      "weight": 6,
+      "weight": 5,
       "content": "我寻思辽宁也不是啥落后省份，怎么能这么比呢"
     },
     {
@@ -11699,7 +11963,7 @@
       "pool": 0,
       "midHash": "69e7fb3d",
       "dmid": "1843050412388202496",
-      "weight": 6,
+      "weight": 5,
       "content": "看看男女比例就知道广东人为什么生那么多"
     },
     {
@@ -11711,7 +11975,7 @@
       "pool": 0,
       "midHash": "69e7fb3d",
       "dmid": "1843049268098142720",
-      "weight": 6,
+      "weight": 5,
       "content": "还是生太多，哪有那么多资源和父母的教育时间精力投入"
     },
     {
@@ -11723,7 +11987,7 @@
       "pool": 0,
       "midHash": "160fc1f",
       "dmid": "1843043726675476224",
-      "weight": 6,
+      "weight": 5,
       "content": "原来广深才是全国平均，其他省会城市显然也会明显超过本省其他城市。这里偷换概念了"
     },
     {
@@ -13955,7 +14219,7 @@
       "pool": 0,
       "midHash": "e712dec0",
       "dmid": "1842040004638562816",
-      "weight": 5,
+      "weight": 4,
       "content": "院士圈子排挤"
     },
     {
@@ -13967,7 +14231,7 @@
       "pool": 0,
       "midHash": "b53151ff",
       "dmid": "1842039586214909696",
-      "weight": 5,
+      "weight": 4,
       "content": "公务员在广东是最好的职业"
     },
     {
@@ -13979,7 +14243,7 @@
       "pool": 0,
       "midHash": "495088f1",
       "dmid": "1842039145334690816",
-      "weight": 5,
+      "weight": 4,
       "content": "全国最会经商的地方不会喝酒？做什么梦呢？"
     },
     {
@@ -13991,7 +14255,7 @@
       "pool": 0,
       "midHash": "31f7e0af",
       "dmid": "1842036650109417216",
-      "weight": 5,
+      "weight": 4,
       "content": "+1"
     },
     {
@@ -14003,7 +14267,7 @@
       "pool": 0,
       "midHash": "b218358d",
       "dmid": "1842035557065173248",
-      "weight": 5,
+      "weight": 4,
       "content": "66666666666"
     },
     {
@@ -14015,7 +14279,7 @@
       "pool": 0,
       "midHash": "5e0b0e2a",
       "dmid": "1842034062702184704",
-      "weight": 5,
+      "weight": 4,
       "content": "那太好了，我的房子要涨价了"
     },
     {
@@ -14027,7 +14291,7 @@
       "pool": 0,
       "midHash": "b53151ff",
       "dmid": "1842033451332105728",
-      "weight": 5,
+      "weight": 4,
       "content": "身材适合跳水"
     },
     {
@@ -14039,7 +14303,7 @@
       "pool": 0,
       "midHash": "88f33a77",
       "dmid": "1842030838574052608",
-      "weight": 5,
+      "weight": 4,
       "content": "什么加州?德州!!"
     },
     {
@@ -14051,7 +14315,7 @@
       "pool": 0,
       "midHash": "b53151ff",
       "dmid": "1842029594032181248",
-      "weight": 5,
+      "weight": 4,
       "content": "欢迎北方人读完书来广东交租"
     },
     {
@@ -16307,7 +16571,7 @@
       "pool": 0,
       "midHash": "44a3fa5e",
       "dmid": "1841490282638565376",
-      "weight": 4,
+      "weight": 3,
       "content": "山河大学呢"
     },
     {
@@ -16319,7 +16583,7 @@
       "pool": 0,
       "midHash": "410d6f96",
       "dmid": "1841490085699244800",
-      "weight": 4,
+      "weight": 3,
       "content": "支持河南不生"
     },
     {
@@ -16331,7 +16595,7 @@
       "pool": 0,
       "midHash": "cee7def0",
       "dmid": "1841489969416467712",
-      "weight": 4,
+      "weight": 3,
       "content": "科举类似的是中央选调生考试"
     },
     {
@@ -16343,7 +16607,7 @@
       "pool": 0,
       "midHash": "d599512",
       "dmid": "1841488088607150848",
-      "weight": 4,
+      "weight": 3,
       "content": "比站土特产"
     },
     {
@@ -16355,7 +16619,7 @@
       "pool": 0,
       "midHash": "fb3930ff",
       "dmid": "1841487426125110272",
-      "weight": 4,
+      "weight": 3,
       "content": "我云浮的，上面都没有"
     },
     {
@@ -16367,7 +16631,7 @@
       "pool": 0,
       "midHash": "c3216c1e",
       "dmid": "1841484409573334784",
-      "weight": 4,
+      "weight": 3,
       "content": "广东旅游和农业发达，那怕不读书当农民，收入也比其他省份高吧"
     },
     {
@@ -18647,7 +18911,7 @@
       "pool": 0,
       "midHash": "f22670f5",
       "dmid": "1841281000718614272",
-      "weight": 3,
+      "weight": 2,
       "content": "广东外来人口也很多人口肯定上去"
     },
     {
@@ -18659,7 +18923,7 @@
       "pool": 0,
       "midHash": "6144c168",
       "dmid": "1841280810121352960",
-      "weight": 3,
+      "weight": 2,
       "content": "因为广东生育率很高，未来很可能竞争不会小"
     },
     {
@@ -18671,7 +18935,7 @@
       "pool": 0,
       "midHash": "20fb4e81",
       "dmid": "1841280680995217664",
-      "weight": 3,
+      "weight": 2,
       "content": "1亿就够了"
     },
     {
@@ -18683,7 +18947,7 @@
       "pool": 0,
       "midHash": "4a2e94bc",
       "dmid": "1841279567986397952",
-      "weight": 3,
+      "weight": 2,
       "content": "成都省"
     },
     {
@@ -18695,7 +18959,7 @@
       "pool": 0,
       "midHash": "23d285fd",
       "dmid": "1841278129474490624",
-      "weight": 3,
+      "weight": 2,
       "content": "超过哈哈哈哈哈哈，绝了"
     },
     {
@@ -20999,7 +21263,7 @@
       "pool": 0,
       "midHash": "33269a3e",
       "dmid": "1840961364991066624",
-      "weight": 2,
+      "weight": 1,
       "content": "所以用籍贯替换户口就正确了？"
     },
     {
@@ -21011,7 +21275,7 @@
       "pool": 0,
       "midHash": "c453b3f7",
       "dmid": "1840956646667559680",
-      "weight": 2,
+      "weight": 1,
       "content": "三四百，擦边啊，哈哈哈"
     },
     {
@@ -23330,5 +23594,6 @@
       "weight": 1,
       "content": "来了"
     }
-  ]
+  ],
+  "fetchtime": 1747400845
 }

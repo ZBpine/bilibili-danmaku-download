@@ -52,15 +52,15 @@
     },
     "stat": {
       "aid": 114460912125691,
-      "view": 215256,
+      "view": 216074,
       "danmaku": 354,
       "reply": 447,
-      "favorite": 1294,
-      "coin": 1599,
+      "favorite": 1289,
+      "coin": 1603,
       "share": 265,
       "now_rank": 0,
       "his_rank": 0,
-      "like": 9153,
+      "like": 9179,
       "dislike": 0,
       "evaluation": "",
       "vt": 0
@@ -711,6 +711,18 @@
       "content": "稳"
     },
     {
+      "progress": 40899,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746591662,
+      "pool": 0,
+      "midHash": "b24604d8",
+      "dmid": "1841303336226206976",
+      "weight": 9,
+      "content": "过节回个家也算跨区域旅游"
+    },
+    {
       "progress": 58370,
       "mode": 1,
       "fontsize": 25,
@@ -805,18 +817,6 @@
       "dmid": "1841370958347643648",
       "weight": 9,
       "content": "文科一点也不容易得分，反而是理化生更容易（客观）"
-    },
-    {
-      "progress": 40899,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746591662,
-      "pool": 0,
-      "midHash": "b24604d8",
-      "dmid": "1841303336226206976",
-      "weight": 9,
-      "content": "过节回个家也算跨区域旅游"
     },
     {
       "progress": 82750,
@@ -3722,5 +3722,6 @@
       "weight": 1,
       "content": "1"
     }
-  ]
+  ],
+  "fetchtime": 1747397019
 }

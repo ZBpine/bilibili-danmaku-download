@@ -45,15 +45,15 @@
     },
     "stat": {
       "aid": 114472270175289,
-      "view": 181024,
-      "danmaku": 152,
-      "reply": 637,
-      "favorite": 1110,
-      "coin": 764,
-      "share": 175,
+      "view": 200687,
+      "danmaku": 165,
+      "reply": 638,
+      "favorite": 1170,
+      "coin": 798,
+      "share": 180,
       "now_rank": 0,
       "his_rank": 0,
-      "like": 9097,
+      "like": 9654,
       "dislike": 0,
       "evaluation": "",
       "vt": 0
@@ -188,18 +188,6 @@
       "content": "对比左宗棠还是很温和的"
     },
     {
-      "progress": 533402,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746721351,
-      "pool": 0,
-      "midHash": "f3ad340d",
-      "dmid": "1842391246568775680",
-      "weight": 10,
-      "content": "怪不得补档"
-    },
-    {
       "progress": 23226,
       "mode": 1,
       "fontsize": 25,
@@ -224,6 +212,18 @@
       "content": "这能归结成“掺杂自己的历史想象”······"
     },
     {
+      "progress": 533402,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746721351,
+      "pool": 0,
+      "midHash": "f3ad340d",
+      "dmid": "1842391246568775680",
+      "weight": 10,
+      "content": "怪不得补档"
+    },
+    {
       "progress": 161813,
       "mode": 1,
       "fontsize": 25,
@@ -246,6 +246,18 @@
       "dmid": "1842336047070632960",
       "weight": 10,
       "content": "印第安人:!喂我花生"
+    },
+    {
+      "progress": 647,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746717269,
+      "pool": 0,
+      "midHash": "b66f350d",
+      "dmid": "1842357000747650816",
+      "weight": 10,
+      "content": "获得BUFF：既视感"
     },
     {
       "progress": 308303,
@@ -284,18 +296,6 @@
       "content": "秒懂"
     },
     {
-      "progress": 647,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746717269,
-      "pool": 0,
-      "midHash": "b66f350d",
-      "dmid": "1842357000747650816",
-      "weight": 10,
-      "content": "获得BUFF：既视感"
-    },
-    {
       "progress": 178820,
       "mode": 1,
       "fontsize": 25,
@@ -304,7 +304,7 @@
       "pool": 0,
       "midHash": "bbed6cab",
       "dmid": "1842353077496816384",
-      "weight": 9,
+      "weight": 10,
       "content": "整整几代人的努力奉献才有今天的新疆"
     },
     {
@@ -316,7 +316,7 @@
       "pool": 0,
       "midHash": "1e56c29a",
       "dmid": "1842346565269331456",
-      "weight": 9,
+      "weight": 10,
       "content": "我是不是看了一遍了"
     },
     {
@@ -380,6 +380,18 @@
       "content": "慰问哈哈哈"
     },
     {
+      "progress": 86039,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746725514,
+      "pool": 0,
+      "midHash": "80fb8e14",
+      "dmid": "1842426170348636416",
+      "weight": 9,
+      "content": "还以为穿越了"
+    },
+    {
       "progress": 244934,
       "mode": 1,
       "fontsize": 25,
@@ -428,18 +440,6 @@
       "content": "不激进，挺好的"
     },
     {
-      "progress": 86039,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746725514,
-      "pool": 0,
-      "midHash": "80fb8e14",
-      "dmid": "1842426170348636416",
-      "weight": 9,
-      "content": "还以为穿越了"
-    },
-    {
       "progress": 211015,
       "mode": 1,
       "fontsize": 25,
@@ -464,6 +464,30 @@
       "content": "安西都护，军屯"
     },
     {
+      "progress": 35981,
+      "mode": 5,
+      "fontsize": 25,
+      "color": 16707842,
+      "ctime": 1747019273,
+      "pool": 0,
+      "midHash": "6e05b36b",
+      "dmid": "1844890397995319296",
+      "weight": 9,
+      "content": "皮芽子=洋葱（有中亚风味"
+    },
+    {
+      "progress": 592078,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746967761,
+      "pool": 0,
+      "midHash": "77161e67",
+      "dmid": "1844458286670251008",
+      "weight": 9,
+      "content": "阿斯塔特"
+    },
+    {
       "progress": 117656,
       "mode": 1,
       "fontsize": 25,
@@ -484,7 +508,7 @@
       "pool": 0,
       "midHash": "5a9bbd1b",
       "dmid": "1842843494159651328",
-      "weight": 8,
+      "weight": 9,
       "content": "那～～～～～～"
     },
     {
@@ -536,18 +560,6 @@
       "content": "我家二师的"
     },
     {
-      "progress": 35981,
-      "mode": 5,
-      "fontsize": 25,
-      "color": 16707842,
-      "ctime": 1747019273,
-      "pool": 0,
-      "midHash": "6e05b36b",
-      "dmid": "1844890397995319296",
-      "weight": 8,
-      "content": "皮芽子=洋葱（有中亚风味"
-    },
-    {
       "progress": 266182,
       "mode": 1,
       "fontsize": 25,
@@ -582,6 +594,18 @@
       "dmid": "1842978393739210240",
       "weight": 8,
       "content": "欧亚达～"
+    },
+    {
+      "progress": 296893,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746777152,
+      "pool": 0,
+      "midHash": "ce2a50a1",
+      "dmid": "1842859336733326080",
+      "weight": 8,
+      "content": "新疆薰衣草真的绝绝子！"
     },
     {
       "progress": 125364,
@@ -664,7 +688,7 @@
       "pool": 0,
       "midHash": "bfcd43b5",
       "dmid": "1846699595422793216",
-      "weight": 7,
+      "weight": 8,
       "content": "丁伟的含金量还在上升"
     },
     {
@@ -676,8 +700,20 @@
       "pool": 0,
       "midHash": "1a4d4394",
       "dmid": "1846306335550194944",
-      "weight": 7,
+      "weight": 8,
       "content": "哈哈"
+    },
+    {
+      "progress": 50051,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747138491,
+      "pool": 0,
+      "midHash": "a0d46e46",
+      "dmid": "1845890469251837184",
+      "weight": 7,
+      "content": "饿了"
     },
     {
       "progress": 74852,
@@ -750,18 +786,6 @@
       "dmid": "1845031063517308672",
       "weight": 7,
       "content": "对太原人来说沟通毫无障碍"
-    },
-    {
-      "progress": 592078,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746967761,
-      "pool": 0,
-      "midHash": "77161e67",
-      "dmid": "1844458286670251008",
-      "weight": 7,
-      "content": "阿斯塔特"
     },
     {
       "progress": 530017,
@@ -844,7 +868,7 @@
       "pool": 0,
       "midHash": "7f37faa",
       "dmid": "1842863867312079104",
-      "weight": 6,
+      "weight": 7,
       "content": "这薰衣草油是新疆的浪漫啊~"
     },
     {
@@ -856,7 +880,7 @@
       "pool": 0,
       "midHash": "5a9bbd1b",
       "dmid": "1842841984352461056",
-      "weight": 6,
+      "weight": 7,
       "content": "这也太丝滑hhh"
     },
     {
@@ -868,7 +892,7 @@
       "pool": 0,
       "midHash": "5a9bbd1b",
       "dmid": "1842840830038017536",
-      "weight": 6,
+      "weight": 7,
       "content": "都是河南老乡"
     },
     {
@@ -880,7 +904,7 @@
       "pool": 0,
       "midHash": "c7fedfd6",
       "dmid": "1842809366953207040",
-      "weight": 6,
+      "weight": 7,
       "content": "极速丝滑"
     },
     {
@@ -906,6 +930,18 @@
       "dmid": "1842683554576755200",
       "weight": 6,
       "content": "唉！？这个也补档啊？"
+    },
+    {
+      "progress": 52992,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1746753060,
+      "pool": 0,
+      "midHash": "c75d2ad9",
+      "dmid": "1842657243422834944",
+      "weight": 6,
+      "content": "看饿了"
     },
     {
       "progress": 10043,
@@ -1024,7 +1060,7 @@
       "pool": 0,
       "midHash": "950c67ec",
       "dmid": "1842342646380127744",
-      "weight": 5,
+      "weight": 6,
       "content": "我去，这么狠"
     },
     {
@@ -1036,7 +1072,7 @@
       "pool": 0,
       "midHash": "8ba69175",
       "dmid": "1842339630935553536",
-      "weight": 5,
+      "weight": 6,
       "content": "太好了，我看两遍"
     },
     {
@@ -1048,8 +1084,164 @@
       "pool": 0,
       "midHash": "c405eee1",
       "dmid": "1842339335261743616",
-      "weight": 5,
+      "weight": 6,
       "content": "这集怎么感觉看过了"
+    },
+    {
+      "progress": 274702,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747557015,
+      "pool": 0,
+      "midHash": "4f6ae100",
+      "dmid": "1849401300518082560",
+      "weight": 6,
+      "content": "惨啊"
+    },
+    {
+      "progress": 474058,
+      "mode": 5,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747542517,
+      "pool": 0,
+      "midHash": "85e9d4bb",
+      "dmid": "1849279689685305088",
+      "weight": 5,
+      "content": "G4"
+    },
+    {
+      "progress": 225465,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747538372,
+      "pool": 0,
+      "midHash": "20f79f6d",
+      "dmid": "1849244911229583360",
+      "weight": 5,
+      "content": "俄羅斯族也是中華民族一員喔"
+    },
+    {
+      "progress": 327445,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747534538,
+      "pool": 0,
+      "midHash": "cd3d0435",
+      "dmid": "1849212754943139072",
+      "weight": 5,
+      "content": "丝滑"
+    },
+    {
+      "progress": 259200,
+      "mode": 5,
+      "fontsize": 25,
+      "color": 15138834,
+      "ctime": 1747531504,
+      "pool": 0,
+      "midHash": "8d3adc0d",
+      "dmid": "1849187298521000704",
+      "weight": 5,
+      "content": "我在报纸上看过"
+    },
+    {
+      "progress": 23581,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747525520,
+      "pool": 0,
+      "midHash": "439649a2",
+      "dmid": "1849137102525234688",
+      "weight": 5,
+      "content": "这是哪啊"
+    },
+    {
+      "progress": 164689,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747494684,
+      "pool": 0,
+      "midHash": "8813a626",
+      "dmid": "1848878433380871424",
+      "weight": 5,
+      "content": "这里的激进要打个引号"
+    },
+    {
+      "progress": 146588,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747493771,
+      "pool": 0,
+      "midHash": "4321867f",
+      "dmid": "1848870773340053248",
+      "weight": 5,
+      "content": "二道桥人表示不陌生"
+    },
+    {
+      "progress": 446507,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747482193,
+      "pool": 0,
+      "midHash": "318a6ac5",
+      "dmid": "1848773653853520128",
+      "weight": 5,
+      "content": "坏了我也这么说话"
+    },
+    {
+      "progress": 532451,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747475938,
+      "pool": 0,
+      "midHash": "ee7e74a0",
+      "dmid": "1848721179754373376",
+      "weight": 5,
+      "content": "明白了"
+    },
+    {
+      "progress": 58540,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747412257,
+      "pool": 0,
+      "midHash": "70a76f1c",
+      "dmid": "1848186983643021312",
+      "weight": 5,
+      "content": "饿了+1"
+    },
+    {
+      "progress": 25466,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747412154,
+      "pool": 0,
+      "midHash": "70a76f1c",
+      "dmid": "1848186119616419584",
+      "weight": 5,
+      "content": "好美"
+    },
+    {
+      "progress": 409026,
+      "mode": 1,
+      "fontsize": 25,
+      "color": 16777215,
+      "ctime": 1747372073,
+      "pool": 0,
+      "midHash": "bef737a5",
+      "dmid": "1847849900004884480",
+      "weight": 5,
+      "content": "这样才对啊"
     },
     {
       "progress": 237516,
@@ -1108,7 +1300,7 @@
       "pool": 0,
       "midHash": "b902d805",
       "dmid": "1847050089769114368",
-      "weight": 5,
+      "weight": 4,
       "content": "nb"
     },
     {
@@ -1120,7 +1312,7 @@
       "pool": 0,
       "midHash": "35dfc11e",
       "dmid": "1846989263930537984",
-      "weight": 5,
+      "weight": 4,
       "content": "无名。。。"
     },
     {
@@ -1132,7 +1324,7 @@
       "pool": 0,
       "midHash": "bfcd43b5",
       "dmid": "1846701372750821888",
-      "weight": 5,
+      "weight": 4,
       "content": "没错，新疆有上百万的山东人"
     },
     {
@@ -1144,7 +1336,7 @@
       "pool": 0,
       "midHash": "b27bb046",
       "dmid": "1846674130427674880",
-      "weight": 5,
+      "weight": 4,
       "content": "伊朗，沙特，土耳其"
     },
     {
@@ -1156,7 +1348,7 @@
       "pool": 0,
       "midHash": "251827fa",
       "dmid": "1846430005618939136",
-      "weight": 5,
+      "weight": 4,
       "content": "什么？！"
     },
     {
@@ -1168,7 +1360,7 @@
       "pool": 0,
       "midHash": "54b3af17",
       "dmid": "1846425839567809536",
-      "weight": 5,
+      "weight": 4,
       "content": "来了来了"
     },
     {
@@ -1180,20 +1372,8 @@
       "pool": 0,
       "midHash": "1a4d4394",
       "dmid": "1846303028928640512",
-      "weight": 5,
+      "weight": 4,
       "content": "哈哈"
-    },
-    {
-      "progress": 50051,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1747138491,
-      "pool": 0,
-      "midHash": "a0d46e46",
-      "dmid": "1845890469251837184",
-      "weight": 5,
-      "content": "饿了"
     },
     {
       "progress": 487200,
@@ -1324,7 +1504,7 @@
       "pool": 0,
       "midHash": "a4494c01",
       "dmid": "1844937710196980480",
-      "weight": 4,
+      "weight": 3,
       "content": "11"
     },
     {
@@ -1336,7 +1516,7 @@
       "pool": 0,
       "midHash": "ff3e2d62",
       "dmid": "1844170540857419264",
-      "weight": 4,
+      "weight": 3,
       "content": "上期不是最后一期的？怎么还有doge"
     },
     {
@@ -1348,7 +1528,7 @@
       "pool": 0,
       "midHash": "33f58e7f",
       "dmid": "1843952355411294720",
-      "weight": 4,
+      "weight": 3,
       "content": "为什么你还能出视频啊"
     },
     {
@@ -1360,7 +1540,7 @@
       "pool": 0,
       "midHash": "5f5b01a1",
       "dmid": "1843798589919296000",
-      "weight": 4,
+      "weight": 3,
       "content": "这么算，这薰衣草推广真不简单呀"
     },
     {
@@ -1372,7 +1552,7 @@
       "pool": 0,
       "midHash": "3cc8b665",
       "dmid": "1843746073224113152",
-      "weight": 4,
+      "weight": 3,
       "content": "老章还挺精致啊"
     },
     {
@@ -1508,18 +1688,6 @@
       "content": "国货越来越强了！感动！"
     },
     {
-      "progress": 296893,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746777152,
-      "pool": 0,
-      "midHash": "ce2a50a1",
-      "dmid": "1842859336733326080",
-      "weight": 3,
-      "content": "新疆薰衣草真的绝绝子！"
-    },
-    {
       "progress": 342003,
       "mode": 1,
       "fontsize": 25,
@@ -1528,7 +1696,7 @@
       "pool": 0,
       "midHash": "6bae63bb",
       "dmid": "1842856939663510016",
-      "weight": 3,
+      "weight": 2,
       "content": "香到我了，立刻下单！"
     },
     {
@@ -1540,7 +1708,7 @@
       "pool": 0,
       "midHash": "c86488a",
       "dmid": "1842854545487702272",
-      "weight": 3,
+      "weight": 2,
       "content": "伊帕尔汗yyds！国货之光！"
     },
     {
@@ -1552,7 +1720,7 @@
       "pool": 0,
       "midHash": "79eef53b",
       "dmid": "1842760582466677248",
-      "weight": 3,
+      "weight": 2,
       "content": "并非激进"
     },
     {
@@ -1720,7 +1888,7 @@
       "pool": 0,
       "midHash": "deea1c1e",
       "dmid": "1842684890311736832",
-      "weight": 2,
+      "weight": 1,
       "content": "对不起"
     },
     {
@@ -1732,7 +1900,7 @@
       "pool": 0,
       "midHash": "7257711b",
       "dmid": "1842683948808483840",
-      "weight": 2,
+      "weight": 1,
       "content": "真巧，最近才看了丁伟的毕业论文短视频剪辑"
     },
     {
@@ -1758,18 +1926,6 @@
       "dmid": "1842671197545465088",
       "weight": 1,
       "content": "这是……补档？"
-    },
-    {
-      "progress": 52992,
-      "mode": 1,
-      "fontsize": 25,
-      "color": 16777215,
-      "ctime": 1746753060,
-      "pool": 0,
-      "midHash": "c75d2ad9",
-      "dmid": "1842657243422834944",
-      "weight": 1,
-      "content": "看饿了"
     },
     {
       "progress": 310914,
@@ -1915,5 +2071,6 @@
       "weight": 1,
       "content": "这个以前买红妹有个小品就提到过"
     }
-  ]
+  ],
+  "fetchtime": 1747576020
 }

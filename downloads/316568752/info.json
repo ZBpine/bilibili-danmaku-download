@@ -69,7 +69,7 @@
     "nid": 3,
     "name": "白银殿堂",
     "image": "https://i0.hdslb.com/bfs/face/f6a31275029365ae5dc710006585ddcf1139bde1.png",
-    "image_small": "https://i1.hdslb.com/bfs/face/b09cdb4c119c467cf2d15db5263b4f539fa6e30b.png",
+    "image_small": "https://i2.hdslb.com/bfs/face/b09cdb4c119c467cf2d15db5263b4f539fa6e30b.png",
     "level": "高级勋章",
     "condition": "单个自制视频总播放数>=10万"
   },
@@ -80,7 +80,7 @@
     "is_latest_100honour": 0
   },
   "is_followed": false,
-  "top_photo": "http://i0.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png",
+  "top_photo": "http://i2.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png",
   "sys_notice": {},
   "live_room": {
     "roomStatus": 1,
@@ -93,9 +93,9 @@
     "broadcast_type": 0,
     "watched_show": {
       "switch": true,
-      "num": 4,
-      "text_small": "4",
-      "text_large": "4人看过",
+      "num": 6,
+      "text_small": "6",
+      "text_large": "6人看过",
       "icon": "https://i0.hdslb.com/bfs/live/a725a9e61242ef44d764ac911691a7ce07f36c1d.png",
       "icon_location": "",
       "icon_web": "https://i0.hdslb.com/bfs/live/8d9d0f33ef8bf6f308742752d13dd0df731df19c.png"
