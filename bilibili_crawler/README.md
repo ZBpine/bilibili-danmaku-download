@@ -1,4 +1,4 @@
-# 📡 Bilibili 弹幕爬虫（`main.py`）
+# 📡 Bilibili 弹幕爬虫（`downloader.py`）
 
 > 这是一个定时抓取指定 Bilibili UP 主的视频、弹幕、AI 摘要等信息的爬虫脚本，支持 Wbi 鉴权签名，支持弹幕解析为标准 JSON 格式，用于离线分析或前端弹幕显示。
 > 
@@ -8,8 +8,8 @@
 
 ## ✨ 功能特色
 
-* ✅ 支持多个 UP 主 `mid`，读取自本地 `up_list.txt`
-* ✅ 定时每小时抓取一次（可配置）
+* ✅ 支持多个 UP 主 `mid`
+* ✅ 定时每小时爬取一次UP主10天内的视频弹幕
 * ✅ 获取 UP 主视频信息、弹幕、AI 摘要
 * ✅ 弹幕保存为原始 XML 和标准 JSON 格式（配合[前端播放器](../tampermonkey/README.md)使用）
 * ✅ 保存数据结构整洁清晰，按 mid/BV 分目录管理
@@ -21,7 +21,7 @@
 
 ### 📝 1. 配置 UP 主列表
 
-在 `up_list.txt` 中每行添加一个 UP 主的 `mid`，例如：
+在 `config/up_list.txt` 中每行添加一个 UP 主的 `mid`，例如：
 
 ```
 123456789
@@ -32,21 +32,12 @@
 
 ### 📎 2. 设置 Cookie
 
-将 Cookie 复制粘贴到 `cookie.txt` 中（整段字符串一行即可）。
+将 Cookie 复制粘贴到 `config/cookie.txt` 中（整段字符串一行即可）。
 
 **Cookie要求：**
-* `main.py` 可用可不用。使用已登录的cookie可以获取up信息、AI总结（不是重要信息），未登陆的cookie/不设置cookie 就获取不到。
+* `downloader.py` 可用可不用。使用已登录的cookie可以获取up信息、AI总结（不是重要信息），未登陆的cookie/不设置cookie 就获取不到。
 * `server.py` 必须cookie，已登录的未登录的都行。
 
----
-
-### ▶️ 3. 启动爬虫脚本
-
-```bash
-python main.py --days 10
-```
-
----
 
 ## ⚠️ 注意事项
 
@@ -58,7 +49,7 @@ python main.py --days 10
 
 # 📡 Bilibili 弹幕接口服务（`server.py`）
 
-该模块基于 Flask 实现，提供对B站弹幕或爬虫(`main.py`)下载到本地的弹幕统一搜索与访问接口，供前端（如 [YouTube B站弹幕播放器](../tampermonkey/README.md)）查询使用。
+该模块基于 Flask 实现，提供对B站弹幕或爬虫(`downloader.py`)下载到本地的弹幕统一搜索与访问接口，供前端（如 [YouTube B站弹幕播放器](../tampermonkey/README.md)）查询使用。
 
 
 

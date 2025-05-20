@@ -1,7 +1,7 @@
 # bilibili_api.py
 
 from datetime import datetime, timedelta
-from bilibili_client import BilibiliClient
+from .bilibili_client import BilibiliClient
 
 
 class BilibiliAPI:

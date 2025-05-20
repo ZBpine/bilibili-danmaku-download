@@ -53,12 +53,12 @@ class StructureTracker:
             for entry in entries:
                 is_new = entry["bvid"] in self._recent_updates
                 mark = " 【NEW】" if is_new else ""
+                lines.append(f"  │")
                 lines.append(f"  ├─  {entry['bvid']}{mark}")
                 lines.append(f"  │   视频标题     ：{entry['title']}")
                 lines.append(f"  │   发布时间     ：{entry['pubdate']}")
                 lines.append(f"  │   下载时间     ：{entry['download_time']}")
                 lines.append(f"  │   保存路径     ：{entry['path']}")
-                lines.append(f"  │")
             lines.append("")
 
         with open(txt_path, "w", encoding="utf-8") as f:
