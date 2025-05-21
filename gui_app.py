@@ -246,7 +246,7 @@ class MainWindow(QWidget):
 
         # 脚本说明 + 链接
         tips_label = QLabel(
-            '🧩 配合前端 <a href="https://greasyfork.org/zh-CN/scripts/536159-youtube-b站弹幕播放器">油猴脚本</a> 使用，实现油管YouTube上看B站弹幕的功能。'
+            '🧩 配合前端 <a href="https://greasyfork.org/zh-CN/scripts/536159">油猴脚本</a> 使用，实现油管YouTube上看B站弹幕的功能。'
         )
         tips_label.setOpenExternalLinks(True)  # 允许点击打开链接
         tips_label.setWordWrap(True)  # 自动换行
@@ -263,14 +263,14 @@ class MainWindow(QWidget):
         tab = QWidget()
         layout = QHBoxLayout()
         left_layout = QVBoxLayout()
-        left_layout.setAlignment(Qt.AlignTop)
+        # left_layout.setAlignment(Qt.AlignTop)
 
         tips = QLabel(
             "<b>Cookie 说明：</b><br><br>"
             "• <b>下载弹幕功能</b>：<br>"
             "  - 可设置也可以不设置 Cookie。<br>"
             "  - 如果设置了已登录的 Cookie，可下载额外信息，如 UP 主信息、AI 总结等（非必要数据）。<br>"
-            "  - 使用未登录 Cookie 或未设置 Cookie，也能下载弹幕。<br><br>"
+            "  - 未设置 Cookie 或使用未登录 Cookie，也能下载弹幕，但不能下载额外信息。<br><br>"
             "• <b>服务器功能</b>：<br>"
             "  - 必须设置 Cookie，否则搜索接口无法使用。<br>"
             "  - 已登录或未登录状态的 Cookie 都可以。<br>"
@@ -278,6 +278,8 @@ class MainWindow(QWidget):
         tips.setWordWrap(True)  # 自动换行
 
         left_layout.addWidget(tips)
+        left_layout.addStretch()
+
         self.cookie_editor = QTextEdit()
         cookie_path = "config/cookie.txt"
         if os.path.exists(cookie_path):
