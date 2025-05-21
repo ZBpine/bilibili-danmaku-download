@@ -35,7 +35,7 @@
 * 保存路径：`downloads/<mid>/<bvid>/`
 > mid即用户ID，在用户主页`space.bilibili.com`的地址旁边
 
-![gui01](./images/bilibili_crawler_example01.png)
+<img src="./images/bilibili_crawler_example01.png" style="width: 50%;">
 
 📄 详细说明：[📡 弹幕爬虫 README](./bilibili_crawler/README.md)
 
@@ -47,7 +47,7 @@
 * 服务器会同时查询本地下载下来的弹幕，以及B站的视频弹幕，发送给前端播放。
 * 配置好[CooKie](#cookie-需求说明)，点击运行服务器即可开启
 
-![gui02](./images/bilibili_crawler_example02.png)
+<img src="./images/bilibili_crawler_example02.png" style="width: 50%;">
 
 📄 详细说明：[📡 弹幕接口服务 README](./bilibili_crawler/README.md#-bilibili-弹幕接口服务serverpy)
 
@@ -62,10 +62,13 @@
   * 第二种：配置服务器地址 → 点击🔍直接搜索B站同名视频弹幕&下载到本地的弹幕
 * 弹幕将自动与视频播放同步
 
-![player04](./images/youtube-danmaku-player-example04.png)
+<img src="./images/youtube-danmaku-player-example04.png" style="width: 50%;">
+
 ![player03](./images/youtube-danmaku-player-example03.png)
 
 📄 详细说明：[📎 油猴脚本 README](./tampermonkey/README.md)
+
+---
 
 ### 🍪 关于Cookie
 
@@ -86,4 +89,4 @@
 2. F12打开开发者工具
 3. 选择网络 -> 随便选一个请求 -> 请求标头 -> 复制整段Cookie
 
-![tutorial01](./images/tutorial01.png)
+<img src="./images/tutorial01.png" style="width: 70%;">
