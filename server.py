@@ -9,7 +9,7 @@ from flask_cors import CORS
 from bilibili_crawler import BilibiliClient, BilibiliAPI, parse_danmaku_xml
 
 
-def create_app(cookie_path="config/cookie.txt", download_dir="downloads"):
+def create_server_app(cookie_path="config/cookie.txt", download_dir="downloads"):
     app = Flask(__name__)
     CORS(app)
 
@@ -124,4 +124,4 @@ def create_app(cookie_path="config/cookie.txt", download_dir="downloads"):
 
 
 if __name__ == "__main__":
-    create_app().run(port=13245, debug=True)
+    create_server_app().run(port=13245, debug=True)
