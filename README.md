@@ -85,7 +85,7 @@
 
 #### 🛠️ 获取Cookie方法
 
-1. 浏览器打开B站（若要获取未登录的Cookie可以用无痕浏览打开B站）
+1. 浏览器打开B站[www.bilibili.com]([www.bilibili.com](https://www.bilibili.com/))（若要获取未登录的Cookie可以用无痕浏览打开B站）
 2. F12打开开发者工具
 3. 选择网络 -> 随便选一个请求 -> 请求标头 -> 复制整段Cookie
 
