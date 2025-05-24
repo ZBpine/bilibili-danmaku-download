@@ -76,6 +76,7 @@ class SettingsManager:
 
 
 class MainWindow(QWidget):
+    refresh_signal = Signal()
     def __init__(self):
         super().__init__()
         self.setWindowIcon(QIcon(":/images/bilibili.ico"))
@@ -90,6 +91,8 @@ class MainWindow(QWidget):
         self.log_emitter.log_signal.connect(self.append_log)
         sys.stdout = Stream(self.log_emitter.log_signal.emit)
         sys.stderr = Stream(self.log_emitter.log_signal.emit)
+
+        self.refresh_signal.connect(self.refresh_structure_view)
 
         self.download_timer = QTimer(self)
         self.download_timer.timeout.connect(self.run_downloader_thread)
@@ -478,6 +481,8 @@ class MainWindow(QWidget):
                 )
             except Exception as e:
                 print(f"[ERROR] 下载失败: {e}")
+
+            self.refresh_signal.emit()
             if not self.auto_checkbox.isChecked():
                 self.download_button.setEnabled(True)
                 self.download_button.setText("开始下载")
