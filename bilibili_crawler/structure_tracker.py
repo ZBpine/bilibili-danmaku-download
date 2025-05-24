@@ -38,6 +38,8 @@ class StructureTracker:
         self._recent_updates.add(bvid)
 
     def save(self):
+        for entries in self.data.values():
+            entries.sort(key=lambda x: x["pubdate"], reverse=True)
         json_data = {str(mid): entries for mid, entries in self.data.items()}
         with open(self.structure_file, "w", encoding="utf-8") as f:
             json.dump(json_data, f, ensure_ascii=False, indent=4)
@@ -49,7 +51,7 @@ class StructureTracker:
 
         lines = []
         for mid, entries in self.data.items():
-            lines.append(f" 📁  UP主 {mid}：")
+            lines.append(f" 📁  UP主 {mid} ：")
             for entry in entries:
                 is_new = entry["bvid"] in self._recent_updates
                 mark = " 【NEW】" if is_new else ""
