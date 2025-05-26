@@ -3,6 +3,7 @@
 import os
 import json
 from collections import defaultdict
+from datetime import datetime
 
 
 class StructureTracker:
@@ -20,18 +21,20 @@ class StructureTracker:
                 for mid, entries in raw.items():
                     self.data[int(mid)] = entries
 
-    def update(self, mid, bvid, title, pub_time, down_time, save_path):
+    def update(
+        self, mid, bvid, title, pubdate, download_time, expected_danmaku, actual_danmaku
+    ):
         entry = {
             "bvid": bvid,
             "title": title,
-            "pubdate": pub_time,
-            "download_time": down_time,
-            "path": save_path,
+            "pubdate": pubdate,
+            "download_time": download_time,
+            "danmaku_count": {"expected": expected_danmaku, "actual": actual_danmaku},
         }
         entries = self.data[mid]
         for i, item in enumerate(entries):
             if item["bvid"] == bvid:
-                entries[i] = entry  # replace to update
+                entries[i] = entry
                 break
         else:
             entries.append(entry)
@@ -53,15 +56,72 @@ class StructureTracker:
         for mid, entries in self.data.items():
             lines.append(f" 📁  UP主 {mid} ：")
             for entry in entries:
+                bvid = entry.get("bvid", "未知BVID")
+                title = entry.get("title", "未知标题")
+                pubdate = entry.get("pubdate", "未知时间")
+                download_time = entry.get("download_time", "未知时间")
+                expected = entry.get("danmaku_count", {}).get("expected", "未知")
+                actual = entry.get("danmaku_count", {}).get("actual", "未知")
+
                 is_new = entry["bvid"] in self._recent_updates
                 mark = " 【NEW】" if is_new else ""
                 lines.append(f"  │")
-                lines.append(f"  ├─  {entry['bvid']}{mark}")
-                lines.append(f"  │   视频标题     ：{entry['title']}")
-                lines.append(f"  │   发布时间     ：{entry['pubdate']}")
-                lines.append(f"  │   下载时间     ：{entry['download_time']}")
-                lines.append(f"  │   保存路径     ：{entry['path']}")
+                lines.append(f"  ├─  {bvid}{mark}")
+                lines.append(f"  │   视频标题     ：{title}")
+                lines.append(f"  │   发布时间     ：{pubdate}")
+                lines.append(f"  │   下载时间     ：{download_time}")
+                lines.append(f"  │   弹幕数量     ：{actual} / {expected}")
             lines.append("")
 
         with open(txt_path, "w", encoding="utf-8") as f:
             f.write("\n".join(lines))
+
+
+# ✅ 运行该脚本会自动重建结构索引
+if __name__ == "__main__":
+    BASE_DIR = "downloads"
+    tracker = StructureTracker(BASE_DIR)
+
+    for mid_dir in os.listdir(BASE_DIR):
+        mid_path = os.path.join(BASE_DIR, mid_dir)
+        if not os.path.isdir(mid_path) or not mid_dir.isdigit():
+            continue
+
+        mid = int(mid_dir)
+        for video_dir in os.listdir(mid_path):
+            video_path = os.path.join(mid_path, video_dir)
+            if not os.path.isdir(video_path):
+                continue
+
+            json_path = os.path.join(video_path, f"{video_dir}.json")
+            if not os.path.exists(json_path):
+                continue
+
+            try:
+                with open(json_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+
+                bvid = data["bvid"]
+                title = data["videoData"].get("title", "未知标题")
+                pub_time = datetime.fromtimestamp(
+                    data["videoData"].get("pubdate", 0)
+                ).strftime("%Y-%m-%d %H:%M:%S")
+                download_time = datetime.fromtimestamp(
+                    data.get("fetchtime", 0)
+                ).strftime("%Y-%m-%d %H:%M:%S")
+                expected_danmaku = data["videoData"].get("stat", {}).get("danmaku", 0)
+                actual_danmaku = len(data.get("danmakuData", []))
+
+                tracker.update(
+                    mid=mid,
+                    bvid=bvid,
+                    title=title,
+                    pubdate=pub_time,
+                    download_time=download_time,
+                    expected_danmaku=expected_danmaku,
+                    actual_danmaku=actual_danmaku,
+                )
+            except Exception as e:
+                print(f"[⚠️ 忽略错误] {video_dir}: {type(e).__name__}: {e}")
+
+    tracker.save()
