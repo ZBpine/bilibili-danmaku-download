@@ -157,10 +157,7 @@ def download_bilibili(
                         if is_login:
                             f.write(f"AI摘要：{summary}\n")
 
-                    tracker.update(
-                        mid, bvid, title, public_time, download_time, save_path
-                    )
-
+                    tracker.update(mid=mid, data=combined_data)
                     safe_sleep(
                         sleep_min,
                         sleep_max,
