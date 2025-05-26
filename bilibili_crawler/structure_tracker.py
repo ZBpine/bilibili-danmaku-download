@@ -21,23 +21,35 @@ class StructureTracker:
                 for mid, entries in raw.items():
                     self.data[int(mid)] = entries
 
-    def update(
-        self, mid, bvid, title, pubdate, download_time, expected_danmaku, actual_danmaku
-    ):
+    def update(self, mid, data):
+        bvid = data.get("bvid", "未知BVID")
+        video_data = data.get("videoData", {})
+        danmaku_data = data.get("danmakuData", [])
+        title = video_data.get("title", "未知标题")
+        pub_timestamp = video_data.get("pubdate", 0)
+        pubdate = datetime.fromtimestamp(pub_timestamp).strftime("%Y-%m-%d %H:%M:%S")
+        fetchtime = data.get("fetchtime", 0)
+        download_time = datetime.fromtimestamp(fetchtime).strftime("%Y-%m-%d %H:%M:%S")
+        expected_danmaku = video_data.get("stat", {}).get("danmaku", 0)
+        actual_danmaku = len(danmaku_data)
         entry = {
             "bvid": bvid,
             "title": title,
             "pubdate": pubdate,
             "download_time": download_time,
-            "danmaku_count": {"expected": expected_danmaku, "actual": actual_danmaku},
+            "danmaku_count": {
+                "expected": expected_danmaku,
+                "actual": actual_danmaku,
+            },
         }
         entries = self.data[mid]
         for i, item in enumerate(entries):
-            if item["bvid"] == bvid:
+            if item.get("bvid") == bvid:
                 entries[i] = entry
                 break
         else:
             entries.append(entry)
+
         self._recent_updates.add(bvid)
 
     def save(self):
@@ -101,26 +113,7 @@ if __name__ == "__main__":
                 with open(json_path, "r", encoding="utf-8") as f:
                     data = json.load(f)
 
-                bvid = data["bvid"]
-                title = data["videoData"].get("title", "未知标题")
-                pub_time = datetime.fromtimestamp(
-                    data["videoData"].get("pubdate", 0)
-                ).strftime("%Y-%m-%d %H:%M:%S")
-                download_time = datetime.fromtimestamp(
-                    data.get("fetchtime", 0)
-                ).strftime("%Y-%m-%d %H:%M:%S")
-                expected_danmaku = data["videoData"].get("stat", {}).get("danmaku", 0)
-                actual_danmaku = len(data.get("danmakuData", []))
-
-                tracker.update(
-                    mid=mid,
-                    bvid=bvid,
-                    title=title,
-                    pubdate=pub_time,
-                    download_time=download_time,
-                    expected_danmaku=expected_danmaku,
-                    actual_danmaku=actual_danmaku,
-                )
+                tracker.update(mid=mid, data=data)
             except Exception as e:
                 print(f"[⚠️ 忽略错误] {video_dir}: {type(e).__name__}: {e}")
 
