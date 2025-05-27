@@ -112,41 +112,10 @@ export class BiliClientGM {
         return doRequest().catch(async (err) => {
             if (err.code === 412) {
                 console.log(`⚠️ [${desc}] 请求被拦截，尝试刷新 buvid3 重试`);
-                this.buvid3 = await this.ensureBuvid3();
+                await this.ensureBuvid3();
                 return doRequest(true);
             }
             throw err;
-        });
-    }
-    async searchVideos(keyword, type = 'video', limit = 20) {
-        const params = {
-            search_type: type,
-            keyword,
-            page: 1
-        };
-        const res = await this.request({
-            url: 'https://api.bilibili.com/x/web-interface/search/type',
-            params,
-            sign: true,
-            desc: `搜索 ${keyword}`
-        });
-        return res.data?.result?.slice(0, limit) || [];
-    }
-    async getVideoInfo(bvid) {
-        const params = { bvid };
-        const res = await this.request({
-            url: 'https://api.bilibili.com/x/web-interface/view',
-            params,
-            desc: `获取视频信息 ${bvid}`
-        });
-        return res.data;
-    }
-    async getDanmakuXML(cid) {
-        return await this.request({
-            url: 'https://api.bilibili.com/x/v1/dm/list.so',
-            params: { oid: cid },
-            responseType: 'text',
-            desc: `获取弹幕 XML cid=${cid}`
         });
     }
 }

@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         YouTube B站弹幕播放器
 // @namespace    https://github.com/ZBpine/bilibili-danmaku-download/
-// @version      1.3.1
+// @version      1.4.1
 // @description  加载本地 B站弹幕 JSON文件，在 YouTube 视频上显示
 // @author       ZBpine
 // @match        https://www.youtube.com/*
 // @match        https://www.bilibili.com/*
-// @grant        none
+// @grant        GM_xmlhttpRequest
+// @connect      api.bilibili.com
 // @license      MIT
 // @run-at       document-end
 // ==/UserScript==
@@ -206,19 +207,11 @@
             }
         }
         async onSearch() {
-            let keyword = document.title.replace(' - YouTube', '');
-            if (isBilibili) {
-                keyword = document.title.replace(/[-_–—|]+.*?(bilibili|哔哩哔哩).*/gi, '').trim();
-            }
-            const server = dmStore.get('server');
-            if (!server) return showTip('请先设置服务器地址');
-
             try {
-                const selected = await this.showSearchSelector(keyword);
+                const selected = await this.showSearchSelector();
                 if (!selected) return;
 
-                const source = selected.source || 'bilibili';
-                const data = await fetch(`${server}/video?bvid=${selected.bvid}&source=${source}`).then(r => r.json());
+                const data = await getDanmakuDataByBvid(selected.bvid, selected.source);
                 this.dmPlayer.init();
                 this.dmPlayer.load(data.danmakuData);
 
@@ -226,10 +219,14 @@
                 this.setSave(data);
             } catch (err) {
                 showTip(`❌ 请求失败：${err.message}`);
-                dmPlayer.logTagError('❌ 请求失败：', err);
+                this.dmPlayer.logTagError('❌ 请求失败：', err);
             }
         }
-        async showSearchSelector(initialKeyword) {
+        async showSearchSelector() {
+            let initialKeyword = document.title.replace(' - YouTube', '');
+            if (isBilibili) {
+                initialKeyword = document.title.replace(/[-_–—|]+.*?(bilibili|哔哩哔哩).*/gi, '').trim();
+            }
             const server = dmStore.get('server');
             let resolveFn;
             const returnPromise = new Promise((resolve) => {
@@ -307,13 +304,11 @@
             const renderResults = async (keyword) => {
                 resultsBox.textContent = '🔍 搜索中...';
                 try {
-                    const res = await fetch(`${server}/search?keyword=${encodeURIComponent(keyword)}&type=video`);
-                    const list = await res.json();
+                    const list = await searchVideosByKeyword(keyword);
                     if (!Array.isArray(list) || list.length === 0) {
                         resultsBox.textContent = '❌ 没有找到相关视频';
                         return;
                     }
-
                     resultsBox.textContent = '';
 
                     // ➤ 按来源分组
@@ -585,7 +580,6 @@
             cacheList.style.gap = '8px';
 
             const cache = dmStore.get('cache', {});
-            console.log(cache);
             const keys = Object.keys(cache);
 
             if (keys.length === 0) {
@@ -766,7 +760,9 @@
 
     const isBilibili = location.hostname.includes('bilibili.com');
     const urlOfPlayer = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download/tampermonkey/BiliDanmakuPlayer.js';
+    const urlOfClient = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download/tampermonkey/BiliClientGM.js';
     const { BiliDanmakuPlayer } = await import(urlOfPlayer);
+    const { BiliClientGM } = await import(urlOfClient);
     const dmPanel = new DanmakuControlPanel();
     const dmStore = {
         key: 'dm-player',
@@ -811,6 +807,103 @@
             this.setConfig(cfg);
         }
     };
+
+    const client = new BiliClientGM(GM_xmlhttpRequest);
+    await client.init();
+
+    async function searchVideosByKeyword(keyword) {
+        const server = dmStore.get('server');
+        if (server) {
+            try {
+                const res = await fetch(`${server}/search?keyword=${encodeURIComponent(keyword)}&type=video`);
+                const list = await res.json();
+                if (Array.isArray(list)) return list;
+            } catch (e) {
+                showTip('⚠ 请检查服务器是否正确');
+                console.warn('❌ 远程搜索失败:', e);
+            }
+        }
+        try {
+            const params = {
+                search_type: 'video',
+                keyword,
+                page: 1
+            };
+            const res = await client.request({
+                url: 'https://api.bilibili.com/x/web-interface/search/type',
+                params,
+                sign: true,
+                desc: `搜索 ${keyword}`
+            });
+            const list = res.data?.result || [];
+            list.forEach(item => item.source = 'bilibili');
+            return list;
+        } catch (e) {
+            console.error('❌ GM搜索失败:', e);
+            throw new Error('搜索失败');
+        }
+    }
+    async function getDanmakuDataByBvid(bvid, source = 'bilibili') {
+        const server = dmStore.get('server');
+        if (server) {
+            try {
+                const res = await fetch(`${server}/video?bvid=${bvid}&source=${source}`);
+                const data = await res.json();
+                return data;
+            } catch (e) {
+                showTip('⚠ 请检查服务器是否正确');
+                console.warn('❌ 远程弹幕获取失败:', e);
+            }
+        }
+        try {
+            const videoDataRes = await client.request({
+                url: 'https://api.bilibili.com/x/web-interface/view',
+                params: { bvid },
+                desc: `获取视频信息 ${bvid}`
+            });
+            const videoData = videoDataRes.data
+            const cid = videoData.cid;
+            const xml = await client.request({
+                url: 'https://api.bilibili.com/x/v1/dm/list.so',
+                params: { oid: cid },
+                responseType: 'text',
+                desc: `获取弹幕 XML cid=${cid}`
+            });
+            const danmakuData = parseDanmakuXml(xml);
+            return {
+                bvid,
+                cid,
+                videoData,
+                danmakuData,
+                fetchtime: Math.floor(Date.now() / 1000)
+            };
+        } catch (e) {
+            console.error('❌ GM弹幕获取失败:', e);
+            throw new Error('弹幕获取失败');
+        }
+    }
+    function parseDanmakuXml(xml) {
+        const danmakus = [];
+        const regex = /<d p="([^"]+)">([^<]*)<\/d>/g;
+        let match;
+        while ((match = regex.exec(xml)) !== null) {
+            const p = match[1].split(",");
+            if (p.length < 8) continue;
+            danmakus.push({
+                progress: Math.round(parseFloat(p[0]) * 1000),  // 出现时间（ms）
+                mode: parseInt(p[1]),
+                fontsize: parseInt(p[2]),
+                color: parseInt(p[3]),
+                ctime: parseInt(p[4]),
+                pool: parseInt(p[5]),
+                midHash: p[6],
+                dmid: p[7],
+                weight: p[8] ? parseInt(p[8]) : 0,
+                content: match[2].trim()
+            });
+        }
+        return danmakus;
+    }
 
     try {
         observeVideoChange();
