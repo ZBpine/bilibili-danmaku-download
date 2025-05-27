@@ -85,10 +85,4 @@
 
 推荐使用配套的 Tampermonkey 用户脚本（[YouTube B站弹幕播放器](../tampermonkey/README.md)），可在 YouTube 页面自动查询 B站视频弹幕并播放。
 
----
-
-## ⚠ 注意事项
-
-* 请确保 `cookie.txt` Cookie 中含有 buvid3 字段（未登录的cookie也行），否则无法搜索B站视频
-* 此服务默认运行在 `http://127.0.0.1:13245`
 

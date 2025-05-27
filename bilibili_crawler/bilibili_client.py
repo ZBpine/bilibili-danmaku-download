@@ -1,5 +1,6 @@
 # bilibili_client.py
 
+import os
 import time
 import requests
 import urllib.parse
@@ -8,7 +9,7 @@ from hashlib import md5
 
 
 class BilibiliClient:
-    def __init__(self, cookie_file="cookie.txt", cookie_string=None):
+    def __init__(self, cookie_file="cookie.txt", cookie_string=None, cookie_force=True):
         self.session = requests.Session()
         self.session.headers.update(
             {
@@ -16,20 +17,54 @@ class BilibiliClient:
                 "Referer": "https://www.bilibili.com/",
             }
         )
-        if cookie_string:
-            self.session.headers["Cookie"] = cookie_string
-        else:
-            self._load_cookie(cookie_file)
+        self.setCookie(cookie_file, cookie_string, cookie_force)
         self.img_key, self.sub_key = self._get_wbi_keys()
 
-    def _load_cookie(self, path):
+    def setCookie(
+        self, cookie_file="cookie.txt", cookie_string=None, cookie_force=True
+    ):
+        """
+        设置 Cookie。如果提供了 cookie_string，优先使用它；
+        否则尝试从文件加载；如仍无效且cookie_force为真，则访问 bilibili.com 获取 Cookie。
+        """
         try:
-            with open(path, "r", encoding="utf-8") as f:
-                cookie = f.readline().strip()
-                if cookie:
-                    self.session.headers["Cookie"] = cookie
-        except FileNotFoundError:
-            print(f"⚠️ 警告：未找到 {path}，部分接口可能请求失败")
+            # 情况1：直接使用传入的 cookie 字符串
+            if cookie_string:
+                self.session.headers["Cookie"] = cookie_string
+                print("✅ 已使用传入的 Cookie 字符串")
+                return
+
+            # 情况2：尝试从文件中读取
+            if os.path.exists(cookie_file):
+                with open(cookie_file, "r", encoding="utf-8") as f:
+                    file_cookie = f.readline().strip()
+                    if file_cookie:
+                        self.session.headers["Cookie"] = file_cookie
+                        print(f"✅ 成功从 {cookie_file} 读取 Cookie")
+                        return
+
+            if cookie_force:
+                # 情况3：自动访问 bilibili.com 获取 Cookie
+                print("⚠️ 未提供有效 Cookie，正在自动访问 bilibili.com 获取...")
+                response = self.session.get("https://www.bilibili.com/")
+                response.raise_for_status()
+
+                # 将 session 中的 Cookie 整合为字符串
+                generated_cookie = "; ".join(
+                    [f"{k}={v}" for k, v in self.session.cookies.get_dict().items()]
+                )
+                self.session.headers["Cookie"] = generated_cookie
+                print(f"✅ 自动获取 Cookie 成功：{generated_cookie}")
+
+                # 写入到文件
+                with open(cookie_file, "w", encoding="utf-8") as f:
+                    f.write(generated_cookie + "\n")
+                    print(f"📝 Cookie 已保存到 {cookie_file}")
+            else:
+                print("ℹ️ 未设置 Cookie，部分接口可能不可用")
+
+        except Exception as e:
+            print(f"❌ 设置 Cookie 失败：{e}")
 
     def _get_wbi_keys(self) -> tuple[str, str]:
         url = "https://api.bilibili.com/x/web-interface/nav"
@@ -123,8 +158,10 @@ class BilibiliClient:
         params["w_rid"] = w_rid
         return params
 
-    def get(self, url, params=None, desc=""):
+    def get(self, url, params=None, sign=False, desc=""):
         try:
+            if sign and params:
+                params = self.sign_params(params)
             res = self.session.get(url, params=params, timeout=10)
             print(f"🌐 请求：{desc or url}")
             print(f"  ↳ 状态码: {res.status_code}")
@@ -146,8 +183,10 @@ class BilibiliClient:
             print(f"🚫 网络请求失败：{desc or url}")
             raise e
 
-    def get_text(self, url, params=None, desc=""):
+    def get_text(self, url, params=None, desc="", sign=False):
         try:
+            if sign and params:
+                params = self.sign_params(params)
             res = self.session.get(url, params=params, timeout=10)
             res.encoding = "utf-8"
             print(f"🌐 请求：{desc or url}")

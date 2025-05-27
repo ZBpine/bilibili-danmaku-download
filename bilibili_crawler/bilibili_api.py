@@ -29,8 +29,9 @@ class BilibiliAPI:
         """
         url = "https://api.bilibili.com/x/space/wbi/acc/info"
         params = {"mid": str(mid)}
-        signed = self.client.sign_params(params)
-        res = self.client.get(url, params=signed, desc=f"获取 UP 主信息 mid={mid}")
+        res = self.client.get(
+            url, params=params, sign=True, desc=f"获取 UP 主信息 mid={mid}"
+        )
         return res["data"]
 
     def get_videos(self, mid: int, days: int = 10) -> list:
@@ -44,8 +45,9 @@ class BilibiliAPI:
 
         while True:
             params = {"mid": str(mid), "pn": str(page), "ps": "30", "order": "pubdate"}
-            signed = self.client.sign_params(params)
-            res = self.client.get(url, params=signed, desc=f"获取视频列表 page={page}")
+            res = self.client.get(
+                url, params=params, sign=True, desc=f"获取视频列表 page={page}"
+            )
 
             if res["code"] != 0 or "list" not in res["data"]:
                 break
@@ -105,7 +107,8 @@ class BilibiliAPI:
         获取视频详细信息（通过 bvid）
         """
         url = "https://api.bilibili.com/x/web-interface/view"
-        res = self.client.get(url, {"bvid": bvid}, desc=f"获取视频信息 {bvid}")
+        params = {"bvid": bvid}
+        res = self.client.get(url, params=params, desc=f"获取视频信息 {bvid}")
         return res["data"]
 
     def get_episode_info(self, ep_id: int) -> dict:
@@ -130,8 +133,7 @@ class BilibiliAPI:
         """
         url = "https://api.bilibili.com/x/web-interface/view/conclusion/get"
         params = {"bvid": bvid, "cid": str(cid), "up_mid": str(mid)}
-        signed = self.client.sign_params(params)
-        res = self.client.get(url, params=signed, desc="获取AI摘要")
+        res = self.client.get(url, params=params, sign=True, desc="获取AI摘要")
         try:
             return res["data"]["model_result"].get("summary", "无摘要")
         except:
@@ -146,9 +148,8 @@ class BilibiliAPI:
         """
         url = "https://api.bilibili.com/x/web-interface/search/type"
         params = {"search_type": content_type, "keyword": keyword, "page": 1}
-        signed = self.client.sign_params(params)
         res = self.client.get(
-            url, params=signed, desc=f"搜索类型={content_type}：{keyword}"
+            url, params=params, sign=True, desc=f"搜索类型={content_type}：{keyword}"
         )
 
         return res.get("data", {}).get("result", [])[:limit]
