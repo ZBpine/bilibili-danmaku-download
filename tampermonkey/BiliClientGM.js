@@ -447,6 +447,7 @@ export class BiliClientGM {
             filtered[k] = String(params[k]).replace(/['!()*]/g, '');
         });
         const query = new URLSearchParams(filtered).toString();
+        console.log(md5);
         const w_rid = md5(query + mixinKey);
         return { ...filtered, w_rid };
     }
