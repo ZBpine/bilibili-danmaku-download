@@ -77,6 +77,7 @@ class SettingsManager:
 
 class MainWindow(QWidget):
     refresh_signal = Signal()
+
     def __init__(self):
         super().__init__()
         self.setWindowIcon(QIcon(":/images/bilibili.ico"))
@@ -270,13 +271,14 @@ class MainWindow(QWidget):
 
         tips = QLabel(
             "<b>Cookie 说明：</b><br><br>"
+            "• <b>不设置Cookie会自动生成（没登陆的），所以不设置也不影响使用</b><br><br>"
             "• <b>下载弹幕功能</b>：<br>"
             "  - 可设置也可以不设置 Cookie。<br>"
             "  - 如果设置了已登录的 Cookie，可下载额外信息，如 UP 主信息、AI 总结等（非必要数据）。<br>"
             "  - 未设置 Cookie 或使用未登录 Cookie，也能下载弹幕，但不能下载额外信息。<br><br>"
             "• <b>服务器功能</b>：<br>"
             "  - 必须设置 Cookie，否则搜索接口无法使用。<br>"
-            "  - 已登录或未登录状态的 Cookie 都可以。<br>"
+            "  - 已登录或未登录状态的 Cookie 都可以。"
         )
         tips.setWordWrap(True)  # 自动换行
 
@@ -284,10 +286,7 @@ class MainWindow(QWidget):
         left_layout.addStretch()
 
         self.cookie_editor = QTextEdit()
-        cookie_path = "config/cookie.txt"
-        if os.path.exists(cookie_path):
-            with open(cookie_path, "r", encoding="utf-8") as f:
-                self.cookie_editor.setPlainText(f.read())
+        self.refresh_cookie_editor()
 
         save_btn = QPushButton("保存 Cookie")
         save_btn.clicked.connect(
@@ -417,6 +416,12 @@ class MainWindow(QWidget):
         else:
             self.structure_viewer.setText("⚠️ 尚未有下载记录")
 
+    def refresh_cookie_editor(self):
+        cookie_path = "config/cookie.txt"
+        if os.path.exists(cookie_path):
+            with open(cookie_path, "r", encoding="utf-8") as f:
+                self.cookie_editor.setPlainText(f.read())
+
     def save_file(self, path, content):
         try:
             os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -494,17 +499,6 @@ class MainWindow(QWidget):
         if hasattr(self, "_server_started") and self._server_started:
             print("⚠️ 服务器已在运行中，忽略重复启动。")
             return
-
-        # ✅ 检查 cookie 文件
-        cookie_path = "config/cookie.txt"
-        if not os.path.exists(cookie_path):
-            print("❌ 未找到 Cookie 文件，无法启动服务器。请先设置 Cookie。")
-            return
-        with open(cookie_path, "r", encoding="utf-8") as f:
-            cookie_content = f.read().strip()
-            if not cookie_content:
-                print("❌ Cookie 文件为空，无法启动服务器。请设置有效的 Cookie。")
-                return
 
         def task():
             self.server_button.setEnabled(False)

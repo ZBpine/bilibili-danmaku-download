@@ -14,7 +14,7 @@
 ### 后端（爬虫+服务器）
 
 * 前往[发布页](https://github.com/ZBpine/bilibili-danmaku-download/releases)下载
-* 如果想直接用，那么下载那个exe文件就行，不用安装，放进一个文件夹里直接运行就可以。
+* 如果想直接用，那么下载那个exe文件就行。不需要安装，放进一个文件夹里直接运行就可以。
 * 如果用不了或者想自己改，那就把Python源码下下来自己跑：
   * `downloader.py`是弹幕爬虫，`server.py`是弹幕查询服务器，这两个可以python直接单独运行
   * `gui_app.py`、`gui_main.py`是Qt写的带用户界面的程序。`gui_main.py`打包后就是发布页的exe
@@ -74,6 +74,8 @@
 
 #### 📄 Cookie 需求说明：
 
+> 1.4.0版本以上运行时若未设置Cookie，会自动获取Cookie（没登陆的）
+
 - **下载弹幕功能**
   - 可设置也可以不设置 Cookie。
   - 如果设置了已登录的 Cookie，可下载额外信息，如 UP 主信息、AI 总结等（非必要数据）。
@@ -85,7 +87,7 @@
 
 #### 🛠️ 获取Cookie方法
 
-1. 浏览器打开B站[www.bilibili.com]([www.bilibili.com](https://www.bilibili.com/))（若要获取未登录的Cookie可以用无痕浏览打开B站）
+1. 浏览器打开B站[www.bilibili.com](https://www.bilibili.com/)（若要获取未登录的Cookie可以用无痕浏览打开B站）
 2. F12打开开发者工具
 3. 选择网络 -> 随便选一个请求 -> 请求标头 -> 复制整段Cookie
 
