@@ -1,4 +1,4 @@
-class DanmakuDOMAdapter {
+export class DanmakuDOMAdapter {
     constructor() {
         this.container = null;
         this.videoEl = null;
@@ -96,6 +96,13 @@ export class BiliDanmakuPlayer {
                 zIndex: '9998'
             }
         })
+        this.domAdapter.callbacks.onSeek = () => {
+            this.danmakuList.forEach(dm => dm._shown = false);
+            Array.from(this.container.children).forEach(child => child.remove());
+        };
+        this.domAdapter.callbacks.onResize = () => {
+            this.updateTracks();
+        };
         this.logStyle = {
             tag: 'Danmaku Player',
             style: 'background: #FF0000; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold;',
@@ -112,13 +119,6 @@ export class BiliDanmakuPlayer {
         this.domAdapter.addContainer(this.container);
         this.updateTracks();
 
-        this.domAdapter.callbacks.onSeek = () => {
-            this.danmakuList.forEach(dm => dm._shown = false);
-            Array.from(this.container.children).forEach(child => child.remove());
-        };
-        this.domAdapter.callbacks.onResize = () => {
-            this.updateTracks();
-        };
         this.domAdapter.addResizeListener();
         this.domAdapter.getVideoElement();
 

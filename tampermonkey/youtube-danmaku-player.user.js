@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name         YouTube B站弹幕播放器
 // @namespace    https://github.com/ZBpine/bilibili-danmaku-download/
-// @version      1.4.1
+// @version      1.4.2
 // @description  加载本地 B站弹幕 JSON文件，在 YouTube 视频上显示
 // @author       ZBpine
 // @match        https://www.youtube.com/*
 // @match        https://www.bilibili.com/*
+// @grant        unsafeWindow
 // @grant        GM_xmlhttpRequest
 // @connect      api.bilibili.com
 // @license      MIT
@@ -904,6 +905,127 @@
         }
         return danmakus;
     }
+
+    /*
+    * chromium的浏览器会自动关闭AdblockPlus拦截Youtube的广告
+    * 于是AdblockPlus推出了实验性广告拦截
+    * 方法是隐藏原本的视频，插入一个可以阻拦广告的iframe视频
+    * 以下为解决办法
+    */
+    function transformIframeDOMAdapter(domAdapter) {
+        if (!domAdapter) return;
+        if (unsafeWindow.iframePlayer) {
+            if (!domAdapter.backup) domAdapter.backup = {};
+            if (!domAdapter.backup.getPlayingState)
+                domAdapter.backup.getPlayingState = domAdapter.getPlayingState;
+            if (!domAdapter.backup.getVideoWrapper)
+                domAdapter.backup.getVideoWrapper = domAdapter.getVideoWrapper;
+            domAdapter.getPlayingState = function () {
+                const player = unsafeWindow.iframePlayer;
+                const state = typeof player.getPlayerState === 'function'
+                    ? player.getPlayerState()
+                    : player.playerInfo?.playerState ?? 3;
+                const currentTime = typeof player.getCurrentTime === 'function'
+                    ? player.getCurrentTime()
+                    : player.playerInfo?.currentTime ?? 0;
+                if (domAdapter.lastTime) {
+                    const delta = Math.abs(currentTime - domAdapter.lastTime);
+                    if (delta > 1) {
+                        domAdapter.callbacks.onSeek?.();
+                    }
+                }
+                domAdapter.lastTime = currentTime;
+                return {
+                    paused: state == 2,
+                    currentTime
+                };
+            }
+            domAdapter.getVideoWrapper = function () {
+                const iframe = document.querySelector('iframe#yt-haven-embed-player');
+                return iframe.parentElement;
+            }
+        } else {
+            domAdapter.getPlayingState = domAdapter.backup.getPlayingState;
+            domAdapter.getVideoWrapper = domAdapter.backup.getVideoWrapper;
+        }
+    }
+    function observeIframePlayer() {
+        let player = null;
+        const setupPlayer = async (iframe) => {
+            if (!iframe || typeof unsafeWindow.YT?.Player !== 'function') return;
+            if (iframe.dataset.ytBound) return;
+            iframe.dataset.ytBound = '1';
+            player = new unsafeWindow.YT.Player(iframe, {
+                events: {
+                    onReady: () => {
+                        console.log('[Danmaku] 已绑定 iframe 播放器');
+                        unsafeWindow.iframePlayer = player;
+                        transformIframeDOMAdapter(dmPanel.dmPlayer?.domAdapter);
+                    }
+                }
+            });
+        };
+        const destroyPlayer = () => {
+            if (player && typeof player.destroy === 'function') {
+                player.destroy();
+            }
+            unsafeWindow.iframePlayer = null;
+            player = null;
+        };
+        const observer = new MutationObserver(() => {
+            const iframe = document.querySelector('iframe#yt-haven-embed-player');
+            if (iframe && iframe !== unsafeWindow.iframePlayer?.getIframe()) {
+                setupPlayer(iframe);
+            } else if (!iframe && unsafeWindow.iframePlayer) {
+                console.log('[Danmaku] iframe 被移除，清理播放器');
+                destroyPlayer();
+                transformIframeDOMAdapter(dmPanel.dmPlayer?.domAdapter);
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        // 初始检查
+        const existing = document.querySelector('iframe#yt-haven-embed-player');
+        if (existing) setupPlayer(existing);
+    }
+    function loadYouTubeIframeAPI(callback) {
+        if (unsafeWindow.YT && typeof unsafeWindow.YT.Player === 'function') {
+            callback?.();
+            return;
+        }
+        let scriptUrl = 'https://www.youtube.com/iframe_api';
+
+        try {
+            // 创建 Trusted Types 策略
+            const policy = window.trustedTypes?.createPolicy?.('youtube-api-policy', {
+                createScriptURL: (url) => url
+            });
+            if (policy) {
+                scriptUrl = policy.createScriptURL(scriptUrl);
+            }
+        } catch (e) {
+            console.warn('[YT] Trusted Types policy creation failed:', e);
+        }
+        const tag = document.createElement('script');
+        tag.src = scriptUrl;
+        tag.id = 'iframe-api-script';
+        tag.async = true;
+        // 插入 script 标签
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        if (firstScriptTag) {
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        } else {
+            document.head.appendChild(tag);
+        }
+        console.log('YT');
+        console.log(unsafeWindow.YT);
+        // 等待 API 就绪
+        unsafeWindow.onYouTubeIframeAPIReady = () => {
+            console.log('[YT] Iframe API loaded');
+            callback?.();
+        };
+    }
+    if (!isBilibili) loadYouTubeIframeAPI(() => { observeIframePlayer() });
 
     try {
         observeVideoChange();
