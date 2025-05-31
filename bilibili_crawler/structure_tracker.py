@@ -9,9 +9,8 @@ from datetime import datetime
 class StructureTracker:
     def __init__(self, base_dir):
         self.base_dir = base_dir
-        self.structure_file = os.path.join(base_dir, "index.json")
+        self.structure_file = os.path.join(base_dir, "structure.json")
         self.data = defaultdict(list)
-        self._recent_updates = set()
         self._load()
 
     def _load(self):
@@ -21,68 +20,116 @@ class StructureTracker:
                 for mid, entries in raw.items():
                     self.data[int(mid)] = entries
 
+    def set_up_info(self, mid, info):
+        """设置 UP 主基础信息"""
+        self.data.setdefault(mid, {})
+        self.data[mid]["name"] = info.get(
+            "name", self.data[mid].get("name", "未知UP主")
+        )
+        self.data[mid]["sex"] = info.get("sex", self.data[mid].get("sex", ""))
+        self.data[mid]["sign"] = info.get("sign", self.data[mid].get("sign", ""))
+        self.data[mid]["fans"] = info.get("fans", self.data[mid].get("fans", 0))
+        self.data[mid]["recent"] = []
+
     def update(self, mid, data):
         bvid = data.get("bvid", "未知BVID")
         video_data = data.get("videoData", {})
         danmaku_data = data.get("danmakuData", [])
         title = video_data.get("title", "未知标题")
-        pub_timestamp = video_data.get("pubdate", 0)
-        pubdate = datetime.fromtimestamp(pub_timestamp).strftime("%Y-%m-%d %H:%M:%S")
+        pubdate = video_data.get("pubdate", 0)
         fetchtime = data.get("fetchtime", 0)
-        download_time = datetime.fromtimestamp(fetchtime).strftime("%Y-%m-%d %H:%M:%S")
         expected_danmaku = video_data.get("stat", {}).get("danmaku", 0)
         actual_danmaku = len(danmaku_data)
-        entry = {
+        if mid not in self.data:
+            self.data[mid] = {
+                "recent": [],
+                "video": {},
+            }
+        else:
+            self.data[mid].setdefault("video", {})
+            self.data[mid].setdefault("recent", [])
+        self.data[mid]["video"][bvid] = {
             "bvid": bvid,
             "title": title,
             "pubdate": pubdate,
-            "download_time": download_time,
+            "fetchtime": fetchtime,
             "danmaku_count": {
                 "expected": expected_danmaku,
                 "actual": actual_danmaku,
             },
         }
-        entries = self.data[mid]
-        for i, item in enumerate(entries):
-            if item.get("bvid") == bvid:
-                entries[i] = entry
-                break
-        else:
-            entries.append(entry)
-
-        self._recent_updates.add(bvid)
+        self.data[mid]["recent"].append(bvid)
 
     def save(self):
-        for entries in self.data.values():
-            entries.sort(key=lambda x: x["pubdate"], reverse=True)
         json_data = {str(mid): entries for mid, entries in self.data.items()}
         with open(self.structure_file, "w", encoding="utf-8") as f:
             json.dump(json_data, f, ensure_ascii=False, indent=4)
         self.export_txt()
 
+    def get_tree_data(self):
+        result = []
+        for mid, info in self.data.items():
+            name = info.get("name", "未知UP主")
+            sign = info.get("sign", "")
+            fans = info.get("fans", 0)
+            user = {
+                "mid": mid,
+                "name": name,
+                "lines": [
+                    f"用户签名     ：{sign}",
+                    f"粉丝数量     ：{fans:,}",
+                ],
+            }
+            recent_set = set(info.get("recent", []))
+            video_dict = info.get("video", {})
+
+            videos = []
+            for bvid, video in sorted(
+                video_dict.items(),
+                key=lambda i: i[1].get("pubdate", 0),
+                reverse=True,
+            ):
+                title = video.get("title", "未知标题")
+                pubdate = datetime.fromtimestamp(video.get("pubdate", 0)).strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
+                fetchtime = datetime.fromtimestamp(video.get("fetchtime", 0)).strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
+                danmaku_count = video.get("danmaku_count", {})
+                actual = danmaku_count.get("actual", "?")
+                expected = danmaku_count.get("expected", "?")
+                video_info = {
+                    "bvid": bvid,
+                    "is_new": bvid in recent_set,
+                    "lines": [
+                        f"视频标题     ：{title}",
+                        f"发布时间     ：{pubdate}",
+                        f"下载时间     ：{fetchtime}",
+                        f"弹幕数量     ：{actual} / {expected}",
+                    ],
+                }
+                videos.append(video_info)
+            result.append((user, videos))
+        return result
+
     def export_txt(self, txt_path=None):
         if not txt_path:
             txt_path = os.path.join(self.base_dir, "structure.txt")
-
         lines = []
-        for mid, entries in self.data.items():
-            lines.append(f" 📁  UP主 {mid} ：")
-            for entry in entries:
-                bvid = entry.get("bvid", "未知BVID")
-                title = entry.get("title", "未知标题")
-                pubdate = entry.get("pubdate", "未知时间")
-                download_time = entry.get("download_time", "未知时间")
-                expected = entry.get("danmaku_count", {}).get("expected", "未知")
-                actual = entry.get("danmaku_count", {}).get("actual", "未知")
-
-                is_new = entry["bvid"] in self._recent_updates
-                mark = " 【NEW】" if is_new else ""
+        for user, videos in self.get_tree_data():
+            mid = user["mid"]
+            name = user["name"]
+            lines.append(f" 📁  [{mid}]{name} ：")
+            for line in user["lines"]:
+                lines.append(f"  │   {line}")
+            for video in videos:
+                bvid = video["bvid"]
+                mark = " 【NEW】" if video["is_new"] else ""
                 lines.append(f"  │")
                 lines.append(f"  ├─  {bvid}{mark}")
-                lines.append(f"  │   视频标题     ：{title}")
-                lines.append(f"  │   发布时间     ：{pubdate}")
-                lines.append(f"  │   下载时间     ：{download_time}")
-                lines.append(f"  │   弹幕数量     ：{actual} / {expected}")
+                for line in video["lines"]:
+                    lines.append(f"  │   {line}")
             lines.append("")
 
         with open(txt_path, "w", encoding="utf-8") as f:
@@ -100,6 +147,19 @@ if __name__ == "__main__":
             continue
 
         mid = int(mid_dir)
+
+        info_path = os.path.join(mid_path, "info.json")
+        if os.path.exists(info_path):
+            try:
+                with open(info_path, "r", encoding="utf-8") as f:
+                    info_json = json.load(f)
+                    card = info_json.get("card", {})
+                    tracker.set_up_info(mid=mid, info=card)
+            except Exception as e:
+                print(f"[⚠️ 忽略 info.json 错误] {mid}: {type(e).__name__}: {e}")
+        else:
+            print(f"[⚠️ 缺失 info.json] {mid_path}")
+
         for video_dir in os.listdir(mid_path):
             video_path = os.path.join(mid_path, video_dir)
             if not os.path.isdir(video_path):

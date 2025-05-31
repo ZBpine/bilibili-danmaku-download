@@ -23,9 +23,9 @@ class BilibiliAPI:
         """
         return self.get_login_info.get("isLogin", False)
 
-    def get_uploader_info(self, mid: int) -> dict:
+    def get_user_info(self, mid: int) -> dict:
         """
-        获取 UP 主信息
+        获取 用户空间详细信息
         """
         url = "https://api.bilibili.com/x/space/wbi/acc/info"
         params = {"mid": str(mid)}
@@ -33,6 +33,16 @@ class BilibiliAPI:
             url, params=params, sign=True, desc=f"获取 UP 主信息 mid={mid}"
         )
         return res["data"]
+
+    def get_user_card(self, mid: int, with_photo: bool = True) -> dict:
+        """
+        获取用户的名片信息
+        https://api.bilibili.com/x/web-interface/card
+        """
+        url = "https://api.bilibili.com/x/web-interface/card"
+        params = {"mid": str(mid), "photo": "true" if with_photo else "false"}
+        res = self.client.get(url, params=params, desc=f"获取用户名片 mid={mid}")
+        return res.get("data", {})
 
     def get_videos(self, mid: int, days: int = 10) -> list:
         """
