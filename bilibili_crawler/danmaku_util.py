@@ -19,7 +19,7 @@ def parse_danmaku_xml(xml_text):
             "ctime": int(parts[4]),
             "pool": int(parts[5]),
             "midHash": parts[6],
-            "dmid": parts[7],
+            "id": parts[7],
             "weight": int(parts[8]) if len(parts) > 8 else 0,
             "content": (d.text or "").strip(),
         }
