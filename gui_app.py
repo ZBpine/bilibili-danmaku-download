@@ -19,11 +19,14 @@ from PySide2.QtWidgets import (
     QSystemTrayIcon,
     QMenu,
     QAction,
+    QTreeWidget,
+    QTreeWidgetItem,
 )
 from PySide2.QtCore import Qt, QTimer, QObject, Signal
 from PySide2.QtGui import QIcon
 from downloader import download_bilibili
 from server import create_server_app
+from bilibili_crawler import StructureTracker
 import resources_rc
 
 
@@ -112,8 +115,8 @@ class MainWindow(QWidget):
             self.tabs.setCurrentIndex(last_index)
         self.tabs.currentChanged.connect(self.save_current_tab_index)
 
-        layout.addWidget(self.tabs)
-        layout.addLayout(self.build_footer_layout())
+        layout.addWidget(self.tabs, 9)
+        layout.addLayout(self.build_footer_layout(), 7)
         self.setLayout(layout)
         self.create_tray_icon()
 
@@ -229,7 +232,7 @@ class MainWindow(QWidget):
 
         port_layout = QHBoxLayout()
         port_layout.addWidget(QLabel("端口："))
-        self.port_input = QLineEdit("13245")
+        self.port_input = QLineEdit(str(self.settings.get("server_port", 13245)))
         self.port_input.setFixedWidth(100)
         self.port_input.textChanged.connect(self.update_server_url)
         self.server_button = QPushButton("运行服务器")
@@ -265,29 +268,15 @@ class MainWindow(QWidget):
 
     def build_cookie_tab(self):
         tab = QWidget()
-        layout = QHBoxLayout()
-        left_layout = QVBoxLayout()
-        # left_layout.setAlignment(Qt.AlignTop)
+        layout = QVBoxLayout()
 
         tips = QLabel(
-            "<b>Cookie 说明：</b><br><br>"
-            "• <b>不设置Cookie会自动生成（没登陆的），所以不设置也不影响使用</b><br><br>"
-            "• <b>下载弹幕功能</b>：<br>"
-            "  - 可设置也可以不设置 Cookie。<br>"
-            "  - 如果设置了已登录的 Cookie，可下载额外信息，如 UP 主信息、AI 总结等（非必要数据）。<br>"
-            "  - 未设置 Cookie 或使用未登录 Cookie，也能下载弹幕，但不能下载额外信息。<br><br>"
-            "• <b>服务器功能</b>：<br>"
-            "  - 必须设置 Cookie，否则搜索接口无法使用。<br>"
-            "  - 已登录或未登录状态的 Cookie 都可以。"
+            "<b>说明：不设置Cookie也能使用全部功能</b>（会自动生成无登陆Cookie）<br>"
         )
         tips.setWordWrap(True)  # 自动换行
 
-        left_layout.addWidget(tips)
-        left_layout.addStretch()
-
         self.cookie_editor = QTextEdit()
         self.refresh_cookie_editor()
-
         save_btn = QPushButton("保存 Cookie")
         save_btn.clicked.connect(
             lambda: self.save_file(
@@ -295,13 +284,10 @@ class MainWindow(QWidget):
             )
         )
 
-        right_layout = QVBoxLayout()
-        right_layout.addWidget(QLabel("请粘贴你的 B站 Cookie:"))
-        right_layout.addWidget(self.cookie_editor)
-        right_layout.addWidget(save_btn)
-
-        layout.addLayout(left_layout, 2)
-        layout.addLayout(right_layout, 3)
+        layout.addWidget(tips)
+        layout.addWidget(QLabel("请粘贴你的 B站 Cookie:"))
+        layout.addWidget(self.cookie_editor)
+        layout.addWidget(save_btn)
 
         tab.setLayout(layout)
         return tab
@@ -310,16 +296,46 @@ class MainWindow(QWidget):
         tab = QWidget()
         layout = QVBoxLayout()
 
-        self.structure_viewer = QTextBrowser()
-        self.refresh_structure_view()
+        # 树形结构展示区
+        self.structure_tree = QTreeWidget()
+        self.structure_tree.setHeaderLabels(["当前下载记录："])
 
+        footer_layout = QHBoxLayout()
+        self.recent_only_checkbox = QCheckBox("仅显示最近下载")
+        self.recent_only_checkbox.setChecked(True)
+        self.recent_only_checkbox.stateChanged.connect(
+            lambda _: (
+                self.refresh_structure_view(),
+                self.save_structure_view_settings(),
+            )
+        )
+        self.expand_all_checkbox = QCheckBox("全部展开/收起")
+        self.expand_all_checkbox.setChecked(True)
+        self.expand_all_checkbox.stateChanged.connect(
+            lambda state: (
+                self.set_tree_expanded(state),
+                self.save_structure_view_settings(),
+            )
+        )
         refresh_btn = QPushButton("🔄 刷新")
         refresh_btn.clicked.connect(self.refresh_structure_view)
 
-        layout.addWidget(QLabel("当前下载记录："))
-        layout.addWidget(self.structure_viewer)
-        layout.addWidget(refresh_btn, alignment=Qt.AlignRight)
+        structure_settings = self.settings.get("structure_view_settings", {})
+        self.recent_only_checkbox.setChecked(
+            structure_settings.get("only_show_recent", True)
+        )
+        self.expand_all_checkbox.setChecked(structure_settings.get("expand_all", True))
 
+        footer_layout.addWidget(self.recent_only_checkbox)
+        footer_layout.addWidget(self.expand_all_checkbox)
+        footer_layout.addStretch()
+        footer_layout.addWidget(refresh_btn)
+
+        # 布局组装
+        layout.addWidget(self.structure_tree)
+        layout.addLayout(footer_layout)
+
+        self.refresh_structure_view()
         tab.setLayout(layout)
         return tab
 
@@ -334,7 +350,10 @@ class MainWindow(QWidget):
         self.minimize_on_close_checkbox.stateChanged.connect(
             lambda state: self.settings.set("minimize_on_close", state == Qt.Checked)
         )
+        clear_log_button = QPushButton("🧹 清空")
+        clear_log_button.clicked.connect(lambda: self.log_browser.clear())
         header_layout.addWidget(QLabel("📋 日志输出:"))
+        header_layout.addWidget(clear_log_button)
         header_layout.addStretch()  # 左右拉开
         header_layout.addWidget(self.minimize_on_close_checkbox)
         layout.addLayout(header_layout)
@@ -407,14 +426,61 @@ class MainWindow(QWidget):
         except Exception as e:
             print(f"[ERROR] 保存下载设置失败: {e}")
 
+    def save_structure_view_settings(self):
+        try:
+            settings_obj = {
+                "only_show_recent": self.recent_only_checkbox.isChecked(),
+                "expand_all": self.expand_all_checkbox.isChecked(),
+            }
+            self.settings.set("structure_view_settings", settings_obj)
+        except Exception as e:
+            print(f"[ERROR] 保存下载记录设置失败: {e}")
+
     def refresh_structure_view(self):
-        structure_path = os.path.join("downloads", "structure.txt")
-        if os.path.exists(structure_path):
-            with open(structure_path, "r", encoding="utf-8") as f:
-                content = f.read()
-                self.structure_viewer.setText(content)
-        else:
-            self.structure_viewer.setText("⚠️ 尚未有下载记录")
+        def tree_item_with_tip(text):
+            item = QTreeWidgetItem([text])
+            item.setToolTip(0, text)
+            return item
+
+        self.structure_tree.clear()
+        try:
+            tracker = StructureTracker("downloads")
+            only_recent = self.recent_only_checkbox.isChecked()
+            tree_data = tracker.get_tree_data()
+            for user, videos in tree_data:
+                mid = user["mid"]
+                name = user["name"]
+                up_item = QTreeWidgetItem([f"[{mid}] {name}"])
+                self.structure_tree.addTopLevelItem(up_item)
+                for line in user["lines"]:
+                    up_item.addChild(tree_item_with_tip(line))
+                for video in videos:
+                    if only_recent and not video["is_new"]:
+                        continue
+
+                    bvid = video["bvid"]
+                    mark = " 🆕" if video["is_new"] else ""
+                    video_item = QTreeWidgetItem([f"{bvid}{mark}"])
+                    up_item.addChild(video_item)
+
+                    for line in video["lines"]:
+                        video_item.addChild(tree_item_with_tip(line))
+
+            self.set_tree_expanded(self.expand_all_checkbox.checkState())
+
+        except Exception as e:
+            self.structure_tree.addTopLevelItem(QTreeWidgetItem([f"❌ 加载失败: {e}"]))
+
+    def set_tree_expanded(self, state):
+        expanded = state == Qt.Checked
+
+        def recurse(item):
+            item.setExpanded(expanded)
+            for i in range(item.childCount()):
+                recurse(item.child(i))
+
+        for i in range(self.structure_tree.topLevelItemCount()):
+            recurse(self.structure_tree.topLevelItem(i))
 
     def refresh_cookie_editor(self):
         cookie_path = "config/cookie.txt"
@@ -525,6 +591,7 @@ class MainWindow(QWidget):
     def update_server_url(self):
         port = self.port_input.text().strip()
         if port.isdigit():
+            self.settings.set("server_port", int(port))
             url = f"http://127.0.0.1:{port}"
         else:
             url = "端口无效"

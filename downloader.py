@@ -73,14 +73,12 @@ def download_bilibili(
         try:
             log(f"[{datetime.now()}] 正在处理 UP 主：{mid}")
 
-            if is_login:
-                uploader_info = api.get_uploader_info(mid)
-                up_dir = os.path.join(download_dir, str(mid))
-                os.makedirs(up_dir, exist_ok=True)
-                with open(
-                    os.path.join(up_dir, "info.json"), "w", encoding="utf-8"
-                ) as f:
-                    json.dump(uploader_info, f, ensure_ascii=False, indent=2)
+            uploader_info = api.get_user_card(mid)
+            up_dir = os.path.join(download_dir, str(mid))
+            os.makedirs(up_dir, exist_ok=True)
+            with open(os.path.join(up_dir, "info.json"), "w", encoding="utf-8") as f:
+                json.dump(uploader_info, f, ensure_ascii=False, indent=4)
+            tracker.set_up_info(mid, uploader_info.get("card", {}))
 
             if is_login:
                 videos = api.get_videos(mid, lookback_days)
