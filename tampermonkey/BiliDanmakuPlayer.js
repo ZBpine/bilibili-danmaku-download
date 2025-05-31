@@ -185,29 +185,29 @@ export class BiliDanmakuPlayer {
         });
         if (dm.mode === 5) {
             // 顶部弹幕
-            const track = this.getFreeTrack(this.topTracks, dm.dmid);
+            const track = this.getFreeTrack(this.topTracks, dm.id);
             el.style.top = `${track * this.LINE_HEIGHT + 5}px`;
             el.style.left = '50%';
             el.style.transform = 'translateX(-50%)';
             this.domAdapter.injectElement(this.container, el);
             setTimeout(() => {
-                if (this.topTracks[track] === dm.dmid) this.topTracks[track] = null;
+                if (this.topTracks[track] === dm.id) this.topTracks[track] = null;
                 el.remove();
             }, 4000);
         } else if (dm.mode === 4) {
             // 底部弹幕
-            const track = this.getFreeTrack(this.bottomTracks, dm.dmid);
+            const track = this.getFreeTrack(this.bottomTracks, dm.id);
             el.style.bottom = `${track * this.LINE_HEIGHT + 5}px`;
             el.style.left = '50%';
             el.style.transform = 'translateX(-50%)';
             this.domAdapter.injectElement(this.container, el);
             setTimeout(() => {
-                if (this.bottomTracks[track] === dm.dmid) this.bottomTracks[track] = null;
+                if (this.bottomTracks[track] === dm.id) this.bottomTracks[track] = null;
                 el.remove();
             }, 4000);
         } else {
             // 滚动弹幕
-            const track = this.getFreeTrack(this.scrollTracks, dm.dmid);
+            const track = this.getFreeTrack(this.scrollTracks, dm.id);
             el.style.top = `${track * this.LINE_HEIGHT}px`;
             el.style.left = '100%';
             el.style.transition = 'transform 6s linear';
@@ -222,7 +222,7 @@ export class BiliDanmakuPlayer {
 
             // 提前释放轨道
             setTimeout(() => {
-                if (this.scrollTracks[track] === dm.dmid) this.scrollTracks[track] = null;
+                if (this.scrollTracks[track] === dm.id) this.scrollTracks[track] = null;
             }, 2000);
             setTimeout(() => {
                 el.remove();

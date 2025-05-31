@@ -891,14 +891,14 @@
             const p = match[1].split(",");
             if (p.length < 8) continue;
             danmakus.push({
-                progress: Math.round(parseFloat(p[0]) * 1000),  // 出现时间（ms）
+                progress: Math.round(parseFloat(p[0]) * 1000),
                 mode: parseInt(p[1]),
                 fontsize: parseInt(p[2]),
                 color: parseInt(p[3]),
                 ctime: parseInt(p[4]),
                 pool: parseInt(p[5]),
                 midHash: p[6],
-                dmid: p[7],
+                id: p[7],
                 weight: p[8] ? parseInt(p[8]) : 0,
                 content: match[2].trim()
             });
@@ -915,11 +915,10 @@
     function transformIframeDOMAdapter(domAdapter) {
         if (!domAdapter) return;
         if (unsafeWindow.iframePlayer) {
-            if (!domAdapter.backup) domAdapter.backup = {};
-            if (!domAdapter.backup.getPlayingState)
-                domAdapter.backup.getPlayingState = domAdapter.getPlayingState;
-            if (!domAdapter.backup.getVideoWrapper)
-                domAdapter.backup.getVideoWrapper = domAdapter.getVideoWrapper;
+            domAdapter.backup ??= {
+                getPlayingState: domAdapter.getPlayingState,
+                getVideoWrapper: domAdapter.getVideoWrapper
+            };
             domAdapter.getPlayingState = function () {
                 const player = unsafeWindow.iframePlayer;
                 const state = typeof player.getPlayerState === 'function'
@@ -945,8 +944,10 @@
                 return iframe.parentElement;
             }
         } else {
-            domAdapter.getPlayingState = domAdapter.backup.getPlayingState;
-            domAdapter.getVideoWrapper = domAdapter.backup.getVideoWrapper;
+            if (domAdapter.backup) {
+                domAdapter.getPlayingState = domAdapter.backup.getPlayingState;
+                domAdapter.getVideoWrapper = domAdapter.backup.getVideoWrapper;
+            }
         }
     }
     function observeIframePlayer() {
@@ -994,7 +995,6 @@
             return;
         }
         let scriptUrl = 'https://www.youtube.com/iframe_api';
-
         try {
             // 创建 Trusted Types 策略
             const policy = window.trustedTypes?.createPolicy?.('youtube-api-policy', {
@@ -1017,8 +1017,6 @@
         } else {
             document.head.appendChild(tag);
         }
-        console.log('YT');
-        console.log(unsafeWindow.YT);
         // 等待 API 就绪
         unsafeWindow.onYouTubeIframeAPIReady = () => {
             console.log('[YT] Iframe API loaded');
