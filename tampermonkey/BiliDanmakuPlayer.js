@@ -103,6 +103,16 @@ export class BiliDanmakuPlayer {
         this.domAdapter.callbacks.onResize = () => {
             this.updateTracks();
         };
+        this.domAdapter.callbacks.onPause = () => {
+            Array.from(this.container.children).forEach(el => {
+                el.style.animationPlayState = 'paused';
+            });
+        };
+        this.domAdapter.callbacks.onPlay = () => {
+            Array.from(this.container.children).forEach(el => {
+                el.style.animationPlayState = 'running';
+            });
+        };
         this.logStyle = {
             tag: 'Danmaku Player',
             style: 'background: #FF0000; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold;',
@@ -122,10 +132,13 @@ export class BiliDanmakuPlayer {
         this.domAdapter.addResizeListener();
         this.domAdapter.getVideoElement();
 
-        this.domAdapter.injectStyle('danmaku-style', `
-            @keyframes move {
-                from { transform: translateX(0); }
-                to { transform: translateX(-100%); }
+        this.domAdapter.injectStyle('danmaku-player-style', `
+            @keyframes danmaku-player-move {
+                from { transform: translateX(100%); }
+            }
+            @keyframes danmaku-player-stay {
+                from { opacity: 1; }
+                to { opacity: 1; }
             }`);
         this.observe();
     }
@@ -189,44 +202,43 @@ export class BiliDanmakuPlayer {
             el.style.top = `${track * this.LINE_HEIGHT + 5}px`;
             el.style.left = '50%';
             el.style.transform = 'translateX(-50%)';
+            el.style.animation = 'danmaku-player-stay 4s linear forwards';
             this.domAdapter.injectElement(this.container, el);
-            setTimeout(() => {
+            el.addEventListener('animationend', () => {
                 if (this.topTracks[track] === dm.id) this.topTracks[track] = null;
                 el.remove();
-            }, 4000);
+            });
         } else if (dm.mode === 4) {
             // 底部弹幕
             const track = this.getFreeTrack(this.bottomTracks, dm.id);
             el.style.bottom = `${track * this.LINE_HEIGHT + 5}px`;
             el.style.left = '50%';
             el.style.transform = 'translateX(-50%)';
+            el.style.animation = 'danmaku-player-stay 4s linear forwards';
             this.domAdapter.injectElement(this.container, el);
-            setTimeout(() => {
+            el.addEventListener('animationend', () => {
                 if (this.bottomTracks[track] === dm.id) this.bottomTracks[track] = null;
                 el.remove();
-            }, 4000);
+            });
         } else {
             // 滚动弹幕
             const track = this.getFreeTrack(this.scrollTracks, dm.id);
             el.style.top = `${track * this.LINE_HEIGHT}px`;
-            el.style.left = '100%';
-            el.style.transition = 'transform 6s linear';
-            this.domAdapter.injectElement(this.container, el);
+            el.style.right = '0';
+            el.style.animation = `danmaku-player-move 7s linear forwards`;
 
-            // 启动滚动动画
-            requestAnimationFrame(() => {
-                const containerWidth = this.container.getBoundingClientRect().width;
-                const dmWidth = el.getBoundingClientRect().width;
-                el.style.transform = `translateX(-${containerWidth + dmWidth}px)`;
+            const containerWidth = this.container.getBoundingClientRect().width;
+            el.style.transform = `translateX(-${containerWidth}px)`;
+
+            this.domAdapter.injectElement(this.container, el);
+            el.addEventListener('animationend', () => {
+                el.remove();
             });
 
             // 提前释放轨道
             setTimeout(() => {
                 if (this.scrollTracks[track] === dm.id) this.scrollTracks[track] = null;
             }, 2000);
-            setTimeout(() => {
-                el.remove();
-            }, 6500);
         }
     }
     observe() {
