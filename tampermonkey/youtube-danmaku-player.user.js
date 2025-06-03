@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube B站弹幕播放器
 // @namespace    https://github.com/ZBpine/bilibili-danmaku-download/
-// @version      1.4.3
+// @version      1.5.0
 // @description  加载本地 B站弹幕 JSON文件，在 YouTube 视频上显示
 // @author       ZBpine
 // @match        https://www.youtube.com/*
@@ -16,17 +16,32 @@
 (async () => {
     'use strict';
 
-    // 结果选择界面
     class DanmakuControlPanel {
         constructor() {
             this.panelId = 'dm-panel';
             this.dmPlayer = new BiliDanmakuPlayer();
+            this.dmPlayerCall = (methodName, ...args) => {
+                if (this.dmPlayer && typeof this.dmPlayer[methodName] === 'function') {
+                    return this.dmPlayer[methodName](...args);
+                }
+            }
             this.videoId = null;
         }
-        dmPlayerCall(methodName, ...args) {
-            if (this.dmPlayer && typeof this.dmPlayer[methodName] === 'function') {
-                return this.dmPlayer[methodName](...args);
-            }
+        bindHotkey() {
+            if (this.hotkeyBound) return;
+            this.hotkeyBound = true;
+
+            document.addEventListener('keydown', (e) => {
+                const target = e.target;
+                const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+                if (isTyping) return;
+
+                if (e.key.toLowerCase() === 'd') {
+                    if (this.toggleBtn) {
+                        this.toggleBtn.click();
+                    }
+                }
+            });
         }
         init() {
             if (document.getElementById(this.panelId)) return;
@@ -47,37 +62,80 @@
                 this.dmPlayer.logStyle.style = 'background: #00a2d8; color: white; padding: 2px 6px; border-radius: 3px;';
                 this.dmPlayer.logStyle.errorStyle = 'background: #ff4d4f; color: white; padding: 2px 6px; border-radius: 3px;';
             }
-            this.dmPlayerCall('setOpacity', dmStore.get('settings.opacity', 1));
-            this.dmPlayerCall('setDisplayArea', dmStore.get('settings.displayArea', 1));
-
-            this.loadBtn = document.createElement('button');
-            this.loadBtn.id = 'dm-btn-load';
-            Object.assign(this.loadBtn.style, buttonStyle);
+            this.dmPlayerCall('setOptions', dmStore.get('settings', {}));
 
             this.searchBtn = document.createElement('button');
             this.searchBtn.textContent = '🔍';
+            this.searchBtn.title = '搜索弹幕';
             this.searchBtn.onclick = () => this.onSearch();
             Object.assign(this.searchBtn.style, buttonStyle);
 
             this.configBtn = document.createElement('button');
             this.configBtn.textContent = '⚙️';
+            this.configBtn.title = '打开设置';
             Object.assign(this.configBtn.style, buttonStyle);
             this.configBtn.onclick = () => this.showConfigPanel();
 
             this.toggleBtn = document.createElement('button');
-            this.toggleBtn.textContent = '✅ 弹幕开';
+            this.toggleBtn.textContent = '✅';
+            this.toggleBtn.title = '开关弹幕';
             Object.assign(this.toggleBtn.style, buttonStyle);
             this.toggleBtn.onclick = () => {
                 if (!this.dmPlayer) return;
                 this.dmPlayer.toggle();
-                this.toggleBtn.textContent = this.dmPlayer.danmakuEnabled ? '✅ 弹幕开' : '❌ 弹幕关';
+                this.toggleBtn.textContent = this.dmPlayer.showing ? '✅' : '🚫';
             };
 
+            this.loadBtn = document.createElement('button');
+            this.loadBtn.id = 'dm-btn-load';
+            Object.assign(this.loadBtn.style, buttonStyle);
+            this.loadCtl = {
+                setLoad: () => {
+                    this.loadBtn.textContent = '📂';
+                    this.loadBtn.title = '载入弹幕文件';
+                    this.fileInput.value = '';
+                    this.loadBtn.onclick = () => this.fileInput.click();
+                },
+                setSave: (data) => {
+                    this.loadBtn.textContent = '💾';
+                    this.loadBtn.title = '保存到浏览器本地存储';
+                    this.loadBtn.onclick = () => {
+                        dmStore.setCache(this.videoId, data);
+                        showTip('✅ 已保存到本地');
+                        this.loadCtl.setClear();
+                    };
+                },
+                setClear: () => {
+                    this.loadBtn.textContent = '🗑️';
+                    this.loadBtn.title = '释放浏览器本地存储';
+                    this.loadBtn.onclick = () => {
+                        dmStore.removeCache(this.videoId);
+                        showTip('🗑️ 已移除本地存储');
+                        this.loadCtl.setLoad();
+                    };
+                }
+            }
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.accept = '.json';
             fileInput.style.display = 'none';
             fileInput.id = 'dm-input-file';
+            fileInput.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const json = JSON.parse(e.target.result);
+                        this.loadDanmakuSuccess(json);
+                        this.loadCtl.setSave(json);
+                    } catch (err) {
+                        this.dmPlayer.logTagError('❌ 弹幕 JSON 加载失败', err);
+                        showTip('❌ 加载失败：' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
             this.fileInput = fileInput;
             document.body.appendChild(fileInput);
 
@@ -85,18 +143,18 @@
             panel.id = this.panelId;
             Object.assign(panel.style, {
                 position: 'fixed',
-                left: '-150px',
+                width: '80px',
+                left: '-90px',
                 bottom: '40px',
-                zIndex: '9999',
+                zIndex: 10000,
                 transition: 'left 0.3s ease-in-out, opacity 0.3s ease',
                 opacity: '0.2',
                 background: '#333',
                 borderRadius: '0px 20px 20px 0px',
                 padding: '10px',
                 paddingRight: '20px',
-                width: '140px',
                 display: 'grid',
-                gridTemplateColumns: '36px auto',
+                gridTemplateColumns: '36px 36px',
                 gridAutoRows: '32px',
                 gap: '6px'
             });
@@ -108,7 +166,7 @@
                 panel.style.opacity = '1';
             });
             panel.addEventListener('mouseleave', () => {
-                panel.style.left = '-150px';
+                panel.style.left = '-90px';
                 panel.style.opacity = '0.2';
             });
 
@@ -116,96 +174,38 @@
             document.body.appendChild(panel);
             this.bindHotkey();
         }
-        bindHotkey() {
-            if (this.hotkeyBound) return;
-            this.hotkeyBound = true;
-
-            document.addEventListener('keydown', (e) => {
-                const target = e.target;
-                const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
-                if (isTyping) return;
-
-                if (e.key.toLowerCase() === 'd') {
-                    if (this.toggleBtn) {
-                        this.toggleBtn.click();
-                        // showTip(`弹幕已${this.dmPlayer.danmakuEnabled ? '开启' : '关闭'}（快捷键 D）`);
-                    }
-                }
-            });
-        }
-        loadDanmakuSuccess(json) {
-            const count = json.danmakuData.length;
-            const title = json.videoData?.title || '（未知标题）';
-            const readableTime = json.fetchtime ?
-                new Date(json.fetchtime * 1000).toLocaleString('zh-CN', { hour12: false }) : '（未知）';
-            this.dmPlayer.logTag(`🎉 成功载入：\n🎬 ${title}\n💬 共 ${count} 条弹幕\n🕒 抓取时间：${readableTime}`);
-            showTip(`🎉 成功载入：\n🎬 ${title}\n💬 共 ${count} 条弹幕\n🕒 抓取时间：${readableTime}`);
-        }
-        setLoad() {
-            this.loadBtn.textContent = '📂 载入弹幕';
-            this.fileInput.value = '';
-            this.loadBtn.onclick = () => this.fileInput.click();
-        }
-        setSave(json) {
-            this.loadBtn.textContent = '💾 存储弹幕';
-            this.loadBtn.onclick = () => {
-                dmStore.setCache(this.videoId, json);
-                showTip('✅ 已保存到本地');
-                this.setClear();
-            };
-        }
-        setClear() {
-            this.loadBtn.textContent = '🗑️ 释放存储';
-            this.loadBtn.onclick = () => {
-                dmStore.removeCache(this.videoId);
-                showTip('🗑️ 已移除本地存储');
-                this.setLoad();
-            };
-        }
         update(videoId) {
             if (!videoId) return;
             this.dmPlayer.logTag(`当前视频：${videoId}`);
             this.videoId = videoId;
-            const fileInput = this.fileInput;
             this.dmPlayerCall('clear');
-
-            fileInput.onchange = (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const json = JSON.parse(e.target.result);
-                        this.dmPlayer.init();
-                        this.dmPlayer.load(json.danmakuData);
-                        this.loadDanmakuSuccess(json);
-                        this.setSave(json);
-                    } catch (err) {
-                        this.dmPlayer.logTagError('❌ 弹幕 JSON 加载失败', err);
-                        showTip('❌ 加载失败：' + err.message);
-                    }
-                };
-                reader.readAsText(file);
-            };
 
             // 检查是否已有存储的弹幕
             const saved = dmStore.getCache(videoId);
             if (saved) {
                 try {
-                    this.dmPlayer.init();
-                    this.dmPlayer.load(saved.danmakuData);
                     this.loadDanmakuSuccess(saved);
                     showTip(`📦 自动载入本地弹幕`);
-                    this.setClear();
-                } catch {
+                    this.loadCtl.setClear();
+                } catch (err) {
                     showTip('❌ 本地弹幕解析失败：' + err.message);
                     this.dmPlayer.logTagError('❌ 本地弹幕解析失败：', err);
                     dmStore.removeCache(videoId);
-                    this.setLoad();
+                    this.loadCtl.setLoad();
                 }
             } else {
-                this.setLoad();
+                this.loadCtl.setLoad();
             }
+        }
+        loadDanmakuSuccess(data) {
+            this.dmPlayer.init();
+            this.dmPlayer.load(data.danmakuData);
+
+            const count = data.danmakuData.length;
+            const title = data.videoData?.title || '（未知标题）';
+            const time = data.fetchtime ?
+                new Date(data.fetchtime * 1000).toLocaleString('zh-CN', { hour12: false }) : '（未知）';
+            showTip(`🎉 成功载入：\n🎬 ${title}\n💬 共 ${count} 条弹幕\n🕒 抓取时间：${time}`);
         }
         async onSearch() {
             try {
@@ -213,11 +213,8 @@
                 if (!selected) return;
 
                 const data = await getDanmakuDataByBvid(selected.bvid, selected.source);
-                this.dmPlayer.init();
-                this.dmPlayer.load(data.danmakuData);
-
                 this.loadDanmakuSuccess(data);
-                this.setSave(data);
+                this.loadCtl.setSave(data);
             } catch (err) {
                 showTip(`❌ 请求失败：${err.message}`);
                 this.dmPlayer.logTagError('❌ 请求失败：', err);
@@ -228,7 +225,6 @@
             if (isBilibili) {
                 initialKeyword = document.title.replace(/[-_–—|]+.*?(bilibili|哔哩哔哩).*/gi, '').trim();
             }
-            const server = dmStore.get('server');
             let resolveFn;
             const returnPromise = new Promise((resolve) => {
                 resolveFn = resolve;
@@ -301,7 +297,6 @@
                 }
                 return duration; // 不合法或未知格式，原样返回
             };
-
             const renderResults = async (keyword) => {
                 resultsBox.textContent = '🔍 搜索中...';
                 try {
@@ -426,7 +421,7 @@
             title.style.fontWeight = 'bold';
             panel.appendChild(title);
 
-            function createLabeledButtonRow(labelText, buttonText, onClick) {
+            const createLabeledButtonRow = (labelText, buttonText, onClick) => {
                 const row = document.createElement('div');
                 row.style.display = 'flex';
                 row.style.justifyContent = 'space-between';
@@ -457,70 +452,85 @@
                 row.appendChild(button);
                 return row;
             }
-            function createSliderRow(labelText, keyPath, min, max, step, onChange) {
+            const createContralRow = (labelText, key, options, desc) => {
+                const keyPath = `settings.${key}`;
                 const wrapper = document.createElement('div');
                 Object.assign(wrapper.style, {
                     display: 'flex',
+                    height: '36px',
                     alignItems: 'center',
-                    gap: '6px',
+                    flexDirection: 'row',
+                    gap: '18px'
+                });
+                const controlRow = document.createElement('div');
+                Object.assign(controlRow.style, {
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
                 });
                 const label = document.createElement('div');
                 label.textContent = labelText;
-                label.style.fontWeight = 'bold';
-                label.style.width = '100px';
-
-                const btnDec = document.createElement('button');
-                btnDec.textContent = '➖';
-                const btnInc = document.createElement('button');
-                btnInc.textContent = '➕';
-                [btnDec, btnInc].forEach(btn => {
-                    Object.assign(btn.style, {
-                        width: '32px',
+                Object.assign(label.style, {
+                    fontWeight: 'bold',
+                    flexShrink: '0'
+                });
+                wrapper.append(label);
+                const input = document.createElement('input');
+                Object.assign(input, options);
+                if (options.type === 'checkbox') {
+                    input.checked = dmStore.get(keyPath, this.dmPlayer.options[key].value);
+                    Object.assign(input.style, {
+                        width: '20px',
+                        height: '20px',
+                        cursor: 'pointer'
+                    });
+                    input.onchange = () => {
+                        const val = input.checked;
+                        dmStore.set(keyPath, val);
+                        this.dmPlayerCall('setOptions', val, key);
+                        showTip(`✅ 已保存 ${labelText}：${val ? '开启' : '关闭'}`);
+                    };
+                    controlRow.append(input);
+                } else if (options.type === 'number') {
+                    input.value = dmStore.get(keyPath, this.dmPlayer.options[key].value);
+                    Object.assign(input.style, {
+                        width: '60px',
+                        height: '20px',
+                        padding: '0',
+                        textAlign: 'center',
+                        fontSize: '14px'
+                    });
+                    const saveBtn = document.createElement('button');
+                    saveBtn.textContent = '💾 保存';
+                    Object.assign(saveBtn.style, {
+                        width: '80px',
                         height: '28px',
                         fontSize: '14px',
-                        cursor: 'pointer',
-                        padding: '0 2px'
+                        cursor: 'pointer'
                     });
-                });
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.step = step;
-                input.min = min;
-                input.max = max;
-                input.value = dmStore.get(keyPath, 1);
-                Object.assign(input.style, {
-                    width: '60px',
-                    textAlign: 'center',
-                    fontSize: '14px'
-                });
-                const saveBtn = document.createElement('button');
-                saveBtn.textContent = '💾 保存';
-                Object.assign(saveBtn.style, {
-                    height: '28px',
-                    fontSize: '14px',
-                    cursor: 'pointer'
-                });
-                const apply = () => {
-                    const val = parseFloat(input.value);
-                    if (!isNaN(val) && val >= min && val <= max) {
-                        dmStore.set(keyPath, val);
-                        onChange(val);
-                        showTip(`✅ 已保存 ${labelText}：${val}`);
-                    } else {
-                        showTip('❌ 输入不合法');
-                    }
-                };
-                btnDec.onclick = () => {
-                    let val = parseFloat(input.value);
-                    if (val > min) input.value = (val - step).toFixed(1);
-                };
-                btnInc.onclick = () => {
-                    let val = parseFloat(input.value);
-                    if (val < max) input.value = (val + step).toFixed(1);
-                };
-                saveBtn.onclick = apply;
-
-                wrapper.append(label, btnDec, input, btnInc, saveBtn);
+                    saveBtn.onclick = () => {
+                        const val = Number.isInteger(Number(options.step)) ? parseInt(input.value) : parseFloat(input.value);
+                        if (!isNaN(val) && val >= options.min && val <= options.max) {
+                            dmStore.set(keyPath, val);
+                            this.dmPlayerCall('setOptions', val, key);
+                            showTip(`✅ 已保存 ${labelText}：${val}`);
+                        } else {
+                            showTip('❌ 输入不合法');
+                        }
+                    };
+                    controlRow.append(input, saveBtn);
+                }
+                wrapper.append(controlRow);
+                if (desc) {
+                    const descEl = document.createElement('div');
+                    descEl.textContent = desc;
+                    Object.assign(descEl.style, {
+                        fontSize: '12px',
+                        color: '#666',
+                        marginLeft: 'auto'
+                    });
+                    wrapper.append(descEl);
+                }
                 return wrapper;
             }
             const SectionStyle = {
@@ -549,17 +559,35 @@
             const settingSection = document.createElement('div');
             Object.assign(settingSection.style, SectionStyle);
             settingSection.appendChild(createLabeledButtonRow('📺 弹幕显示设置'))
-            settingSection.appendChild(createSliderRow(
+            settingSection.appendChild(createContralRow(
                 '🌫️ 不透明度',
-                'settings.opacity',
-                0.1, 1.0, 0.1,
-                val => this.dmPlayerCall('setOpacity', val)
+                'opacity',
+                { type: 'number', min: 0.1, max: 1.0, step: 0.1 },
+                '设置弹幕透明度（0.1 ~ 1.0）越小越透明'
             ));
-            settingSection.appendChild(createSliderRow(
+            settingSection.appendChild(createContralRow(
                 '📐 显示区域',
-                'settings.displayArea',
-                0.1, 1.0, 0.1,
-                val => this.dmPlayerCall('setDisplayArea', val)
+                'displayArea',
+                { type: 'number', min: 0.1, max: 1.0, step: 0.1 },
+                '允许弹幕占屏幕高度范围，1.0 全屏'
+            ));
+            settingSection.appendChild(createContralRow(
+                '🚀 弹幕速度',
+                'speed',
+                { type: 'number', min: 3, max: 9, step: 1 },
+                '影响弹幕持续时间以及滚动弹幕的速度'
+            ));
+            settingSection.appendChild(createContralRow(
+                '🔁 合并重复',
+                'mergeRepeats',
+                { type: 'checkbox' },
+                '是否合并内容相同且时间接近的弹幕'
+            ));
+            settingSection.appendChild(createContralRow(
+                '🔀 允许重叠',
+                'overlap',
+                { type: 'checkbox' },
+                '开启则允许弹幕重叠，否则丢弃会重叠的弹幕'
             ));
             panel.appendChild(settingSection);
 
@@ -652,7 +680,7 @@
                     position: 'fixed',
                     top: '0', left: '0', right: '0', bottom: '0',
                     background: 'rgba(0, 0, 0, 0.4)',
-                    zIndex: 9999,
+                    zIndex: 10001,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center'
@@ -715,6 +743,7 @@
             tip.style.opacity = '0';
             tip.addEventListener('transitionend', () => tip.remove());
         }, duration);
+        console.log('[💡tip]', message);
     }
     async function waitForVideo(timeout = 10000) {
         const start = Date.now();
@@ -744,7 +773,7 @@
         return null;
     }
     function observeVideoChange() {
-        let lastId = getCurrentVideoId();
+        let lastId = '';
         const observer = new MutationObserver(() => {
             const newId = getCurrentVideoId();
             if (newId && newId !== lastId) {
@@ -758,59 +787,6 @@
         });
         observer.observe(document.body, { childList: true, subtree: true });
     }
-
-    const isBilibili = location.hostname.includes('bilibili.com');
-    const urlOfPlayer = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download/tampermonkey/BiliDanmakuPlayer.js';
-    const urlOfClient = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download/tampermonkey/BiliClientGM.js';
-    const { BiliDanmakuPlayer } = await import(urlOfPlayer);
-    const { BiliClientGM } = await import(urlOfClient);
-    const dmPanel = new DanmakuControlPanel();
-    const dmStore = {
-        key: 'dm-player',
-        getConfig() {
-            return JSON.parse(localStorage.getItem(this.key) || '{}');
-        },
-        setConfig(obj) {
-            localStorage.setItem(this.key, JSON.stringify(obj));
-        },
-        get(key, def) {
-            const cfg = this.getConfig();
-            return key.split('.').reduce((o, k) => (o || {})[k], cfg) ?? def;
-        },
-        set(key, value) {
-            const cfg = this.getConfig();
-            const keys = key.split('.');
-            let obj = cfg;
-            for (let i = 0; i < keys.length - 1; i++) {
-                obj[keys[i]] = obj[keys[i]] || {};
-                obj = obj[keys[i]];
-            }
-            obj[keys.at(-1)] = value;
-            this.setConfig(cfg);
-        },
-        removeCache(videoId) {
-            const cfg = this.getConfig();
-            if (cfg.cache) delete cfg.cache[videoId];
-            this.setConfig(cfg);
-        },
-        getCache(videoId) {
-            return this.getConfig().cache?.[videoId];
-        },
-        setCache(videoId, json) {
-            const cfg = this.getConfig();
-            cfg.cache = cfg.cache || {};
-            cfg.cache[videoId] = json;
-            this.setConfig(cfg);
-        },
-        clearAllCache() {
-            const cfg = this.getConfig();
-            delete cfg.cache;
-            this.setConfig(cfg);
-        }
-    };
-
-    const client = new BiliClientGM(GM_xmlhttpRequest);
-    await client.init();
 
     async function searchVideosByKeyword(keyword) {
         const server = dmStore.get('server');
@@ -891,7 +867,7 @@
             const p = match[1].split(",");
             if (p.length < 8) continue;
             danmakus.push({
-                progress: Math.round(parseFloat(p[0]) * 1000),
+                progress: Math.trunc(parseFloat(p[0]) * 1000),
                 mode: parseInt(p[1]),
                 fontsize: parseInt(p[2]),
                 color: parseInt(p[3]),
@@ -906,6 +882,59 @@
         return danmakus;
     }
 
+    const isBilibili = location.hostname.includes('bilibili.com');
+    const urlOfPlayer = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download@1.5.0/tampermonkey/BiliDanmakuPlayer.js';
+    const urlOfClient = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download/tampermonkey/BiliClientGM.js';
+    const { BiliDanmakuPlayer } = await import(urlOfPlayer);
+    const { BiliClientGM } = await import(urlOfClient);
+    const dmPanel = new DanmakuControlPanel();
+    const dmStore = {
+        key: 'dm-player',
+        getConfig() {
+            return JSON.parse(localStorage.getItem(this.key) || '{}');
+        },
+        setConfig(obj) {
+            localStorage.setItem(this.key, JSON.stringify(obj));
+        },
+        get(key, def) {
+            const cfg = this.getConfig();
+            return key.split('.').reduce((o, k) => (o || {})[k], cfg) ?? def;
+        },
+        set(key, value) {
+            const cfg = this.getConfig();
+            const keys = key.split('.');
+            let obj = cfg;
+            for (let i = 0; i < keys.length - 1; i++) {
+                obj[keys[i]] = obj[keys[i]] || {};
+                obj = obj[keys[i]];
+            }
+            obj[keys.at(-1)] = value;
+            this.setConfig(cfg);
+        },
+        removeCache(videoId) {
+            const cfg = this.getConfig();
+            if (cfg.cache) delete cfg.cache[videoId];
+            this.setConfig(cfg);
+        },
+        getCache(videoId) {
+            return this.getConfig().cache?.[videoId];
+        },
+        setCache(videoId, json) {
+            const cfg = this.getConfig();
+            cfg.cache = cfg.cache || {};
+            cfg.cache[videoId] = json;
+            this.setConfig(cfg);
+        },
+        clearAllCache() {
+            const cfg = this.getConfig();
+            delete cfg.cache;
+            this.setConfig(cfg);
+        }
+    };
+
+    const client = new BiliClientGM(GM_xmlhttpRequest);
+    await client.init();
+
     /*
     * chromium的浏览器会自动关闭AdblockPlus拦截Youtube的广告
     * 于是AdblockPlus推出了实验性广告拦截
@@ -916,38 +945,50 @@
         if (!domAdapter) return;
         if (unsafeWindow.iframePlayer) {
             domAdapter.backup ??= {
-                getPlayingState: domAdapter.getPlayingState,
-                getVideoWrapper: domAdapter.getVideoWrapper
+                getCurrentTime: domAdapter.getCurrentTime,
+                getPlaybackRate: domAdapter.getPlaybackRate,
+                getVideoWrapper: domAdapter.getVideoWrapper,
+                bindVideoEvent: domAdapter.bindVideoEvent
             };
-            domAdapter.getPlayingState = function () {
+            domAdapter.getCurrentTime = function () {
                 const player = unsafeWindow.iframePlayer;
-                const state = typeof player.getPlayerState === 'function'
-                    ? player.getPlayerState()
-                    : player.playerInfo?.playerState ?? 3;
-                const currentTime = typeof player.getCurrentTime === 'function'
-                    ? player.getCurrentTime()
-                    : player.playerInfo?.currentTime ?? 0;
-                if (domAdapter.lastTime) {
-                    const delta = Math.abs(currentTime - domAdapter.lastTime);
-                    if (delta > 1) {
-                        domAdapter.callbacks.onSeek?.();
-                    }
-                }
-                domAdapter.lastTime = currentTime;
-                return {
-                    paused: state == 2,
-                    currentTime
-                };
+                return player.getCurrentTime?.() ?? player.playerInfo?.currentTime ?? 0;
+            }
+            domAdapter.getPlaybackRate = function () {
+                const player = unsafeWindow.iframePlayer;
+                return player.getPlaybackRate?.() ?? player.playerInfo?.playbackRate ?? 1;
             }
             domAdapter.getVideoWrapper = function () {
                 const iframe = document.querySelector('iframe#yt-haven-embed-player');
                 return iframe.parentElement;
             }
+            domAdapter.bindVideoEvent = function () {
+                domAdapter._resizeObserver = new ResizeObserver(() => {
+                    domAdapter.player.resize?.();
+                });
+                const iframe = document.querySelector('iframe#yt-haven-embed-player');
+                domAdapter._resizeObserver.observe(iframe);
+
+                if (domAdapter._isIframeBound) return;
+                domAdapter._isIframeBound = true;
+                unsafeWindow.iframePlayer.addEventListener('onStateChange', (event) => {
+                    const state = event.data;
+                    const PlayerState = unsafeWindow.YT.PlayerState;
+                    console.log('[iframe 播放器] 播放状态改变', Object.keys(PlayerState).find(k => PlayerState[k] === state) || state);
+                    if (state === PlayerState.PLAYING) {
+                        domAdapter.player.play?.();
+                    } else if (state === PlayerState.PAUSED) {
+                        domAdapter.player.pause?.();
+                    } else if (state === PlayerState.CUED) {
+                        domAdapter.player.resize?.();
+                    }
+                });
+            }
         } else {
             if (domAdapter.backup) {
-                domAdapter.getPlayingState = domAdapter.backup.getPlayingState;
-                domAdapter.getVideoWrapper = domAdapter.backup.getVideoWrapper;
+                Object.assign(domAdapter, domAdapter.backup);
             }
+            delete domAdapter._isIframeBound;
         }
     }
     function observeIframePlayer() {
@@ -956,12 +997,21 @@
             if (!iframe || typeof unsafeWindow.YT?.Player !== 'function') return;
             if (iframe.dataset.ytBound) return;
             iframe.dataset.ytBound = '1';
+            console.log('[iframe 播放器] 尝试绑定');
             player = new unsafeWindow.YT.Player(iframe, {
                 events: {
                     onReady: () => {
-                        console.log('[Danmaku] 已绑定 iframe 播放器');
-                        unsafeWindow.iframePlayer = player;
-                        transformIframeDOMAdapter(dmPanel.dmPlayer?.domAdapter);
+                        try {
+                            unsafeWindow.iframePlayer = player;
+                            if (dmPanel.dmPlayer) {
+                                transformIframeDOMAdapter(dmPanel.dmPlayer.domAdapter);
+                                dmPanel.dmPlayer.init?.();
+                                dmPanel.dmPlayer.paused = false;
+                            }
+                            console.log('[iframe 播放器] 已绑定');
+                        } catch (e) {
+                            console.error('[iframe 播放器] 绑定失败', e);
+                        }
                     }
                 }
             });
@@ -972,15 +1022,16 @@
             }
             unsafeWindow.iframePlayer = null;
             player = null;
+            transformIframeDOMAdapter(dmPanel.dmPlayer?.domAdapter);
+            dmPanel.dmPlayer?.init?.();
+            console.log('[iframe 播放器] 被移除');
         };
         const observer = new MutationObserver(() => {
             const iframe = document.querySelector('iframe#yt-haven-embed-player');
             if (iframe && iframe !== unsafeWindow.iframePlayer?.getIframe()) {
                 setupPlayer(iframe);
             } else if (!iframe && unsafeWindow.iframePlayer) {
-                console.log('[Danmaku] iframe 被移除，清理播放器');
                 destroyPlayer();
-                transformIframeDOMAdapter(dmPanel.dmPlayer?.domAdapter);
             }
         });
         observer.observe(document.body, { childList: true, subtree: true });
@@ -994,6 +1045,14 @@
             callback?.();
             return;
         }
+        unsafeWindow.onYouTubeIframeAPIReady = () => {
+            if (unsafeWindow.YT && typeof unsafeWindow.YT.Player === 'function') {
+                console.log('[YT] Iframe API loaded');
+                callback?.();
+            } else {
+                console.warn('[YT] Iframe API load failure');
+            }
+        };
         let scriptUrl = 'https://www.youtube.com/iframe_api';
         try {
             // 创建 Trusted Types 策略
@@ -1017,24 +1076,12 @@
         } else {
             document.head.appendChild(tag);
         }
-        // 等待 API 就绪
-        unsafeWindow.onYouTubeIframeAPIReady = () => {
-            console.log('[YT] Iframe API loaded');
-            callback?.();
-        };
     }
     if (!isBilibili) loadYouTubeIframeAPI(() => { observeIframePlayer() });
 
     try {
-        observeVideoChange();
         await waitForVideo();
-        const videoId = getCurrentVideoId();
-        if (videoId) {
-            dmPanel.init();
-            dmPanel.update(videoId);
-        } else {
-            console.log('[Danmaku] 非视频播放页，未获取到 videoId');
-        }
+        observeVideoChange();
     } catch (err) {
         console.warn(err);
     }
