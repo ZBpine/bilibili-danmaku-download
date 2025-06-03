@@ -163,13 +163,6 @@ export class BiliDanmakuPlayer {
                     }
                     this.seek();
                 }
-            },
-            danmakuShadow: {
-                value: true,
-                setValue: (value) => {
-                    this.options.danmakuShadow.value = !!value;
-                    this.container.classList.toggle('no-shadow', !value);
-                }
             }
         };
     }
@@ -194,9 +187,17 @@ export class BiliDanmakuPlayer {
                 white-space: nowrap;
                 font-weight: bold;
                 pointer-events: none;
-                text-shadow: 1px 1px 2px black;
+                text-shadow: 0px 0px 2px black;
+                line-height: 1;
                 animation-timing-function: linear;
                 animation-fill-mode: forwards;
+            }
+            .dmplayer-danmaku-badge {
+                position: absolute;
+                padding: 0px 0.4em;
+                border-radius: 0.4em;
+                font-size: 0.8em;
+                top: 0.1em;
             }
             .dmplayer-danmaku-scroll {
                 right: 0;
@@ -219,9 +220,6 @@ export class BiliDanmakuPlayer {
                 height: 100%;
                 pointer-events: none;
                 z-index: ${this.zIndex};
-            }
-            #dmplayer-container.no-shadow .dmplayer-danmaku {
-                text-shadow: none !important;
             }`);
         this.domAdapter.init();
         this.resize();
@@ -347,7 +345,7 @@ export class BiliDanmakuPlayer {
         this.danmakuListMerged = merged;
     }
     _updateTracks() {
-        const height = this.containerRect.height * this.options.displayArea.value - 5;
+        const height = this.containerRect.height * this.options.displayArea.value - 8;
         const maxTracks = Math.floor(height / this.LINE_HEIGHT);
         // const trackCount = Math.max(3, Math.min(maxTracks, 30)); // 最少 3 条，最多 30 条
         const scrollTracks = Math.max(3, maxTracks);
@@ -456,16 +454,10 @@ export class BiliDanmakuPlayer {
         });
         if (dm.count && dm.count > 1) {
             const clr = dm.color || 0xffffff;
-            const size = (dm.fontsize || 25) - 7;
-            const badge = this.domAdapter.createElement({
-                elName: 'span', elContent: `×${dm.count}`, elStyle: {
-                    padding: `0 ${size / 2}px`,
-                    borderRadius: `${size / 2}px`,
-                    fontSize: `${size}px`,
-                    background: `rgba(${(clr >> 16) & 0xff}, ${(clr >> 8) & 0xff}, ${clr & 0xff}, 0.3)`
-                }
-            });
-            el.appendChild(badge);
+            el.appendChild(this.domAdapter.createElement({
+                elName: 'span', elContent: `×${dm.count}`, elClass: 'dmplayer-danmaku-badge',
+                elStyle: { background: `rgba(${(clr >> 16) & 0xff}, ${(clr >> 8) & 0xff}, ${clr & 0xff}, 0.3)` }
+            }));
         }
         el.style.visibility = 'hidden';
         this.domAdapter.injectElement(this.container, el); //先添加后才能测量宽度
@@ -474,7 +466,7 @@ export class BiliDanmakuPlayer {
             if (type == 'top' || type == 'bottom') {
                 el.style[type] = `${track * this.LINE_HEIGHT + 5}px`;
             } else {
-                el.style.top = `${track * this.LINE_HEIGHT + Math.floor(Math.random() * 5)}px`;
+                el.style.top = `${track * this.LINE_HEIGHT + Math.floor(Math.random() * 5) + 3}px`;
                 el.style.transform = `translateX(-${this.containerRect.width}px)`;
             }
             el.style.visibility = 'visible';

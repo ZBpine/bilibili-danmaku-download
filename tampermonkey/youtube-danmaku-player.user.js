@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube B站弹幕播放器
 // @namespace    https://github.com/ZBpine/bilibili-danmaku-download/
-// @version      1.5.0
+// @version      1.5.1
 // @description  加载本地 B站弹幕 JSON文件，在 YouTube 视频上显示
 // @author       ZBpine
 // @match        https://www.youtube.com/*
@@ -883,7 +883,7 @@
     }
 
     const isBilibili = location.hostname.includes('bilibili.com');
-    const urlOfPlayer = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download@1.5.0/tampermonkey/BiliDanmakuPlayer.js';
+    const urlOfPlayer = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download@1.5.1/tampermonkey/BiliDanmakuPlayer.js';
     const urlOfClient = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download/tampermonkey/BiliClientGM.js';
     const { BiliDanmakuPlayer } = await import(urlOfPlayer);
     const { BiliClientGM } = await import(urlOfClient);
