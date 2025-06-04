@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube B站弹幕播放器
 // @namespace    https://github.com/ZBpine/bilibili-danmaku-download/
-// @version      1.5.1
+// @version      1.5.2
 // @description  加载本地 B站弹幕 JSON文件，在 YouTube 视频上显示
 // @author       ZBpine
 // @match        https://www.youtube.com/*
@@ -421,7 +421,7 @@
             title.style.fontWeight = 'bold';
             panel.appendChild(title);
 
-            const createLabeledButtonRow = (labelText, buttonText, onClick) => {
+            const createLabeledButtonRow = (labelText, buttonObj) => {
                 const row = document.createElement('div');
                 row.style.display = 'flex';
                 row.style.justifyContent = 'space-between';
@@ -434,10 +434,10 @@
                 label.style.fontSize = '16px'
                 label.style.margin = '10px 0'
                 row.appendChild(label);
-                if (!buttonText && !onClick) return row
 
+                if (!buttonObj) return row
                 const button = document.createElement('button');
-                button.textContent = buttonText;
+                Object.assign(button, buttonObj);
                 Object.assign(button.style, {
                     width: '130px',
                     height: '28px',
@@ -448,7 +448,6 @@
                     cursor: 'pointer',
                     flexShrink: '0'
                 });
-                button.onclick = onClick;
                 row.appendChild(button);
                 return row;
             }
@@ -533,6 +532,16 @@
                 }
                 return wrapper;
             }
+            const createSelect = (list, getName = n => n) => {
+                const select = document.createElement('select');
+                list.forEach(n => {
+                    const option = document.createElement('option');
+                    option.value = String(n);
+                    option.textContent = String(getName(n));
+                    select.appendChild(option);
+                })
+                return select;
+            };
             const SectionStyle = {
                 display: 'flex',
                 flexDirection: 'column',
@@ -543,9 +552,11 @@
             const serverSection = document.createElement('div');
             Object.assign(serverSection.style, SectionStyle);
 
-            const serverHeader = createLabeledButtonRow('🌐 服务器地址：', '💾 保存', () => {
-                dmStore.set('server', serverInput.value.trim());
-                showTip('✅ 地址已保存');
+            const serverHeader = createLabeledButtonRow('🌐 服务器地址：', {
+                textContent: '💾 保存', onclick: () => {
+                    dmStore.set('server', serverInput.value.trim());
+                    showTip('✅ 地址已保存');
+                }
             });
 
             const serverInput = this.createStyledEl('input');
@@ -558,7 +569,12 @@
             // --- 弹幕显示设置模块 ---
             const settingSection = document.createElement('div');
             Object.assign(settingSection.style, SectionStyle);
-            settingSection.appendChild(createLabeledButtonRow('📺 弹幕显示设置'))
+            settingSection.appendChild(createLabeledButtonRow('📺 弹幕显示设置', {
+                textContent: '👁️ 预览',
+                onmousedown: () => overlay.style.opacity = '0',
+                onmouseup: () => overlay.style.opacity = '1',
+                onmouseleave: () => overlay.style.opacity = '1'
+            }));
             settingSection.appendChild(createContralRow(
                 '🌫️ 不透明度',
                 'opacity',
@@ -591,15 +607,150 @@
             ));
             panel.appendChild(settingSection);
 
+            // --- 弹幕阴影设置模块 ---
+            const shadowSection = document.createElement('div');
+            Object.assign(shadowSection.style, SectionStyle);
+
+            let shadowConfig = this.dmPlayer.options?.shadowEffect?.value ||
+                [{ type: 0, offset: 1, radius: 1, repeat: 1 }];
+            const shadowHeader = createLabeledButtonRow('🌑 弹幕阴影设置', {
+                textContent: '💾 保存', onclick: () => {
+                    dmStore.set('settings.shadowEffect', shadowConfig);
+                    this.dmPlayerCall('setOptions', shadowConfig, 'shadowEffect');
+                }
+            });
+            shadowSection.appendChild(shadowHeader);
+
+            const buildShadowSection = (shadowSection) => {
+                // 预设选择
+                const presetSelect = createSelect(['重墨', '描边', '45°投影', '自定义']);
+                Object.assign(presetSelect.style, {
+                    fontSize: '14px',
+                    padding: '4px 8px'
+                });
+                shadowSection.appendChild(presetSelect);
+                // 默认配置项
+                const presets = {
+                    '重墨': [{ type: 0, offset: 1, radius: 1, repeat: 1 }],
+                    '描边': [{ type: 1, offset: 0, radius: 1, repeat: 3 }],
+                    '45°投影': [
+                        { type: 1, offset: 0, radius: 1, repeat: 1 },
+                        { type: 2, offset: 1, radius: 2, repeat: 1 }
+                    ]
+                };
+                const formArea = document.createElement('div');
+                shadowSection.appendChild(formArea);
+
+                const addBtn = document.createElement('button');
+                addBtn.textContent = '➕ 添加阴影项';
+                Object.assign(addBtn.style, {
+                    width: '120px',
+                    padding: '4px',
+                    cursor: 'pointer'
+                });
+                shadowSection.appendChild(addBtn);
+
+                const label = (text) => {
+                    const span = document.createElement('span');
+                    span.textContent = text;
+                    span.style.fontWeight = 'bold';
+                    return span;
+                };
+                const renderConfigItems = (configList) => {
+                    formArea.replaceChildren();
+                    configList.forEach((cfg, index) => {
+                        const row = document.createElement('div');
+                        Object.assign(row.style, {
+                            display: 'flex',
+                            gap: '6px',
+                            alignItems: 'center',
+                            marginBottom: '4px',
+                            border: '1px solid #ccc'
+                        });
+                        const range = (start, end) => Array.from({ length: end - start + 1 }, (_, i) => start + i);
+
+                        const typeSel = createSelect(range(0, 2), n => ['重墨', '描边', '45°投影'][n]);
+                        typeSel.value = String(cfg.type);
+                        typeSel.onchange = () => configList[index].type = parseInt(typeSel.value);
+
+                        const offsetSel = createSelect(range(-1, 10), n => n === -1 ? '递增' : `${n}px`);
+                        offsetSel.value = String(cfg.offset);
+                        offsetSel.onchange = () => configList[index].offset = parseInt(offsetSel.value);
+
+                        const radiusSel = createSelect(range(-1, 10), n => n === -1 ? '递增' : `${n}px`);
+                        radiusSel.value = String(cfg.radius);
+                        radiusSel.onchange = () => configList[index].radius = parseInt(radiusSel.value);
+
+                        const repeatSel = createSelect(range(1, 10));
+                        repeatSel.value = String(cfg.repeat || 1);
+                        repeatSel.onchange = () => configList[index].repeat = parseInt(repeatSel.value);
+
+                        const del = document.createElement('button');
+                        del.textContent = '删除';
+                        del.onclick = () => {
+                            configList.splice(index, 1);
+                            renderConfigItems(configList);
+                        };
+                        row.append(
+                            label('类型:'), typeSel,
+                            label('偏移:'), offsetSel,
+                            label('半径:'), radiusSel,
+                            label('重复:'), repeatSel,
+                            del
+                        );
+                        formArea.appendChild(row);
+                    });
+                };
+                addBtn.onclick = () => {
+                    shadowConfig.push({ type: 0, offset: 1, radius: 1, repeat: 1 });
+                    renderConfigItems(shadowConfig);
+                };
+                presetSelect.onchange = () => {
+                    const val = presetSelect.value;
+                    if (val === '自定义') {
+                        renderConfigItems(shadowConfig);
+                        addBtn.style.display = '';
+                    } else {
+                        shadowConfig = JSON.parse(JSON.stringify(presets[val])); // 深拷贝
+                        renderConfigItems([]);
+                        addBtn.style.display = 'none';
+                    }
+                };
+                // 自动判断并选中 preset
+                let matchedPreset = '自定义'; // 默认自定义
+                if (Array.isArray(shadowConfig)) {
+                    for (const key of Object.keys(presets)) {
+                        const preset = presets[key];
+                        const same = preset.length === shadowConfig.length &&
+                            preset.every((item, i) =>
+                                item.type === shadowConfig[i].type &&
+                                item.offset === shadowConfig[i].offset &&
+                                item.radius === shadowConfig[i].radius &&
+                                item.repeat === shadowConfig[i].repeat
+                            );
+                        if (same) {
+                            matchedPreset = key;
+                            break;
+                        }
+                    }
+                }
+                presetSelect.value = matchedPreset;
+                presetSelect.onchange();
+            }
+            buildShadowSection(shadowSection);
+            panel.appendChild(shadowSection);
+
             // --- 缓存管理模块 ---
             const cacheSection = document.createElement('div');
             Object.assign(cacheSection.style, SectionStyle);
 
-            const cacheHeader = createLabeledButtonRow('📦 本地缓存弹幕', '🧹 清空所有缓存', () => {
-                if (confirm('确定要清空所有本地缓存弹幕吗？')) {
-                    dmStore.clearAllCache();
-                    cacheList.textContent = '📭 所有缓存已清除';
-                    showTip('🧹 所有弹幕缓存已清空');
+            const cacheHeader = createLabeledButtonRow('📦 本地缓存弹幕', {
+                textContent: '🧹 清空所有缓存', onclick: () => {
+                    if (confirm('确定要清空所有本地缓存弹幕吗？')) {
+                        dmStore.clearAllCache();
+                        cacheList.textContent = '📭 所有缓存已清除';
+                        showTip('🧹 所有弹幕缓存已清空');
+                    }
                 }
             });
 
@@ -883,7 +1034,7 @@
     }
 
     const isBilibili = location.hostname.includes('bilibili.com');
-    const urlOfPlayer = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download@1.5.1/tampermonkey/BiliDanmakuPlayer.js';
+    const urlOfPlayer = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download@1.5.2/tampermonkey/BiliDanmakuPlayer.js';
     const urlOfClient = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download/tampermonkey/BiliClientGM.js';
     const { BiliDanmakuPlayer } = await import(urlOfPlayer);
     const { BiliClientGM } = await import(urlOfClient);

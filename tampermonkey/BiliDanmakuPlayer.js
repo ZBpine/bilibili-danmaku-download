@@ -5,9 +5,14 @@ class DanmakuDOMAdapter {
         this._handlers = {};
     }
     injectStyle(id, content) {
-        if (id && document.getElementById(id)) return;
-        const style = this.createElement({ elId: id, elName: 'style', elContent: content });
-        document.head.appendChild(style);
+        if (!id) return;
+        let styleEl = document.getElementById(id);
+        if (styleEl) {
+            styleEl.textContent = content;
+        } else {
+            const style = this.createElement({ elId: id, elName: 'style', elContent: content });
+            document.head.appendChild(style);
+        }
     }
     injectElement(parent = document.body, element, replace = false) {
         if (!parent || !element) return;
@@ -163,6 +168,51 @@ export class BiliDanmakuPlayer {
                     }
                     this.seek();
                 }
+            },
+            shadowEffect: {
+                value: [{ type: 0, offset: 1, radius: 1, repeat: 1 }],
+                setValue: (value) => {
+                    if (Array.isArray(value)) {
+                        this.options.shadowEffect.value = value;
+                        this.options.shadowEffect.execute();
+                    }
+                },
+                execute: () => {
+                    const textShadow = this.options.shadowEffect.generateTextShadow(this.options.shadowEffect.value);
+                    const css = `.dmplayer-danmaku { text-shadow: ${textShadow}; }`;
+                    this.domAdapter.injectStyle('dmplayer-danmaku-shadow', css);
+                },
+                generateTextShadow: (config) => {
+                    const shadows = [];
+                    for (const item of config) {
+                        const { type, offset, radius, repeat } = item;
+                        switch (type) {
+                            case 0:
+                                for (let i = 0; i < repeat; i++) {
+                                    const o = offset === -1 ? 1 + i : offset;
+                                    const r = radius === -1 ? 1 + i : radius;
+                                    [[1, 0], [0, 1], [0, -1], [-1, 0]].forEach(([x, y]) => {
+                                        shadows.push(`${x * o}px ${y * o}px ${r}px black`);
+                                    });
+                                }
+                                break;
+                            case 1:
+                                for (let i = 0; i < repeat; i++) {
+                                    const r = radius === -1 ? 1 + i : radius;
+                                    shadows.push(`0 0 ${r}px black`);
+                                }
+                                break;
+                            case 2:
+                                for (let i = 0; i < repeat; i++) {
+                                    const o = offset === -1 ? 1 + i : offset;
+                                    const r = radius === -1 ? 1 + i : radius;
+                                    shadows.push(`${o}px ${o}px ${r}px black`);
+                                }
+                                break;
+                        }
+                    }
+                    return shadows.join(',\n');
+                }
             }
         };
     }
@@ -187,7 +237,6 @@ export class BiliDanmakuPlayer {
                 white-space: nowrap;
                 font-weight: bold;
                 pointer-events: none;
-                text-shadow: 0px 0px 2px black;
                 line-height: 1;
                 animation-timing-function: linear;
                 animation-fill-mode: forwards;
@@ -197,7 +246,7 @@ export class BiliDanmakuPlayer {
                 padding: 0px 0.4em;
                 border-radius: 0.4em;
                 font-size: 0.8em;
-                top: 0.1em;
+                top: 0.125em;
             }
             .dmplayer-danmaku-scroll {
                 right: 0;
@@ -221,6 +270,7 @@ export class BiliDanmakuPlayer {
                 pointer-events: none;
                 z-index: ${this.zIndex};
             }`);
+        this.options.shadowEffect.execute();
         this.domAdapter.init();
         this.resize();
         this.logTag('✅ 弹幕播放器初始化完成');
