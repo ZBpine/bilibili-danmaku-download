@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube B站弹幕播放器
 // @namespace    https://github.com/ZBpine/bilibili-danmaku-download/
-// @version      1.5.2
+// @version      1.5.3
 // @description  加载本地 B站弹幕 JSON文件，在 YouTube 视频上显示
 // @author       ZBpine
 // @match        https://www.youtube.com/*
@@ -450,7 +450,7 @@
                 });
                 row.appendChild(button);
                 return row;
-            }
+            };
             const createContralRow = (labelText, key, options, desc) => {
                 const keyPath = `settings.${key}`;
                 const wrapper = document.createElement('div');
@@ -531,7 +531,7 @@
                     wrapper.append(descEl);
                 }
                 return wrapper;
-            }
+            };
             const createSelect = (list, getName = n => n) => {
                 const select = document.createElement('select');
                 list.forEach(n => {
@@ -546,7 +546,7 @@
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '6px',
-            }
+            };
 
             // --- 服务器设置模块 ---
             const serverSection = document.createElement('div');
@@ -1026,6 +1026,7 @@
                 pool: parseInt(p[5]),
                 midHash: p[6],
                 id: p[7],
+                idStr: p[7],
                 weight: p[8] ? parseInt(p[8]) : 0,
                 content: match[2].trim()
             });
@@ -1034,11 +1035,12 @@
     }
 
     const isBilibili = location.hostname.includes('bilibili.com');
-    const urlOfPlayer = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download@1.5.2/tampermonkey/BiliDanmakuPlayer.js';
+    const urlOfPlayer = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download@1.5.3/tampermonkey/BiliDanmakuPlayer.js';
     const urlOfClient = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download/tampermonkey/BiliClientGM.js';
     const { BiliDanmakuPlayer } = await import(urlOfPlayer);
     const { BiliClientGM } = await import(urlOfClient);
     const dmPanel = new DanmakuControlPanel();
+    unsafeWindow.dmPlayer = dmPanel.dmPlayer;
     const dmStore = {
         key: 'dm-player',
         getConfig() {
@@ -1090,25 +1092,62 @@
     * chromium的浏览器会自动关闭AdblockPlus拦截Youtube的广告
     * 于是AdblockPlus推出了实验性广告拦截
     * 方法是隐藏原本的视频，插入一个可以阻拦广告的iframe视频
+    * https://developers.google.com/youtube/iframe_api_reference?hl=zh-tw
     * 以下为解决办法
     */
+    function wrapYTPlayer(player) {
+        const PlayerState = unsafeWindow.YT?.PlayerState;
+        return {
+            get currentTime() {
+                return player.getCurrentTime?.() ?? player.playerInfo?.currentTime ?? 0;
+            },
+            set currentTime(val) {
+                player.seekTo?.(val, true);
+            },
+            get duration() {
+                return player.getDuration?.() ?? player.playerInfo?.duration ?? 0;
+            },
+            get playbackRate() {
+                return player.getPlaybackRate?.() ?? player.playerInfo?.playbackRate ?? 1;
+            },
+            set playbackRate(val) {
+                player.setPlaybackRate?.(val);
+            },
+            get paused() {
+                return (player.getPlayerState?.() ?? player.playerInfo?.playerState) === PlayerState?.PAUSED;
+            },
+            get ended() {
+                return (player.getPlayerState?.() ?? player.playerInfo?.playerState) === PlayerState?.ENDED;
+            },
+            get volume() {
+                return (player.getVolume?.() ?? player.playerInfo?.volume ?? 100) / 100;
+            },
+            set volume(val) {
+                player.setVolume?.(Math.max(0, Math.min(1, val)) * 100);
+            },
+            get muted() {
+                return player.isMuted?.() ?? player.playerInfo?.muted ?? false;
+            },
+            set muted(val) {
+                if (val) player.mute?.();
+                else player.unMute?.();
+            },
+            play() {
+                player.playVideo?.();
+            },
+            pause() {
+                player.pauseVideo?.();
+            }
+        };
+    }
     function transformIframeDOMAdapter(domAdapter) {
         if (!domAdapter) return;
         if (unsafeWindow.iframePlayer) {
             domAdapter.backup ??= {
-                getCurrentTime: domAdapter.getCurrentTime,
-                getPlaybackRate: domAdapter.getPlaybackRate,
                 getVideoWrapper: domAdapter.getVideoWrapper,
-                bindVideoEvent: domAdapter.bindVideoEvent
+                bindVideoEvent: domAdapter.bindVideoEvent,
+                videoGetter: Object.getOwnPropertyDescriptor(DanmakuDOMAdapter.prototype, 'video')
             };
-            domAdapter.getCurrentTime = function () {
-                const player = unsafeWindow.iframePlayer;
-                return player.getCurrentTime?.() ?? player.playerInfo?.currentTime ?? 0;
-            }
-            domAdapter.getPlaybackRate = function () {
-                const player = unsafeWindow.iframePlayer;
-                return player.getPlaybackRate?.() ?? player.playerInfo?.playbackRate ?? 1;
-            }
             domAdapter.getVideoWrapper = function () {
                 const iframe = document.querySelector('iframe#yt-haven-embed-player');
                 return iframe.parentElement;
@@ -1135,9 +1174,18 @@
                     }
                 });
             }
+            Object.defineProperty(domAdapter, 'video', {
+                get() {
+                    return wrapYTPlayer(unsafeWindow.iframePlayer);
+                },
+                configurable: true
+            });
         } else {
             if (domAdapter.backup) {
                 Object.assign(domAdapter, domAdapter.backup);
+                if (domAdapter.backup.videoGetter) {
+                    Object.defineProperty(domAdapter, 'video', domAdapter.backup.videoGetter);
+                }
             }
             delete domAdapter._isIframeBound;
         }

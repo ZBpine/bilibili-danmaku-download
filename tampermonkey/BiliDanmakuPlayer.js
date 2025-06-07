@@ -94,11 +94,18 @@ class DanmakuDOMAdapter {
         this.videoEl = null;
         this._handlers = {};
     }
-    getCurrentTime() {
-        return this.videoEl?.currentTime ?? 0;
-    }
-    getPlaybackRate() {
-        return this.videoEl?.playbackRate || 1;
+    get video() {
+        return new Proxy({}, {
+            get: (_, prop) => this.videoEl?.[prop],
+            set: (_, prop, value) => {
+                if (this.videoEl) {
+                    this.videoEl[prop] = value;
+                    return true;
+                }
+                return false;
+            },
+            has: (_, prop) => prop in (this.videoEl || {})
+        });
     }
 }
 
@@ -112,7 +119,6 @@ export class BiliDanmakuPlayer {
         this.showing = true;
         this.paused = false;
         this.isLoaded = false;
-        this.zIndex = 997;
         this.tracks = { scroll: [], top: [], bottom: [] };
         this.LINE_HEIGHT = 30;
         this.container = this.domAdapter.createElement({ elId: 'dmplayer-container' })
@@ -132,19 +138,23 @@ export class BiliDanmakuPlayer {
                 }
             },
             opacity: {
-                value: 1,
+                value: 0.8,
+                init: true,
                 setValue: (value) => {
                     if (value) {
                         this.options.opacity.value = value;
-                        this.container.style.opacity = value;
+                        this.options.opacity.execute();
                     }
+                },
+                execute: () => {
+                    this.container.style.opacity = this.options.opacity.value;
                 }
             },
             speed: {
                 value: 6,
                 setValue: (value) => {
                     if (!isNaN(value)) this.options.speed.value = Math.max(3, Math.min(9, value));
-                    this._durationCache = {};
+                    this._refreshDuration();
                 }
             },
             overlap: {
@@ -171,6 +181,7 @@ export class BiliDanmakuPlayer {
             },
             shadowEffect: {
                 value: [{ type: 0, offset: 1, radius: 1, repeat: 1 }],
+                init: true,
                 setValue: (value) => {
                     if (Array.isArray(value)) {
                         this.options.shadowEffect.value = value;
@@ -223,12 +234,10 @@ export class BiliDanmakuPlayer {
         console.error(`%c${this.logStyle.tag}`, this.logStyle.errorStyle, ...args);
     }
     init() {
+        const zIndex = 997;
         this.domAdapter.addContainer(this.container);
         this.domAdapter.injectStyle('dmplayer-style', `
-            @keyframes dmplayer-animate-scroll {
-                from { transform: translateX(100%); }
-            }
-            @keyframes dmplayer-animate-stay {
+            @keyframes dmplayer-animate-center {
                 from { opacity: 1; }
                 to { opacity: 1; }
             }
@@ -250,15 +259,15 @@ export class BiliDanmakuPlayer {
             }
             .dmplayer-danmaku-scroll {
                 right: 0;
-                z-index: ${this.zIndex + 1};
+                z-index: ${zIndex + 1};
                 animation-name: dmplayer-animate-scroll;
             }
             .dmplayer-danmaku-top,
             .dmplayer-danmaku-bottom {
                 left: 50%;
                 transform: translateX(-50%);
-                z-index: ${this.zIndex + 2};
-                animation-name: dmplayer-animate-stay;
+                z-index: ${zIndex + 2};
+                animation-name: dmplayer-animate-center;
             }
             #dmplayer-container {
                 position: absolute;
@@ -268,9 +277,11 @@ export class BiliDanmakuPlayer {
                 width: 100%;
                 height: 100%;
                 pointer-events: none;
-                z-index: ${this.zIndex};
+                z-index: ${zIndex};
             }`);
-        this.options.shadowEffect.execute();
+        for (let key in this.options) {
+            if (this.options[key].init) this.options[key].execute?.();
+        }
         this.domAdapter.init();
         this.resize();
         this.logTag('✅ 弹幕播放器初始化完成');
@@ -278,13 +289,14 @@ export class BiliDanmakuPlayer {
     load(danmakuData) {
         let uid = 0;
         const base = Date.now();
-        danmakuData.forEach(dm => dm.id ??= `${base}${uid++}`); //保证有id
+        danmakuData.forEach(dm => dm.id = dm.idStr || dm.id?.toString() || `${base}${uid++}`); //保证有id
 
         this.clear();
         this.danmakuListOrigin = danmakuData.sort((a, b) => a.progress - b.progress) || [];
         this.options.mergeRepeats.execute();
 
         this.isLoaded = true;
+        this.paused = this.domAdapter.video.paused;
         this.observe();
     }
     clear() {
@@ -307,27 +319,19 @@ export class BiliDanmakuPlayer {
             this.cleanup();
         }
     }
-    cleanup(type) {
-        let elList = [];
-        let types = [];
-        if (typeof type === 'string') {
-            elList = this.container.getElementsByClassName(`dmplayer-danmaku-${type}`);
-            types = [type];
-        } else {
-            types = Object.keys(this.tracks);
-            elList = this.container.children;
-        }
-        Array.from(elList).forEach(el => el.remove());
-        for (const tp in types) {
-            if (Array.isArray(this.tracks[tp])) {
-                this.tracks[tp].fill(null);
+    cleanup() {
+        Array.from(this.container.children).forEach(el => el.remove());
+        for (let type in this.tracks) {
+            if (Array.isArray(this.tracks[type])) {
+                this.tracks[type].fill(null);
             }
         }
     }
     seek() {
         this.cleanup();
-        const now = this.domAdapter.getCurrentTime() * 1000;
-        this.danmakuIndex = this.danmakuList.findIndex(dm => dm.progress >= now);
+        const currentTime = this.domAdapter.video.currentTime * 1000;
+        const fromTime = currentTime - Math.max(this._duration.center, this._duration.scroll);
+        this.danmakuIndex = this.danmakuList.findIndex(dm => dm.progress >= fromTime);
         if (this.danmakuIndex === -1) {
             this.danmakuIndex = this.danmakuList.length;
         }
@@ -354,9 +358,17 @@ export class BiliDanmakuPlayer {
         ) {
             this.logTag(`更新尺寸：${Math.round(rect.height)}×${Math.round(rect.width)}`);
             this.containerRect = this.container.getBoundingClientRect();
-            this.cleanup('scroll');
+            this.domAdapter.injectStyle('dmplayer-style-animation', `
+                @keyframes dmplayer-animate-scroll {
+                    from { transform: translateX(100%); }
+                    to { transform: translateX(-${this.containerRect.width}px); }
+                }`);
             this._updateTracks();
-            this._durationCache = {};
+            this._refreshDuration();
+            const currentTime = this.domAdapter.video.currentTime * 1000;
+            Array.from(this.container.getElementsByClassName('dmplayer-danmaku-scroll')).forEach(
+                el => el.style.animationDelay = `${el._progress - currentTime}ms`
+            );
         }
     }
     _mergeRepeat() {
@@ -413,20 +425,18 @@ export class BiliDanmakuPlayer {
         this.tracks.bottom = keepTracks(this.tracks.bottom, stayTracks);
         this.logTag(`轨道分配：滚动 ${scrollTracks} 条，顶部 ${stayTracks} 条，底部 ${stayTracks} 条`);
     }
-    _getFreeTrack(type, el) {
+    _getFreeTrack(type, el, delayRatio) {
         const tracks = this.tracks[type];
-        const now = performance.now();
         const inter = 20;
         const id = el.id;
         const c = this.container.getBoundingClientRect();
         const newDm = el.getBoundingClientRect();
-        const newRatio = c.width / (c.width + newDm.width);
+        const newRatio = c.width / (c.width + newDm.width) - delayRatio;
         for (let i = 0; i < tracks.length; i++) {
             const track = tracks[i];
             // 1. 空轨道：直接插入
             if (!track || Object.keys(track).length === 0) {
                 tracks[i] = { [id]: el };
-                el._startTime = now;
                 return i;
             }
             if (type === 'scroll') {
@@ -444,7 +454,6 @@ export class BiliDanmakuPlayer {
                 }
                 if (!conflict) {
                     track[id] = el;
-                    el._startTime = now;
                     return i;
                 }
             }
@@ -459,8 +468,8 @@ export class BiliDanmakuPlayer {
                 for (const key in track) {
                     const lastEl = track[key];
                     if (!lastEl || !lastEl.isConnected) continue;
-                    if (lastEl._startTime > latestStart) {
-                        latestStart = lastEl._startTime;
+                    if (lastEl._progress > latestStart) {
+                        latestStart = lastEl._progress;
                     }
                 }
                 if (latestStart < earliestTime) {
@@ -469,29 +478,30 @@ export class BiliDanmakuPlayer {
                 }
             }
             if (bestIndex >= 0) {
+                // this.logTag("重叠轨道", type, bestIndex, el.textContent);
                 tracks[bestIndex][id] = el;
-                el._startTime = now;
                 return bestIndex;
             }
         }
         return -1;
     }
-    _getDuration(mode) {
-        let duration = this._durationCache?.[mode];
-        if (duration) {
-            return duration;
+    _refreshDuration() {
+        this._duration = {
+            center: Math.round(30000 / this.options.speed.value),
+            scroll: Math.round((this.containerRect.width + 400) * 30 / this.options.speed.value)
         }
-        if (mode === 4 || mode === 5) {
-            duration = Math.round(24000 / this.options.speed.value);
-        } else {
-            duration = Math.round(this.containerRect.width * 30 / this.options.speed.value + 1000);
-        }
-        this.logTag(`弹幕[mode=${mode}]持续时长`, duration / 1000);
-        if (!this._durationCache) this._durationCache = {};
-        this._durationCache[mode] = duration;
-        return duration;
+        this.logTag(`弹幕持续时长：中间 ${this._duration.center / 1000}秒，滚动 ${this._duration.scroll / 1000}秒`);
     }
-    showDanmaku(dm) {
+    _getDuration(mode) {
+        if (mode === 4 || mode === 5) {
+            return this._duration.center;
+        } else {
+            return this._duration.scroll;
+        }
+    }
+    showDanmaku(dm, delay = 0) {
+        const duration = this._getDuration(dm.mode);
+        if (delay >= duration) return;
         const type = dm.mode === 5 ? 'top' : dm.mode === 4 ? 'bottom' : 'scroll';
         const el = this.domAdapter.createElement({
             elId: dm.id, elContent: dm.content,
@@ -499,7 +509,8 @@ export class BiliDanmakuPlayer {
             elStyle: {
                 fontSize: `${dm.fontsize || 25}px`,
                 color: `#${(dm.color || 0xffffff).toString(16).padStart(6, '0')}`,
-                animationDuration: `${this._getDuration(dm.mode)}ms`
+                animationDuration: `${duration}ms`,
+                animationDelay: `${- delay}ms`
             }
         });
         if (dm.count && dm.count > 1) {
@@ -509,15 +520,15 @@ export class BiliDanmakuPlayer {
                 elStyle: { background: `rgba(${(clr >> 16) & 0xff}, ${(clr >> 8) & 0xff}, ${clr & 0xff}, 0.3)` }
             }));
         }
+        el._progress = dm.progress;
         el.style.visibility = 'hidden';
         this.domAdapter.injectElement(this.container, el); //先添加后才能测量宽度
-        const track = this._getFreeTrack(type, el);
+        const track = this._getFreeTrack(type, el, delay / duration);
         if (track >= 0) {
             if (type == 'top' || type == 'bottom') {
                 el.style[type] = `${track * this.LINE_HEIGHT + 5}px`;
             } else {
                 el.style.top = `${track * this.LINE_HEIGHT + Math.floor(Math.random() * 5) + 3}px`;
-                el.style.transform = `translateX(-${this.containerRect.width}px)`;
             }
             el.style.visibility = 'visible';
             el.addEventListener('animationend', () => {
@@ -537,17 +548,17 @@ export class BiliDanmakuPlayer {
             this._observerFrame = requestAnimationFrame(loop);
             if (!this.isLoaded || !this.showing || this.paused) return;
 
-            const now = this.domAdapter.getCurrentTime() * 1000;
-            if (Math.abs(now - lastTime) > 1500) {
-                this.logTag('检测到跳转', ((now - lastTime) / 1000).toFixed(3));
+            const currentTime = this.domAdapter.video.currentTime * 1000;
+            if (Math.abs(currentTime - lastTime) > 1500) {
+                this.logTag('检测到跳转', ((currentTime - lastTime) / 1000).toFixed(3));
                 this.seek();
             }
-            lastTime = now;
+            lastTime = currentTime;
             while (this.danmakuIndex < this.danmakuList.length) {
                 const dm = this.danmakuList[this.danmakuIndex];
-                if (dm.progress < now) {
+                if (dm.progress < currentTime) {
                     // this.logTag(this.danmakuIndex, dm.progress / 1000, dm.content);
-                    this.showDanmaku(dm);
+                    this.showDanmaku(dm, currentTime - dm.progress);
                     this.danmakuIndex++;
                 } else {
                     break;
