@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         YouTube B站弹幕播放器
 // @namespace    https://github.com/ZBpine/bilibili-danmaku-download/
-// @version      1.5.3
-// @description  加载本地 B站弹幕 JSON文件，在 YouTube 视频上显示
+// @version      1.5.4
+// @description  在 YouTube 视频上显示 B站视频弹幕 [ 油管 | Bilibili | 弹幕]
 // @author       ZBpine
 // @match        https://www.youtube.com/*
 // @match        https://www.bilibili.com/*
@@ -26,6 +26,7 @@
                 }
             }
             this.videoId = null;
+            this.data = {};
         }
         bindHotkey() {
             if (this.hotkeyBound) return;
@@ -36,9 +37,14 @@
                 const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
                 if (isTyping) return;
 
-                if (e.key.toLowerCase() === 'd') {
+                const key = e.key.toLowerCase();
+                if (key === 'd') {
                     if (this.toggleBtn) {
                         this.toggleBtn.click();
+                    }
+                } else if (key === 's') {
+                    if (this.searchBtn) {
+                        this.searchBtn.click();
                     }
                 }
             });
@@ -96,11 +102,11 @@
                     this.fileInput.value = '';
                     this.loadBtn.onclick = () => this.fileInput.click();
                 },
-                setSave: (data) => {
+                setSave: () => {
                     this.loadBtn.textContent = '💾';
                     this.loadBtn.title = '保存到浏览器本地存储';
                     this.loadBtn.onclick = () => {
-                        dmStore.setCache(this.videoId, data);
+                        dmStore.setCache(this.videoId, this.data[this.videoId]);
                         showTip('✅ 已保存到本地');
                         this.loadCtl.setClear();
                     };
@@ -117,7 +123,7 @@
             }
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
-            fileInput.accept = '.json';
+            fileInput.accept = '.json,.xml';
             fileInput.style.display = 'none';
             fileInput.id = 'dm-input-file';
             fileInput.onchange = (e) => {
@@ -126,11 +132,34 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     try {
-                        const json = JSON.parse(e.target.result);
-                        this.loadDanmakuSuccess(json);
-                        this.loadCtl.setSave(json);
+                        const text = e.target.result.trim();
+                        let data;
+                        if (text.startsWith('<')) {
+                            // XML 文件
+                            const danmakuData = parseDanmakuXml(text);
+                            data = {
+                                danmakuData,
+                                videoData: { title: file.name }
+                            };
+                        } else {
+                            const json = JSON.parse(e.target.result);
+                            if (Array.isArray(json)) {
+                                // 纯弹幕数组
+                                data = {
+                                    danmakuData: json,
+                                    videoData: { title: file.name }
+                                };
+                            } else if (json.danmakuData) {
+                                // 完整结构
+                                data = json;
+                            } else {
+                                throw new Error('不支持的 JSON 格式');
+                            }
+                        }
+                        this.loadDanmakuSuccess(data);
+                        this.loadCtl.setSave();
                     } catch (err) {
-                        this.dmPlayer.logTagError('❌ 弹幕 JSON 加载失败', err);
+                        this.dmPlayer.logTagError('❌ 加载失败', err);
                         showTip('❌ 加载失败：' + err.message);
                     }
                 };
@@ -180,6 +209,11 @@
             this.videoId = videoId;
             this.dmPlayerCall('clear');
 
+            if (this.data[videoId]) {
+                this.dmPlayer.init();
+                this.dmPlayer.load(this.data[videoId].danmakuData);
+                return;
+            }
             // 检查是否已有存储的弹幕
             const saved = dmStore.getCache(videoId);
             if (saved) {
@@ -198,6 +232,8 @@
             }
         }
         loadDanmakuSuccess(data) {
+            this.applyAlignment(data);
+            this.data[this.videoId] = data;
             this.dmPlayer.init();
             this.dmPlayer.load(data.danmakuData);
 
@@ -207,6 +243,87 @@
                 new Date(data.fetchtime * 1000).toLocaleString('zh-CN', { hour12: false }) : '（未知）';
             showTip(`🎉 成功载入：\n🎬 ${title}\n💬 共 ${count} 条弹幕\n🕒 抓取时间：${time}`);
         }
+        applyAlignment(data) {
+            if (!data?.alignment || !Array.isArray(data.alignment) || !data.danmakuData) return;
+            this.dmPlayer.domAdapter.injectStyle('dmplayer-danmaku-mark', `
+                @keyframes dmplayer-animate-mark {
+                    0%   { opacity: 0; }
+                    5%  { opacity: 0.6; }
+                    95%  { opacity: 0.4; }
+                    100% { opacity: 0; }
+                }
+                .dmplayer-danmaku-mark {
+                    left: 10px;
+                    top: 10px;
+                    animation-name: dmplayer-animate-mark;
+                    animation-timing-function: cubic-bezier(0,1,1,0) !important;
+                }`
+            );
+            const alignments = data.alignment.slice().sort((a, b) => (a.sourceRange?.start || 0) - (b.sourceRange?.start || 0));
+            const newDanmakus = [];
+            if (!data.danmakuDataOrigin) data.danmakuDataOrigin = data.danmakuData;
+            const danmakus = data.danmakuDataOrigin;
+
+            let lastSEnd = 0;
+            let lastTEnd = 0;
+            for (let i = 0; i <= alignments.length; i++) {
+                const align = alignments[i];
+                if (!align) continue;
+                const { sourceRange, targetRange, mode, comment } = align;
+
+                const sStart = sourceRange.start;
+                const sEnd = sourceRange.end;
+                const tStart = targetRange.start;
+                const tEnd = targetRange.end;
+                const sDuration = sEnd - sStart;
+                const tDuration = tEnd - tStart;
+
+                for (const d of danmakus) {
+                    const time = d.progress;
+                    if (time >= lastSEnd && time < sStart) {
+                        const newTime = time - lastSEnd + lastTEnd;
+                        newDanmakus.push({ ...d, progress: Math.round(newTime) });
+                    } else if (time >= sStart && time < sEnd) {
+                        let newTime = null;
+                        if (mode === 'map') {
+                            const ratio = (time - sStart) / sDuration;
+                            newTime = tStart + ratio * tDuration;
+                        } else {
+                            newTime = time - sStart + tStart;
+                            if (newTime < tStart || newTime >= tEnd) continue;
+                        }
+                        newDanmakus.push({ ...d, progress: Math.round(newTime) });
+                    }
+                }
+                if (comment) {
+                    const commentId = Date.now() * 1000 + i
+                    newDanmakus.push({
+                        content: `${comment}`,
+                        progress: Math.round(tStart),
+                        type: 'mark',
+                        duration: tEnd - tStart,
+                        fontsize: 32,
+                        color: 0xffffff,
+                        ctime: Math.floor(Date.now() / 1000),
+                        pool: 0,
+                        midHash: 'system',
+                        id: commentId,
+                        idStr: String(commentId),
+                        weight: 10
+                    });
+                }
+                lastSEnd = sEnd;
+                lastTEnd = tEnd;
+            }
+            for (const d of danmakus) {
+                const time = d.progress;
+                if (time >= lastSEnd) {
+                    const newTime = time - lastSEnd + lastTEnd;
+                    newDanmakus.push({ ...d, progress: Math.round(newTime) });
+                }
+            }
+            data.danmakuData = newDanmakus;
+        }
         async onSearch() {
             try {
                 const selected = await this.showSearchSelector();
@@ -214,7 +331,7 @@
 
                 const data = await getDanmakuDataByBvid(selected.bvid, selected.source);
                 this.loadDanmakuSuccess(data);
-                this.loadCtl.setSave(data);
+                this.loadCtl.setSave();
             } catch (err) {
                 showTip(`❌ 请求失败：${err.message}`);
                 this.dmPlayer.logTagError('❌ 请求失败：', err);
@@ -420,13 +537,59 @@
             title.style.fontSize = '18px';
             title.style.fontWeight = 'bold';
             panel.appendChild(title);
+            // 标签按钮容器
+            const tabButtons = document.createElement('div');
+            Object.assign(tabButtons.style, {
+                display: 'flex',
+                gap: '6px',
+                borderBottom: '1px solid #ccc',
+                margin: '10px 0'
+            });
+            panel.appendChild(tabButtons);
+            // 页面内容容器
+            const tabContent = document.createElement('div');
+            tabContent.style.marginBottom = '20px';
+            panel.appendChild(tabContent);
+            // 标签切换函数
+            const tabPages = {};
+            const switchTab = (tabName) => {
+                for (const [name, page] of Object.entries(tabPages)) {
+                    page.style.display = (name === tabName) ? 'flex' : 'none';
+                }
+                for (const btn of tabButtons.children) {
+                    btn.style.fontWeight = (btn.dataset.tab === tabName) ? 'bold' : 'normal';
+                    btn.style.borderBottom = (btn.dataset.tab === tabName) ? '2px solid #0077cc' : 'none';
+                }
+            };
+            const createTab = (name, labelText, createContent) => {
+                const btn = document.createElement('button');
+                btn.textContent = labelText;
+                btn.dataset.tab = name;
+                Object.assign(btn.style, {
+                    background: 'none',
+                    border: 'none',
+                    padding: '8px 12px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                });
+                btn.onclick = () => switchTab(name);
+                tabButtons.appendChild(btn);
+
+                const page = document.createElement('div');
+                page.style.display = 'none';
+                page.style.flexDirection = 'column';
+                page.style.gap = '6px';
+                tabPages[name] = page;
+                tabContent.appendChild(page);
+                createContent(page);
+                return page;
+            };
 
             const createLabeledButtonRow = (labelText, buttonObj) => {
                 const row = document.createElement('div');
                 row.style.display = 'flex';
                 row.style.justifyContent = 'space-between';
                 row.style.alignItems = 'center';
-                row.style.borderTop = '1px solid #ccc';
 
                 const label = document.createElement('div');
                 label.textContent = labelText;
@@ -542,93 +705,62 @@
                 })
                 return select;
             };
-            const SectionStyle = {
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '6px',
-            };
 
-            // --- 服务器设置模块 ---
-            const serverSection = document.createElement('div');
-            Object.assign(serverSection.style, SectionStyle);
+            createTab('display', '📺 弹幕显示', (page) => {
+                page.appendChild(createLabeledButtonRow('📺 弹幕显示设置', {
+                    textContent: '👁️ 预览',
+                    onmousedown: () => overlay.style.opacity = '0',
+                    onmouseup: () => overlay.style.opacity = '1',
+                    onmouseleave: () => overlay.style.opacity = '1'
+                }));
+                page.appendChild(createContralRow(
+                    '🌫️ 不透明度',
+                    'opacity',
+                    { type: 'number', min: 0.1, max: 1.0, step: 0.1 },
+                    '设置弹幕透明度（0.1 ~ 1.0）越小越透明'
+                ));
+                page.appendChild(createContralRow(
+                    '📐 显示区域',
+                    'displayArea',
+                    { type: 'number', min: 0.1, max: 1.0, step: 0.1 },
+                    '允许弹幕占屏幕高度范围，1.0 全屏'
+                ));
+                page.appendChild(createContralRow(
+                    '🚀 弹幕速度',
+                    'speed',
+                    { type: 'number', min: 3, max: 9, step: 1 },
+                    '影响弹幕持续时间以及滚动弹幕的速度'
+                ));
+                page.appendChild(createContralRow(
+                    '🔁 合并重复',
+                    'mergeRepeats',
+                    { type: 'checkbox' },
+                    '是否合并内容相同且时间接近的弹幕'
+                ));
+                page.appendChild(createContralRow(
+                    '🔀 允许重叠',
+                    'overlap',
+                    { type: 'checkbox' },
+                    '开启则允许弹幕重叠，否则丢弃会重叠的弹幕'
+                ));
 
-            const serverHeader = createLabeledButtonRow('🌐 服务器地址：', {
-                textContent: '💾 保存', onclick: () => {
-                    dmStore.set('server', serverInput.value.trim());
-                    showTip('✅ 地址已保存');
-                }
-            });
-
-            const serverInput = this.createStyledEl('input');
-            serverInput.value = dmStore.get('server', '');
-
-            serverSection.appendChild(serverHeader);
-            serverSection.appendChild(serverInput);
-            panel.appendChild(serverSection);
-
-            // --- 弹幕显示设置模块 ---
-            const settingSection = document.createElement('div');
-            Object.assign(settingSection.style, SectionStyle);
-            settingSection.appendChild(createLabeledButtonRow('📺 弹幕显示设置', {
-                textContent: '👁️ 预览',
-                onmousedown: () => overlay.style.opacity = '0',
-                onmouseup: () => overlay.style.opacity = '1',
-                onmouseleave: () => overlay.style.opacity = '1'
-            }));
-            settingSection.appendChild(createContralRow(
-                '🌫️ 不透明度',
-                'opacity',
-                { type: 'number', min: 0.1, max: 1.0, step: 0.1 },
-                '设置弹幕透明度（0.1 ~ 1.0）越小越透明'
-            ));
-            settingSection.appendChild(createContralRow(
-                '📐 显示区域',
-                'displayArea',
-                { type: 'number', min: 0.1, max: 1.0, step: 0.1 },
-                '允许弹幕占屏幕高度范围，1.0 全屏'
-            ));
-            settingSection.appendChild(createContralRow(
-                '🚀 弹幕速度',
-                'speed',
-                { type: 'number', min: 3, max: 9, step: 1 },
-                '影响弹幕持续时间以及滚动弹幕的速度'
-            ));
-            settingSection.appendChild(createContralRow(
-                '🔁 合并重复',
-                'mergeRepeats',
-                { type: 'checkbox' },
-                '是否合并内容相同且时间接近的弹幕'
-            ));
-            settingSection.appendChild(createContralRow(
-                '🔀 允许重叠',
-                'overlap',
-                { type: 'checkbox' },
-                '开启则允许弹幕重叠，否则丢弃会重叠的弹幕'
-            ));
-            panel.appendChild(settingSection);
-
-            // --- 弹幕阴影设置模块 ---
-            const shadowSection = document.createElement('div');
-            Object.assign(shadowSection.style, SectionStyle);
-
-            let shadowConfig = this.dmPlayer.options?.shadowEffect?.value ||
-                [{ type: 0, offset: 1, radius: 1, repeat: 1 }];
-            const shadowHeader = createLabeledButtonRow('🌑 弹幕阴影设置', {
-                textContent: '💾 保存', onclick: () => {
-                    dmStore.set('settings.shadowEffect', shadowConfig);
-                    this.dmPlayerCall('setOptions', shadowConfig, 'shadowEffect');
-                }
-            });
-            shadowSection.appendChild(shadowHeader);
-
-            const buildShadowSection = (shadowSection) => {
+                // --- 弹幕阴影设置模块 ---
+                let shadowConfig = this.dmPlayer.options?.shadowEffect?.value ||
+                    [{ type: 0, offset: 1, radius: 1, repeat: 1 }];
+                const shadowHeader = createLabeledButtonRow('🌑 弹幕阴影设置', {
+                    textContent: '💾 保存', onclick: () => {
+                        dmStore.set('settings.shadowEffect', shadowConfig);
+                        this.dmPlayerCall('setOptions', shadowConfig, 'shadowEffect');
+                    }
+                });
+                page.appendChild(shadowHeader);
                 // 预设选择
                 const presetSelect = createSelect(['重墨', '描边', '45°投影', '自定义']);
                 Object.assign(presetSelect.style, {
                     fontSize: '14px',
                     padding: '4px 8px'
                 });
-                shadowSection.appendChild(presetSelect);
+                page.appendChild(presetSelect);
                 // 默认配置项
                 const presets = {
                     '重墨': [{ type: 0, offset: 1, radius: 1, repeat: 1 }],
@@ -639,7 +771,7 @@
                     ]
                 };
                 const formArea = document.createElement('div');
-                shadowSection.appendChild(formArea);
+                page.appendChild(formArea);
 
                 const addBtn = document.createElement('button');
                 addBtn.textContent = '➕ 添加阴影项';
@@ -648,7 +780,7 @@
                     padding: '4px',
                     cursor: 'pointer'
                 });
-                shadowSection.appendChild(addBtn);
+                page.appendChild(addBtn);
 
                 const label = (text) => {
                     const span = document.createElement('span');
@@ -736,90 +868,295 @@
                 }
                 presetSelect.value = matchedPreset;
                 presetSelect.onchange();
-            }
-            buildShadowSection(shadowSection);
-            panel.appendChild(shadowSection);
-
-            // --- 缓存管理模块 ---
-            const cacheSection = document.createElement('div');
-            Object.assign(cacheSection.style, SectionStyle);
-
-            const cacheHeader = createLabeledButtonRow('📦 本地缓存弹幕', {
-                textContent: '🧹 清空所有缓存', onclick: () => {
-                    if (confirm('确定要清空所有本地缓存弹幕吗？')) {
-                        dmStore.clearAllCache();
-                        cacheList.textContent = '📭 所有缓存已清除';
-                        showTip('🧹 所有弹幕缓存已清空');
-                    }
-                }
             });
 
-            const cacheList = document.createElement('div');
-            cacheList.style.display = 'flex';
-            cacheList.style.flexDirection = 'column';
-            cacheList.style.gap = '8px';
-
-            const cache = dmStore.get('cache', {});
-            const keys = Object.keys(cache);
-
-            if (keys.length === 0) {
-                cacheList.textContent = '📭 当前没有缓存弹幕';
-            } else {
-                keys.forEach(videoId => {
-                    try {
-                        const json = cache[videoId];
-                        const title = json.videoData?.title;
-                        const row = document.createElement('div');
-                        row.style.display = 'flex';
-                        row.style.justifyContent = 'space-between';
-                        row.style.alignItems = 'center';
-
-                        const label = document.createElement('div');
-
-                        const idLine = document.createElement('a');
-                        idLine.textContent = `[▶️ ${videoId}]`;
-                        if (isBilibili) {
-                            idLine.href = videoId.startsWith('ep')
-                                ? `https://www.bilibili.com/bangumi/play/${videoId}`
-                                : `https://www.bilibili.com/video/${videoId}`;
-                        } else {
-                            idLine.href = `https://www.youtube.com/watch?v=${videoId}`;
+            createTab('cache', '📦 缓存管理', (page) => {
+                const cacheHeader = createLabeledButtonRow('📦 本地缓存弹幕', {
+                    textContent: '🧹 清空所有缓存', onclick: () => {
+                        if (confirm('确定要清空所有本地缓存弹幕吗？')) {
+                            dmStore.clearAllCache();
+                            cacheList.textContent = '📭 所有缓存已清除';
+                            showTip('🧹 所有弹幕缓存已清空');
                         }
-                        idLine.target = '_blank';
-                        Object.assign(idLine.style, {
-                            fontSize: '13px',
-                            color: '#1a73e8',
-                            textDecoration: 'none',
-                            marginBottom: '2px',
-                            whiteSpace: 'nowrap'
+                    }
+                });
+                const cacheList = document.createElement('div');
+                cacheList.style.display = 'flex';
+                cacheList.style.flexDirection = 'column';
+                cacheList.style.gap = '8px';
+                const cache = dmStore.get('cache', {});
+                const keys = Object.keys(cache);
+                if (keys.length === 0) {
+                    cacheList.textContent = '📭 当前没有缓存弹幕';
+                } else {
+                    keys.forEach(videoId => {
+                        try {
+                            const json = cache[videoId];
+                            const title = json.videoData?.title;
+                            const row = document.createElement('div');
+                            row.style.display = 'flex';
+                            row.style.justifyContent = 'space-between';
+                            row.style.alignItems = 'center';
+
+                            const label = document.createElement('div');
+
+                            const idLine = document.createElement('a');
+                            idLine.textContent = `[▶️ ${videoId}]`;
+                            if (isBilibili) {
+                                idLine.href = videoId.startsWith('ep')
+                                    ? `https://www.bilibili.com/bangumi/play/${videoId}`
+                                    : `https://www.bilibili.com/video/${videoId}`;
+                            } else {
+                                idLine.href = `https://www.youtube.com/watch?v=${videoId}`;
+                            }
+                            idLine.target = '_blank';
+                            Object.assign(idLine.style, {
+                                fontSize: '13px',
+                                color: '#1a73e8',
+                                textDecoration: 'none',
+                                marginBottom: '2px',
+                                whiteSpace: 'nowrap'
+                            });
+                            const titleLine = document.createElement('div');
+                            titleLine.textContent = `${title}`;
+                            titleLine.style.fontWeight = '500';
+
+                            label.appendChild(idLine);
+                            label.appendChild(titleLine);
+
+                            const delBtn = document.createElement('button');
+                            delBtn.textContent = '🗑 删除';
+                            delBtn.style.cursor = 'pointer';
+
+                            delBtn.onclick = () => {
+                                dmStore.removeCache(videoId);
+                                row.remove();
+                                showTip(`🗑 已删除缓存：${title}`);
+                            };
+
+                            row.appendChild(label);
+                            row.appendChild(delBtn);
+                            cacheList.appendChild(row);
+                        } catch (err) { this.dmPlayer.logTagError(err); }
+                    });
+                }
+                page.appendChild(cacheHeader);
+                page.appendChild(cacheList);
+            });
+
+            createTab('server', '🌐 服务器设置', (page) => {
+                const serverHeader = createLabeledButtonRow('🌐 服务器地址：', {
+                    textContent: '💾 保存', onclick: () => {
+                        dmStore.set('server', serverInput.value.trim());
+                        showTip('✅ 地址已保存');
+                    }
+                });
+
+                const serverInput = this.createStyledEl('input');
+                serverInput.value = dmStore.get('server', '');
+                page.appendChild(serverHeader);
+                page.appendChild(serverInput);
+            });
+
+            if (this.data[this.videoId]?.danmakuData) {
+                createTab('alignment', '🎯 视频对齐', (page) => {
+                    let alignData = this.data[this.videoId].alignment || [];
+                    const parseTimeToMs = (text) => {
+                        if (!text.includes(':')) return 0;
+                        const [min, sec] = text.trim().split(':');
+                        return Math.round((parseInt(min) * 60 + parseFloat(sec)) * 1000);
+                    };
+                    const formatMsToTime = (ms) => {
+                        const min = Math.floor(ms / 60000);
+                        const sec = (ms % 60000) / 1000;
+                        return `${min}:${sec}`;
+                    };
+                    const container = document.createElement('div');
+                    container.style.display = 'flex';
+                    container.style.flexDirection = 'column';
+                    container.style.gap = '8px';
+                    const render = () => {
+                        container.replaceChildren();
+                        alignData.forEach((entry, index) => {
+                            const row = document.createElement('div');
+                            row.style.display = 'flex';
+                            row.style.flexDirection = 'column';
+                            row.style.border = '1px solid #ccc';
+                            row.style.padding = '10px';
+                            row.style.gap = '6px';
+
+                            const createRow = (widgets) => {
+                                const wrapper = document.createElement('div');
+                                wrapper.style.display = 'flex';
+                                wrapper.style.alignItems = 'center';
+                                wrapper.style.gap = '6px';
+                                widgets.forEach(widget => wrapper.appendChild(widget));
+                                return wrapper;
+                            };
+                            const createInput = (placeholder, value, width, onInput) => {
+                                const input = document.createElement('input');
+                                input.placeholder = placeholder;
+                                input.value = value;
+                                input.style.width = width + 'px';
+                                input.onchange = () => onInput(input.value);
+                                return input;
+                            };
+
+                            // 源视频输入
+                            const sourceStart = createInput('开始时间', formatMsToTime(entry.sourceRange?.start || 0), 80, val => {
+                                entry.sourceRange = entry.sourceRange || {};
+                                entry.sourceRange.start = parseTimeToMs(val);
+                            });
+                            const sourceEnd = createInput('结束时间', formatMsToTime(entry.sourceRange?.end || 0), 80, val => {
+                                entry.sourceRange = entry.sourceRange || {};
+                                entry.sourceRange.end = parseTimeToMs(val);
+                            });
+
+                            // 目标视频输入
+                            const targetStart = createInput('开始时间', formatMsToTime(entry.targetRange?.start || 0), 80, val => {
+                                entry.targetRange = entry.targetRange || {};
+                                entry.targetRange.start = parseTimeToMs(val);
+                            });
+                            const targetEnd = createInput('结束时间', formatMsToTime(entry.targetRange?.end || 0), 80, val => {
+                                entry.targetRange = entry.targetRange || {};
+                                entry.targetRange.end = parseTimeToMs(val);
+                            });
+
+                            const modeSelect = createSelect(['map', 'shift'], opt => opt === 'map' ? '映射' : '顺移');
+                            modeSelect.value = entry.mode || 'shift';
+                            modeSelect.onchange = () => {
+                                entry.mode = modeSelect.value;
+                            };
+
+                            const commentInput = createInput('附言', entry.comment || '', 200, val => {
+                                entry.comment = val;
+                            });
+
+                            const delBtn = document.createElement('button');
+                            delBtn.textContent = '🗑 删除';
+                            delBtn.style.cursor = 'pointer';
+                            delBtn.onclick = () => {
+                                alignData.splice(index, 1);
+                                render();
+                            };
+
+                            const cLabel = (text) => {
+                                const label = document.createElement('div');
+                                label.textContent = text;
+                                return label;
+                            }
+                            row.appendChild(createRow([cLabel('原视频：'), sourceStart, cLabel('→'), sourceEnd]));
+                            row.appendChild(createRow([cLabel('现视频：'), targetStart, cLabel('→'), targetEnd]));
+                            row.appendChild(createRow([modeSelect, commentInput, delBtn]));
+
+                            container.appendChild(row);
                         });
-                        const titleLine = document.createElement('div');
-                        titleLine.textContent = `${title}`;
-                        titleLine.style.fontWeight = '500';
+                    };
 
-                        label.appendChild(idLine);
-                        label.appendChild(titleLine);
+                    const createButton = (text, onclick) => {
+                        const Btn = document.createElement('button');
+                        Btn.textContent = text;
+                        Object.assign(Btn.style, {
+                            width: '120px',
+                            padding: '4px',
+                            cursor: 'pointer'
+                        });
+                        Btn.onclick = onclick;
+                        return Btn;
+                    };
+                    const buttonRow = document.createElement('div');
+                    buttonRow.style.display = 'flex';
+                    buttonRow.style.justifyContent = 'space-between';
+                    buttonRow.style.alignItems = 'center';
+                    buttonRow.style.marginTop = '10px';
+                    buttonRow.appendChild(createButton('➕ 添加对齐片段', () => {
+                        alignData.push({
+                            sourceRange: { start: 0, end: 0 },
+                            targetRange: { start: 0, end: 0 },
+                            mode: 'shift',
+                            comment: ''
+                        });
+                        render();
+                    }));
+                    buttonRow.appendChild(createButton('📋 粘贴设置', async () => {
+                        try {
+                            const text = await navigator.clipboard.readText();
+                            const parsed = JSON.parse(text);
 
-                        const delBtn = document.createElement('button');
-                        delBtn.textContent = '🗑 删除';
-                        delBtn.style.cursor = 'pointer';
+                            if (!Array.isArray(parsed)) throw new Error('剪贴板内容不是有效的数组');
+                            const isValid = parsed.every(item =>
+                                item.sourceRange && item.targetRange && item.mode
+                            );
+                            if (!isValid) throw new Error('剪贴板内容不是有效的对齐数据');
 
-                        delBtn.onclick = () => {
-                            dmStore.removeCache(videoId);
-                            row.remove();
-                            showTip(`🗑 已删除缓存：${title}`);
-                        };
+                            alignData = parsed;
+                            render();
+                            showTip('📋 成功粘贴对齐设置');
+                        } catch (err) {
+                            this.dmPlayer.logTagError('❌ 粘贴失败：', err);
+                            showTip('❌ 粘贴失败：' + err.message);
+                        }
+                    }));
+                    buttonRow.appendChild(createButton('📋 复制设置', () => {
+                        const json = JSON.stringify(alignData, null);
+                        navigator.clipboard.writeText(json).then(() => {
+                            showTip('✅ 已复制所有对齐设置');
+                        }).catch(() => {
+                            showTip('❌ 复制失败');
+                        });
+                    }));
+                    buttonRow.appendChild(createButton('💾 保存', () => {
+                        const cached = dmStore.getCache(this.videoId);
+                        if (cached) {
+                            cached.alignment = alignData;
+                            dmStore.setCache(this.videoId, cached);
+                        }
+                        const data = this.data[this.videoId]
+                        data.alignment = alignData;
+                        this.applyAlignment(data);
+                        this.dmPlayer.load(data.danmakuData);
+                        showTip('✅ 对齐设置已保存');
+                    }));
 
-                        row.appendChild(label);
-                        row.appendChild(delBtn);
-                        cacheList.appendChild(row);
-                    } catch (err) { this.dmPlayer.logTagError(err); }
+                    render();
+
+                    const desc = document.createElement('div');
+                    Object.assign(desc.style, {
+                        fontSize: '13px',
+                        lineHeight: '1.6',
+                        background: '#f9f9f9',
+                        padding: '10px',
+                        border: '1px solid #ccc',
+                        borderRadius: '6px',
+                        marginBottom: '10px'
+                    });
+                    const addLine = (text, isBold = false, isCode = false) => {
+                        const line = document.createElement('div');
+                        if (isCode) {
+                            const code = document.createElement('code');
+                            code.textContent = text;
+                            line.appendChild(code);
+                        } else {
+                            line.textContent = isBold ? `• ${text}` : text;
+                            if (isBold) line.style.fontWeight = 'bold';
+                        }
+                        desc.appendChild(line);
+                    };
+                    addLine('⚠️ 对齐设置说明：');
+                    desc.appendChild(document.createElement('hr'));
+                    addLine('当原视频和新视频的时间段不一致（如删减/增加片段）时，可通过设置对齐项同步弹幕。');
+                    addLine('映射：将原时间段线性映射到新时间段。', true);
+                    addLine('顺移：平移时间，超出新时间段的丢弃。', true);
+                    addLine('附言：可插入一条大弹幕提示观众。', true);
+                    addLine('时间格式为 分:秒 或 分:秒.毫秒', false);
+
+                    page.appendChild(desc);
+                    page.appendChild(container);
+                    page.appendChild(buttonRow);
                 });
             }
-            cacheSection.appendChild(cacheHeader);
-            cacheSection.appendChild(cacheList);
-            panel.appendChild(cacheSection);
 
+            switchTab('display');
             overlay.appendChild(panel);
             document.body.appendChild(overlay);
         }
@@ -1035,12 +1372,13 @@
     }
 
     const isBilibili = location.hostname.includes('bilibili.com');
-    const urlOfPlayer = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download@1.5.3/tampermonkey/BiliDanmakuPlayer.js';
+    const urlOfPlayer = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download@1.5.4/tampermonkey/BiliDanmakuPlayer.js';
     const urlOfClient = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download/tampermonkey/BiliClientGM.js';
     const { BiliDanmakuPlayer } = await import(urlOfPlayer);
     const { BiliClientGM } = await import(urlOfClient);
     const dmPanel = new DanmakuControlPanel();
     unsafeWindow.dmPlayer = dmPanel.dmPlayer;
+    unsafeWindow.dmVideo = dmPanel.dmPlayer.domAdapter.video;
     const dmStore = {
         key: 'dm-player',
         getConfig() {

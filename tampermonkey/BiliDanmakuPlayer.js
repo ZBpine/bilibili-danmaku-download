@@ -154,7 +154,7 @@ export class BiliDanmakuPlayer {
                 value: 6,
                 setValue: (value) => {
                     if (!isNaN(value)) this.options.speed.value = Math.max(3, Math.min(9, value));
-                    this._refreshDuration();
+                    this._updateDuration();
                 }
             },
             overlap: {
@@ -234,7 +234,6 @@ export class BiliDanmakuPlayer {
         console.error(`%c${this.logStyle.tag}`, this.logStyle.errorStyle, ...args);
     }
     init() {
-        const zIndex = 997;
         this.domAdapter.addContainer(this.container);
         this.domAdapter.injectStyle('dmplayer-style', `
             @keyframes dmplayer-animate-center {
@@ -259,14 +258,12 @@ export class BiliDanmakuPlayer {
             }
             .dmplayer-danmaku-scroll {
                 right: 0;
-                z-index: ${zIndex + 1};
                 animation-name: dmplayer-animate-scroll;
             }
             .dmplayer-danmaku-top,
             .dmplayer-danmaku-bottom {
                 left: 50%;
                 transform: translateX(-50%);
-                z-index: ${zIndex + 2};
                 animation-name: dmplayer-animate-center;
             }
             #dmplayer-container {
@@ -277,7 +274,7 @@ export class BiliDanmakuPlayer {
                 width: 100%;
                 height: 100%;
                 pointer-events: none;
-                z-index: ${zIndex};
+                z-index: 999;
             }`);
         for (let key in this.options) {
             if (this.options[key].init) this.options[key].execute?.();
@@ -289,7 +286,10 @@ export class BiliDanmakuPlayer {
     load(danmakuData) {
         let uid = 0;
         const base = Date.now();
-        danmakuData.forEach(dm => dm.id = dm.idStr || dm.id?.toString() || `${base}${uid++}`); //保证有id
+        danmakuData.forEach(dm => {
+            dm.progress ??= 0;
+            dm.id = dm.idStr || dm.id?.toString() || `${base}${uid++}`; //保证有id
+        });
 
         this.clear();
         this.danmakuListOrigin = danmakuData.sort((a, b) => a.progress - b.progress) || [];
@@ -329,12 +329,13 @@ export class BiliDanmakuPlayer {
     }
     seek() {
         this.cleanup();
-        const currentTime = this.domAdapter.video.currentTime * 1000;
-        const fromTime = currentTime - Math.max(this._duration.center, this._duration.scroll);
-        this.danmakuIndex = this.danmakuList.findIndex(dm => dm.progress >= fromTime);
-        if (this.danmakuIndex === -1) {
-            this.danmakuIndex = this.danmakuList.length;
-        }
+        this.danmakuIndex = 0;
+        // const currentTime = this.domAdapter.video.currentTime * 1000;
+        // const fromTime = currentTime - Math.max(this._duration.center, this._duration.scroll);
+        // this.danmakuIndex = this.danmakuList.findIndex(dm => dm.progress >= fromTime);
+        // if (this.danmakuIndex === -1) {
+        //     this.danmakuIndex = this.danmakuList.length;
+        // }
     }
     pause() {
         this.paused = true;
@@ -364,7 +365,7 @@ export class BiliDanmakuPlayer {
                     to { transform: translateX(-${this.containerRect.width}px); }
                 }`);
             this._updateTracks();
-            this._refreshDuration();
+            this._updateDuration();
             const currentTime = this.domAdapter.video.currentTime * 1000;
             Array.from(this.container.getElementsByClassName('dmplayer-danmaku-scroll')).forEach(
                 el => el.style.animationDelay = `${el._progress - currentTime}ms`
@@ -426,6 +427,7 @@ export class BiliDanmakuPlayer {
         this.logTag(`轨道分配：滚动 ${scrollTracks} 条，顶部 ${stayTracks} 条，底部 ${stayTracks} 条`);
     }
     _getFreeTrack(type, el, delayRatio) {
+        if (!(type in this.tracks)) return 0;
         const tracks = this.tracks[type];
         const inter = 20;
         const id = el.id;
@@ -485,7 +487,7 @@ export class BiliDanmakuPlayer {
         }
         return -1;
     }
-    _refreshDuration() {
+    _updateDuration() {
         this._duration = {
             center: Math.round(30000 / this.options.speed.value),
             scroll: Math.round((this.containerRect.width + 400) * 30 / this.options.speed.value)
@@ -500,9 +502,10 @@ export class BiliDanmakuPlayer {
         }
     }
     showDanmaku(dm, delay = 0) {
-        const duration = this._getDuration(dm.mode);
+        const duration = dm.duration ?? this._getDuration(dm.mode);
         if (delay >= duration) return;
-        const type = dm.mode === 5 ? 'top' : dm.mode === 4 ? 'bottom' : 'scroll';
+
+        const type = dm.type ?? (dm.mode === 5 ? 'top' : dm.mode === 4 ? 'bottom' : 'scroll');
         const el = this.domAdapter.createElement({
             elId: dm.id, elContent: dm.content,
             elClass: ['dmplayer-danmaku', `dmplayer-danmaku-${type}`],
@@ -521,18 +524,18 @@ export class BiliDanmakuPlayer {
             }));
         }
         el._progress = dm.progress;
-        el.style.visibility = 'hidden';
         this.domAdapter.injectElement(this.container, el); //先添加后才能测量宽度
         const track = this._getFreeTrack(type, el, delay / duration);
         if (track >= 0) {
             if (type == 'top' || type == 'bottom') {
                 el.style[type] = `${track * this.LINE_HEIGHT + 5}px`;
-            } else {
+            } else if (type == 'scroll') {
                 el.style.top = `${track * this.LINE_HEIGHT + Math.floor(Math.random() * 5) + 3}px`;
+            } else {
+                if (dm.style) Object.assign(el.style, dm.style);
             }
-            el.style.visibility = 'visible';
             el.addEventListener('animationend', () => {
-                const trackList = this.tracks[type][track];
+                const trackList = this.tracks[type]?.[track];
                 if (trackList && trackList[el.id]) delete trackList[el.id];
                 el.remove();
             });
