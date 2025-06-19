@@ -1,4 +1,4 @@
-class DanmakuDOMAdapter {
+class DMPlayerDOMAdapter {
     constructor(playerInstance) {
         this.videoEl = null;
         this.player = playerInstance;
@@ -51,11 +51,14 @@ class DanmakuDOMAdapter {
     getVideoWrapper() {
         const video = document.querySelector('video');
         if (!video) return null;
+        const videoRect = video.getBoundingClientRect();
 
         let parent = video.parentElement;
         while (parent) {
             const rect = parent.getBoundingClientRect();
-            if (rect.height > 0 && rect.width > 0) return parent;
+            const widthDiff = Math.abs(rect.width - videoRect.width) / videoRect.width;
+            const heightDiff = Math.abs(rect.height - videoRect.height) / videoRect.height;
+            if (widthDiff < 0.2 && heightDiff < 0.2) return parent;
             parent = parent.parentElement;
         }
         return null;
@@ -111,7 +114,7 @@ class DanmakuDOMAdapter {
 
 export class BiliDanmakuPlayer {
     constructor() {
-        this.domAdapter = new DanmakuDOMAdapter(this);
+        this.domAdapter = new DMPlayerDOMAdapter(this);
         this.danmakuList = [];
         this.danmakuListOrigin = [];
         this.danmakuListMerged = [];
@@ -411,8 +414,6 @@ export class BiliDanmakuPlayer {
         const height = this.containerRect.height * this.options.displayArea.value - 8;
         const maxTracks = Math.floor(height / this.LINE_HEIGHT);
         // const trackCount = Math.max(3, Math.min(maxTracks, 30)); // 最少 3 条，最多 30 条
-        const scrollTracks = Math.max(3, maxTracks);
-        const stayTracks = Math.ceil(scrollTracks / 3);
 
         const keepTracks = (oldTracks, count) => {
             const newTracks = new Array(count);
@@ -421,17 +422,17 @@ export class BiliDanmakuPlayer {
             }
             return newTracks;
         };
-        this.tracks.scroll = keepTracks(this.tracks.scroll, scrollTracks);
-        this.tracks.top = keepTracks(this.tracks.top, stayTracks);
-        this.tracks.bottom = keepTracks(this.tracks.bottom, stayTracks);
-        this.logTag(`轨道分配：滚动 ${scrollTracks} 条，顶部 ${stayTracks} 条，底部 ${stayTracks} 条`);
+        this.tracks.scroll = keepTracks(this.tracks.scroll, maxTracks);
+        this.tracks.top = keepTracks(this.tracks.top, Math.floor(maxTracks / 2));
+        this.tracks.bottom = keepTracks(this.tracks.bottom, Math.floor(maxTracks / 2));
+        this.logTag(`最大轨道数：${maxTracks}`);
     }
     _getFreeTrack(type, el, delayRatio) {
         if (!(type in this.tracks)) return 0;
         const tracks = this.tracks[type];
         const inter = 20;
         const id = el.id;
-        const c = this.container.getBoundingClientRect();
+        const c = this.containerRect;
         const newDm = el.getBoundingClientRect();
         const newRatio = c.width / (c.width + newDm.width) - delayRatio;
         for (let i = 0; i < tracks.length; i++) {

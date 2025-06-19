@@ -68,7 +68,7 @@ export class BiliClientGM {
         const w_rid = this.md5(query + mixinKey);
         return { ...filtered, w_rid };
     }
-    async request({ url, params = {}, sign = false, desc = '', responseType = 'json' }) {
+    async request({ url, params = {}, responseType = 'json', sign = false, desc = '' }) {
         if (sign)
             params = this.signParams(params)
         const query = Object.entries(params)
@@ -85,23 +85,13 @@ export class BiliClientGM {
                 method: 'GET',
                 url: fullUrl,
                 headers,
+                responseType,
                 onload: res => {
                     if (res.status == 412) {
                         return reject({ code: 412, msg: "请求被拦截" });
                     }
-                    console.log(`🌐 [${desc}]`, `status: ${res.status}`, res.finalUrl);
-                    try {
-                        if (responseType === 'json') {
-                            const data = JSON.parse(res.responseText);
-                            console.log('✅ 成功返回：', data);
-                            resolve(data);
-                        } else {
-                            resolve(res.responseText);
-                        }
-                    } catch (e) {
-                        console.error(e);
-                        reject(new Error(`[${desc}] JSON 解析失败: ${e.message}`));
-                    }
+                    console.log(`🌐 [${desc}]`, res);
+                    resolve(res.response);
                 },
                 onerror: err => {
                     console.error(`❌ [${desc}] 网络错误`, err);
