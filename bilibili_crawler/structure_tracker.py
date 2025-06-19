@@ -2,15 +2,14 @@
 
 import os
 import json
-from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class StructureTracker:
     def __init__(self, base_dir):
         self.base_dir = base_dir
         self.structure_file = os.path.join(base_dir, "structure.json")
-        self.data = defaultdict(list)
+        self.data = {}
         self._load()
 
     def _load(self):
@@ -34,12 +33,12 @@ class StructureTracker:
     def update(self, mid, data):
         bvid = data.get("bvid", "未知BVID")
         video_data = data.get("videoData", {})
-        danmaku_data = data.get("danmakuData", [])
         title = video_data.get("title", "未知标题")
+        duration = video_data.get("duration", 0)
         pubdate = video_data.get("pubdate", 0)
         fetchtime = data.get("fetchtime", 0)
         expected_danmaku = video_data.get("stat", {}).get("danmaku", 0)
-        actual_danmaku = len(danmaku_data)
+        actual_danmaku = len(data.get("danmakuData", []))
         if mid not in self.data:
             self.data[mid] = {
                 "recent": [],
@@ -48,9 +47,10 @@ class StructureTracker:
         else:
             self.data[mid].setdefault("video", {})
             self.data[mid].setdefault("recent", [])
-        self.data[mid]["video"][bvid] = {
+        video_info = {
             "bvid": bvid,
             "title": title,
+            "duration": duration,
             "pubdate": pubdate,
             "fetchtime": fetchtime,
             "danmaku_count": {
@@ -58,7 +58,9 @@ class StructureTracker:
                 "actual": actual_danmaku,
             },
         }
+        self.data[mid]["video"][bvid] = video_info
         self.data[mid]["recent"].append(bvid)
+        return self.get_tree_data_item(bvid, video_info)
 
     def save(self):
         json_data = {str(mid): entries for mid, entries in self.data.items()}
@@ -89,29 +91,34 @@ class StructureTracker:
                 key=lambda i: i[1].get("pubdate", 0),
                 reverse=True,
             ):
-                title = video.get("title", "未知标题")
-                pubdate = datetime.fromtimestamp(video.get("pubdate", 0)).strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                )
-                fetchtime = datetime.fromtimestamp(video.get("fetchtime", 0)).strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                )
-                danmaku_count = video.get("danmaku_count", {})
-                actual = danmaku_count.get("actual", "?")
-                expected = danmaku_count.get("expected", "?")
-                video_info = {
-                    "bvid": bvid,
-                    "is_new": bvid in recent_set,
-                    "lines": [
-                        f"视频标题     ：{title}",
-                        f"发布时间     ：{pubdate}",
-                        f"下载时间     ：{fetchtime}",
-                        f"弹幕数量     ：{actual} / {expected}",
-                    ],
-                }
+                video_info = self.get_tree_data_item(bvid, video)
+                video_info["is_new"] = bvid in recent_set
                 videos.append(video_info)
             result.append((user, videos))
         return result
+
+    def get_tree_data_item(self, bvid, video):
+        title = video.get("title", "未知标题")
+        duration = str(timedelta(seconds=video.get("duration", 0)))
+        pubdate = datetime.fromtimestamp(video.get("pubdate", 0)).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+        fetchtime = datetime.fromtimestamp(video.get("fetchtime", 0)).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+        danmaku_count = video.get("danmaku_count", {})
+        actual = danmaku_count.get("actual", "?")
+        expected = danmaku_count.get("expected", "?")
+        return {
+            "bvid": bvid,
+            "lines": [
+                f"视频标题     ：{title}",
+                f"视频时长     ：{duration}",
+                f"发布时间     ：{pubdate}",
+                f"下载时间     ：{fetchtime}",
+                f"弹幕数量     ：{actual} / {expected}",
+            ],
+        }
 
     def export_txt(self, txt_path=None):
         if not txt_path:

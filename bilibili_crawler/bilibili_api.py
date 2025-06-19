@@ -10,7 +10,8 @@ class BilibiliAPI:
 
     def get_login_info(self) -> dict:
         """
-        获取当前登录用户的基本信息
+        获取导航栏用户信息
+        https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/login/login_info.md
         """
         res = self.client.get(
             "https://api.bilibili.com/x/web-interface/nav", desc="获取登录信息"
@@ -19,44 +20,72 @@ class BilibiliAPI:
 
     def check_login(self) -> bool:
         """
-        判断当前 cookie 是否有效
+        判断当前 cookie 是否登录
         """
-        return self.get_login_info.get("isLogin", False)
+        return self.get_login_info().get("isLogin", False)
 
     def get_user_info(self, mid: int) -> dict:
         """
-        获取 用户空间详细信息
+        获取用户空间详细信息
+        https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/user/info.md#用户空间详细信息
         """
         url = "https://api.bilibili.com/x/space/wbi/acc/info"
         params = {"mid": str(mid)}
         res = self.client.get(
-            url, params=params, sign=True, desc=f"获取 UP 主信息 mid={mid}"
+            url, params=params, sign=True, desc=f"获取用户空间详细信息 mid={mid}"
         )
         return res["data"]
 
     def get_user_card(self, mid: int, with_photo: bool = True) -> dict:
         """
         获取用户的名片信息
-        https://api.bilibili.com/x/web-interface/card
+        https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/user/info.md#用户名片信息
         """
         url = "https://api.bilibili.com/x/web-interface/card"
         params = {"mid": str(mid), "photo": "true" if with_photo else "false"}
         res = self.client.get(url, params=params, desc=f"获取用户名片 mid={mid}")
-        return res.get("data", {})
+        return res["data"]
+
+    def get_multi_user_cards(self, mids: list[int]) -> dict:
+        """
+        获取多用户详细信息
+        https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/user/info.md#多用户详细信息
+        """
+        url = "https://api.bilibili.com/x/polymer/pc-electron/v1/user/cards"
+        params = {"uids": ",".join(map(str, mids))}
+        res = self.client.get(url, params=params, desc="获取多用户详细信息")
+        return res["data"]
+
+    def get_user_followings(self, mid: int, ps: int = 50, pn: int = 1) -> dict:
+        """
+        查询用户关注明细
+        https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/user/relation.md#查询用户关注明细
+        """
+        url = "https://api.bilibili.com/x/relation/followings"
+        params = {"vmid": str(mid), "ps": str(ps), "pn": str(pn)}
+        res = self.client.get(
+            url, params=params, sign=True, desc=f"获取用户关注明细 mid={mid}"
+        )
+        return res["data"]
 
     def get_videos(self, mid: int, days: int = 10) -> list:
         """
-        获取 UP 主在最近几天发布的视频列表
+        查询用户投稿视频明细
+        https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/user/space.md#查询用户投稿视频明细
         """
         url = "https://api.bilibili.com/x/space/wbi/arc/search"
         cutoff_time = datetime.now() - timedelta(days=days)
         videos = []
+        MAX_PAGES = 10
         page = 1
 
-        while True:
+        while page <= MAX_PAGES:
             params = {"mid": str(mid), "pn": str(page), "ps": "30", "order": "pubdate"}
             res = self.client.get(
-                url, params=params, sign=True, desc=f"获取视频列表 page={page}"
+                url,
+                params=params,
+                sign=True,
+                desc=f"获取视频列表 mid={mid} page={page}",
             )
 
             if res["code"] != 0 or "list" not in res["data"]:
@@ -77,15 +106,16 @@ class BilibiliAPI:
 
     def get_videos_public(self, mid: int, days: int = 10, keyword: str = "") -> list:
         """
-        使用无需鉴权的新接口，根据 UP 主 mid 获取指定关键词的视频（默认所有），并过滤最近 days 天内发布的
-        https://api.bilibili.com/x/series/recArchivesByKeywords
+        根据关键词查找视频（无需鉴权）
+        https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/video/collection.md#根据关键词查找视频
         """
         url = "https://api.bilibili.com/x/series/recArchivesByKeywords"
         cutoff_time = datetime.now() - timedelta(days=days)
         videos = []
+        MAX_PAGES = 10
         page = 1
 
-        while True:
+        while page <= MAX_PAGES:
             params = {
                 "mid": str(mid),
                 "keywords": keyword,
@@ -94,7 +124,9 @@ class BilibiliAPI:
                 "orderby": "pubdate",
             }
 
-            res = self.client.get(url, params=params, desc=f"获取视频 page={page}")
+            res = self.client.get(
+                url, params=params, desc=f"获取视频列表 mid={mid} page={page}"
+            )
             if res.get("code") != 0 or "archives" not in res.get("data", {}):
                 break
 
@@ -114,7 +146,8 @@ class BilibiliAPI:
 
     def get_video_info(self, bvid: str) -> dict:
         """
-        获取视频详细信息（通过 bvid）
+        获取视频详细信息
+        https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/video/info.md
         """
         url = "https://api.bilibili.com/x/web-interface/view"
         params = {"bvid": bvid}
@@ -123,23 +156,57 @@ class BilibiliAPI:
 
     def get_episode_info(self, ep_id: int) -> dict:
         """
-        通过 ep_id 获取番剧详情（包括剧集列表、封面、标题等）
+        获取剧集明细（epid方式）
+        https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/bangumi/info.md#获取剧集明细web端ssidepid方式
         """
         url = "https://api.bilibili.com/pgc/view/web/season"
         params = {"ep_id": ep_id}
         res = self.client.get(url, params=params, desc=f"获取番剧详情 ep_id={ep_id}")
-        return res.get("result", {})  # 可能返回 None
+        return res["result"]
 
     def get_danmaku_xml(self, cid: int) -> str:
         """
-        获取弹幕 XML 文本
+        获取实时弹幕 XML 文本
+        https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/danmaku/danmaku_xml.md
         """
         url = f"https://api.bilibili.com/x/v1/dm/list.so"
-        return self.client.get_text(url, {"oid": cid}, desc=f"获取弹幕 XML cid={cid}")
+        return self.client.get(url, {"oid": cid}, desc=f"获取弹幕 XML cid={cid}")
+
+    def get_danmaku_pb_view(self, cid: int, avid: int, duration: int = 0):
+        """
+        获取弹幕个人配置与互动弹幕及BAS（代码）弹幕专包（web端）
+        https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/danmaku/danmaku_view_proto.md
+        """
+        url = "https://api.bilibili.com/x/v2/dm/web/view"
+        params = {"type": 1, "oid": cid, "pid": avid}
+        if duration > 0:
+            params["duration"] = duration
+        return self.client.get(url, params=params, desc="获取弹幕元数据")
+
+    def get_danmaku_pb_seg(
+        self, cid: int, avid: int, segment_index: int, ps: int = None, pe: int = None
+    ):
+        """
+        获取protobuf弹幕
+        https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/danmaku/danmaku_proto.md
+        """
+        url = "https://api.bilibili.com/x/v2/dm/wbi/web/seg.so"
+        params = {"type": 1, "oid": cid, "pid": avid, "segment_index": segment_index}
+        if ps is not None:
+            params["ps"] = ps
+        if pe is not None:
+            params["pe"] = pe
+        return self.client.get(
+            url,
+            params=params,
+            sign=True,
+            desc=f"获取protobuf弹幕片段seg={segment_index}",
+        )
 
     def get_ai_summary(self, bvid: str, cid: int, mid: int) -> str:
         """
-        获取 B 站 AI 视频摘要
+        获取AI总结内容
+        https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/video/summary.md
         """
         url = "https://api.bilibili.com/x/web-interface/view/conclusion/get"
         params = {"bvid": bvid, "cid": str(cid), "up_mid": str(mid)}
@@ -149,17 +216,15 @@ class BilibiliAPI:
         except:
             return "无摘要"
 
-    def search(
-        self, keyword: str, content_type: str = "video", limit: int = 20
-    ) -> list:
+    def search(self, keyword: str, search_type: str = "video", page: int = 1) -> list:
         """
-        通用搜索接口
-        - content_type 可选: video, media_bangumi
+        分类搜索
+        https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/search/search_request.md#分类搜索web端
         """
         url = "https://api.bilibili.com/x/web-interface/search/type"
-        params = {"search_type": content_type, "keyword": keyword, "page": 1}
+        params = {"search_type": search_type, "keyword": keyword, "page": page}
         res = self.client.get(
-            url, params=params, sign=True, desc=f"搜索类型={content_type}：{keyword}"
+            url, params=params, sign=True, desc=f"搜索类型={search_type}：{keyword}"
         )
 
-        return res.get("data", {}).get("result", [])[:limit]
+        return res.get("data", {}).get("result", [])
