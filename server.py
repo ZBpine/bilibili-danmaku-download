@@ -6,7 +6,12 @@ import json
 import difflib
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from bilibili_crawler import BilibiliClient, BilibiliAPI, parse_danmaku_xml
+from bilibili_crawler import (
+    BilibiliClient,
+    BilibiliAPI,
+    DanmakuParser,
+    get_danmaku_full,
+)
 
 
 def create_server_app(cookie_path="config/cookie.txt", download_dir="downloads"):
@@ -23,7 +28,7 @@ def create_server_app(cookie_path="config/cookie.txt", download_dir="downloads")
     @app.route("/search")
     def search():
         keyword = request.args.get("keyword", "").strip().lower()
-        content_type = request.args.get("type", "video")
+        search_type = request.args.get("type", "video")
 
         print(
             f"🔍 服务器收到 /search 请求：keyword={request.args.get('keyword')}, type={request.args.get('type')}"
@@ -36,7 +41,7 @@ def create_server_app(cookie_path="config/cookie.txt", download_dir="downloads")
 
         # 1. 在线搜索
         try:
-            online_results = api.search(keyword, content_type)
+            online_results = api.search(keyword, search_type)[:20]
             for item in online_results:
                 item["source"] = "bilibili"
             results.extend(online_results)
@@ -106,14 +111,13 @@ def create_server_app(cookie_path="config/cookie.txt", download_dir="downloads")
         try:
             video_info = api.get_video_info(bvid)
             cid = video_info["cid"]
-            dm_xml = api.get_danmaku_xml(cid)
-            danmaku = parse_danmaku_xml(dm_xml)
+            danmaku_list = get_danmaku_full(api, video_info)
             return jsonify(
                 {
                     "bvid": bvid,
                     "cid": cid,
                     "videoData": video_info,
-                    "danmakuData": danmaku,
+                    "danmakuData": danmaku_list,
                     "fetchtime": int(time.time()),
                 }
             )
