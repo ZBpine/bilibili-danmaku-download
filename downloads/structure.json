@@ -3,32 +3,33 @@
         "name": "马督工",
         "sex": "男",
         "sign": "热河省蛮子，刘亦菲粉丝。商务合作微信：MQZ998888",
-        "fans": 2048839,
+        "fans": 2060293,
         "recent": [
-            "BV1bp7Nz9EzN",
-            "BV1PC7pzPESi",
-            "BV18HjdzeEZB",
-            "BV125jmzKEhi",
-            "BV1EwjgzSEek",
-            "BV17kjbzNE5w",
-            "BV1p9jnzREy6"
+            "BV13sNJziE8j",
+            "BV1DqNqznELm",
+            "BV1rHMtznE2p",
+            "BV16yMBzLEvZ",
+            "BV1hKMuzUEXA",
+            "BV1VDM3z4En4"
         ],
         "video": {
             "BV125jmzKEhi": {
                 "bvid": "BV125jmzKEhi",
                 "title": "【睡前故事】长城汽车反内卷 消费者怎么看？",
+                "duration": 1082,
                 "pubdate": 1748264155,
-                "fetchtime": 1748711710,
+                "fetchtime": 1749126288,
                 "danmaku_count": {
-                    "expected": 2459,
-                    "actual": 2457
+                    "expected": 2568,
+                    "actual": 2566
                 }
             },
             "BV17kjbzNE5w": {
                 "bvid": "BV17kjbzNE5w",
                 "title": "辛亥革命起源于一场失败的地方债工程【马督工带你读懂民国14】",
+                "duration": 1576,
                 "pubdate": 1748082719,
-                "fetchtime": 1748711755,
+                "fetchtime": 1748887182,
                 "danmaku_count": {
                     "expected": 23,
                     "actual": 22
@@ -37,6 +38,7 @@
             "BV186VpzhEGX": {
                 "bvid": "BV186VpzhEGX",
                 "title": "【睡前消息896】高考平权 广东是突破口？",
+                "duration": 1123,
                 "pubdate": 1746540405,
                 "fetchtime": 1747400845,
                 "danmaku_count": {
@@ -47,26 +49,29 @@
             "BV18HjdzeEZB": {
                 "bvid": "BV18HjdzeEZB",
                 "title": "【睡前消息905】齐奥塞斯库的遗产，是罗马尼亚新总统",
+                "duration": 1314,
                 "pubdate": 1748347320,
-                "fetchtime": 1748711694,
+                "fetchtime": 1749211272,
                 "danmaku_count": {
-                    "expected": 490,
-                    "actual": 488
+                    "expected": 517,
+                    "actual": 515
                 }
             },
             "BV1EwjgzSEek": {
                 "bvid": "BV1EwjgzSEek",
                 "title": "【睡前消息904】育碧+腾讯 氪金刺客归中国",
+                "duration": 1234,
                 "pubdate": 1748172752,
-                "fetchtime": 1748711734,
+                "fetchtime": 1749035859,
                 "danmaku_count": {
-                    "expected": 1873,
-                    "actual": 1870
+                    "expected": 1928,
+                    "actual": 1925
                 }
             },
             "BV1JiEuzsEBy": {
                 "bvid": "BV1JiEuzsEBy",
                 "title": "【睡前消息898】广西旱灾怪桉树 二十年的错误记忆",
+                "duration": 1035,
                 "pubdate": 1746958834,
                 "fetchtime": 1748710669,
                 "danmaku_count": {
@@ -77,6 +82,7 @@
             "BV1jrJVzhEA3": {
                 "bvid": "BV1jrJVzhEA3",
                 "title": "【睡前消息901】“西方伪史论”对西方表达了最大敬畏",
+                "duration": 1150,
                 "pubdate": 1747568000,
                 "fetchtime": 1748710624,
                 "danmaku_count": {
@@ -87,26 +93,29 @@
             "BV1p9jnzREy6": {
                 "bvid": "BV1p9jnzREy6",
                 "title": "【睡前消息903】麻醉师不够，孩子也不想当“二代”",
+                "duration": 1030,
                 "pubdate": 1747997427,
-                "fetchtime": 1748711784,
+                "fetchtime": 1748858422,
                 "danmaku_count": {
-                    "expected": 1235,
-                    "actual": 1230
+                    "expected": 1245,
+                    "actual": 1240
                 }
             },
             "BV1PC7pzPESi": {
                 "bvid": "BV1PC7pzPESi",
                 "title": "【睡前消息906】西班牙大停电 巴菲特赚日本",
+                "duration": 1237,
                 "pubdate": 1748610992,
-                "fetchtime": 1748711670,
+                "fetchtime": 1749474408,
                 "danmaku_count": {
-                    "expected": 668,
-                    "actual": 509
+                    "expected": 850,
+                    "actual": 849
                 }
             },
             "BV1qtJ8z5EdF": {
                 "bvid": "BV1qtJ8z5EdF",
                 "title": "【睡前消息902】埃及“开东新区”将烂尾 塞西元帅准备进狗笼",
+                "duration": 1352,
                 "pubdate": 1747746370,
                 "fetchtime": 1748710595,
                 "danmaku_count": {
@@ -117,6 +126,7 @@
             "BV1Rg5TzfEcm": {
                 "bvid": "BV1Rg5TzfEcm",
                 "title": "两大强国伺候 清朝立宪还是要翻车【马督工带你读懂民国13】",
+                "duration": 2617,
                 "pubdate": 1746704070,
                 "fetchtime": 1748710711,
                 "danmaku_count": {
@@ -127,6 +137,7 @@
             "BV1UGEtzXE85": {
                 "bvid": "BV1UGEtzXE85",
                 "title": "【睡前消息900】沙特又砸盘  还会负油价吗？",
+                "duration": 1074,
                 "pubdate": 1747394732,
                 "fetchtime": 1748710645,
                 "danmaku_count": {
@@ -137,6 +148,7 @@
             "BV1Ws55zYEXJ": {
                 "bvid": "BV1Ws55zYEXJ",
                 "title": "【睡前消息897】幸福航空关门 新舟60警告C919",
+                "duration": 1009,
                 "pubdate": 1746794933,
                 "fetchtime": 1748710695,
                 "danmaku_count": {
@@ -147,11 +159,133 @@
             "BV1bp7Nz9EzN": {
                 "bvid": "BV1bp7Nz9EzN",
                 "title": "从封建主义向资本主义的文化大跃进，大型工程如何让落后地区爆发革命？【马督工带你读懂民国15】",
+                "duration": 2401,
                 "pubdate": 1748688900,
-                "fetchtime": 1748711656,
+                "fetchtime": 1749549468,
                 "danmaku_count": {
-                    "expected": 31,
-                    "actual": 31
+                    "expected": 82,
+                    "actual": 82
+                }
+            },
+            "BV1MT76zQEwv": {
+                "bvid": "BV1MT76zQEwv",
+                "title": "【睡前消息907】赢学家家有 莫迪不一样",
+                "duration": 1052,
+                "pubdate": 1748774083,
+                "fetchtime": 1749634773,
+                "danmaku_count": {
+                    "expected": 1448,
+                    "actual": 1446
+                }
+            },
+            "BV16T7azSEsW": {
+                "bvid": "BV16T7azSEsW",
+                "title": "【睡前消息908】杀人不割地 贵族战棋图什么？",
+                "duration": 1147,
+                "pubdate": 1748949778,
+                "fetchtime": 1749810263,
+                "danmaku_count": {
+                    "expected": 496,
+                    "actual": 495
+                }
+            },
+            "BV1zNTuzxEa5": {
+                "bvid": "BV1zNTuzxEa5",
+                "title": "【睡前消息909】第一烂尾楼 最高纪念碑",
+                "duration": 1344,
+                "pubdate": 1749215521,
+                "fetchtime": 1749260412,
+                "danmaku_count": {
+                    "expected": 640,
+                    "actual": 633
+                }
+            },
+            "BV1fATuzoEvL": {
+                "bvid": "BV1fATuzoEvL",
+                "title": "当一个激进的中年男性，试着理解自己和世界的关联",
+                "duration": 1686,
+                "pubdate": 1749211367,
+                "fetchtime": 1750075388,
+                "danmaku_count": {
+                    "expected": 5079,
+                    "actual": 2962
+                }
+            },
+            "BV1iXTXzVEHd": {
+                "bvid": "BV1iXTXzVEHd",
+                "title": "【睡前消息910】定居上海 想生五个——观众自己的故事 之一",
+                "duration": 2244,
+                "pubdate": 1749376340,
+                "fetchtime": 1750238706,
+                "danmaku_count": {
+                    "expected": 2924,
+                    "actual": 2924
+                }
+            },
+            "BV1VDM3z4En4": {
+                "bvid": "BV1VDM3z4En4",
+                "title": "【睡前消息911】投资和田玉，先问银行认不认？",
+                "duration": 1155,
+                "pubdate": 1749557249,
+                "fetchtime": 1750326065,
+                "danmaku_count": {
+                    "expected": 1319,
+                    "actual": 1319
+                }
+            },
+            "BV16yMBzLEvZ": {
+                "bvid": "BV16yMBzLEvZ",
+                "title": "【睡前消息912】总统管坦克世界 卡德罗夫管嘉士伯 都有光明的未来",
+                "duration": 1206,
+                "pubdate": 1749819346,
+                "fetchtime": 1750326021,
+                "danmaku_count": {
+                    "expected": 1129,
+                    "actual": 1128
+                }
+            },
+            "BV1hKMuzUEXA": {
+                "bvid": "BV1hKMuzUEXA",
+                "title": "一个43岁资深小镇青年，如何消解世界的「残酷」",
+                "duration": 1518,
+                "pubdate": 1749810494,
+                "fetchtime": 1750326047,
+                "danmaku_count": {
+                    "expected": 1044,
+                    "actual": 963
+                }
+            },
+            "BV1rHMtznE2p": {
+                "bvid": "BV1rHMtznE2p",
+                "title": "【睡前消息913】山东县城+抖音 安利可以安息了",
+                "duration": 1394,
+                "pubdate": 1749990359,
+                "fetchtime": 1750326001,
+                "danmaku_count": {
+                    "expected": 1360,
+                    "actual": 1351
+                }
+            },
+            "BV1DqNqznELm": {
+                "bvid": "BV1DqNqznELm",
+                "title": "【睡前消息914】最小地级市鄂州，可以降级了",
+                "duration": 1002,
+                "pubdate": 1750167449,
+                "fetchtime": 1750325979,
+                "danmaku_count": {
+                    "expected": 1179,
+                    "actual": 1176
+                }
+            },
+            "BV13sNJziE8j": {
+                "bvid": "BV13sNJziE8j",
+                "title": "【睡前消息914.5】两万字长文一小时视频，手把手教你穿越清末伪造圣旨！",
+                "duration": 3221,
+                "pubdate": 1750240522,
+                "fetchtime": 1750325955,
+                "danmaku_count": {
+                    "expected": 502,
+                    "actual": 497
                 }
             }
         }
@@ -160,17 +294,18 @@
         "name": "小黛晨读",
         "sex": "保密",
         "sign": "资讯连连看，消灭信息差。商务合作请+wx：MQZ998888",
-        "fans": 679155,
+        "fans": 682927,
         "recent": [
-            "BV1NP7LzmEUf",
-            "BV1LLjUzsErU",
-            "BV1p4jbzLE3x",
-            "BV19oJHzpEZy"
+            "BV15XNbzMETd",
+            "BV1DiM2zXEW9",
+            "BV1DsMMz2ECD",
+            "BV1ZdTizKECx"
         ],
         "video": {
             "BV11xEFzgE5x": {
                 "bvid": "BV11xEFzgE5x",
                 "title": "【参考信息第452期】拆解中美关税声明；淄博项目反复开工",
+                "duration": 1216,
                 "pubdate": 1747134723,
                 "fetchtime": 1748710905,
                 "danmaku_count": {
@@ -181,6 +316,7 @@
             "BV15UVdzNEcf": {
                 "bvid": "BV15UVdzNEcf",
                 "title": "【参考信息第451期】行人安全距离；手办淫秽标准",
+                "duration": 1122,
                 "pubdate": 1746878587,
                 "fetchtime": 1748710928,
                 "danmaku_count": {
@@ -191,16 +327,18 @@
             "BV19oJHzpEZy": {
                 "bvid": "BV19oJHzpEZy",
                 "title": "【参考信息第456期】带头过紧日子；追问230万耳环",
+                "duration": 1117,
                 "pubdate": 1747914556,
-                "fetchtime": 1748711891,
+                "fetchtime": 1748777436,
                 "danmaku_count": {
-                    "expected": 1556,
-                    "actual": 1553
+                    "expected": 1566,
+                    "actual": 1563
                 }
             },
             "BV1AbERzoEn8": {
                 "bvid": "BV1AbERzoEn8",
                 "title": "【参考信息第455期】广西没有丹书铁券；大厂贪腐堪比厅局",
+                "duration": 1136,
                 "pubdate": 1747655815,
                 "fetchtime": 1748710834,
                 "danmaku_count": {
@@ -211,6 +349,7 @@
             "BV1dKVWzCEig": {
                 "bvid": "BV1dKVWzCEig",
                 "title": "【参考信息第449期】中高考全托班；特朗普逆向助选",
+                "duration": 1131,
                 "pubdate": 1746536073,
                 "fetchtime": 1747397019,
                 "danmaku_count": {
@@ -221,6 +360,7 @@
             "BV1DV5TzoE8x": {
                 "bvid": "BV1DV5TzoE8x",
                 "title": "【参考信息第450期】中欧走近&中美谈判；军官直招留学生",
+                "duration": 1200,
                 "pubdate": 1746705439,
                 "fetchtime": 1748710953,
                 "danmaku_count": {
@@ -231,36 +371,40 @@
             "BV1LLjUzsErU": {
                 "bvid": "BV1LLjUzsErU",
                 "title": "【参考信息第458期】正当防卫新边界；反游戏产业链",
+                "duration": 1209,
                 "pubdate": 1748258251,
-                "fetchtime": 1748711846,
+                "fetchtime": 1749119749,
                 "danmaku_count": {
-                    "expected": 2526,
-                    "actual": 2523
+                    "expected": 2599,
+                    "actual": 2596
                 }
             },
             "BV1NP7LzmEUf": {
                 "bvid": "BV1NP7LzmEUf",
                 "title": "【参考信息第459期】都来救万科；梦醒马斯克",
+                "duration": 1199,
                 "pubdate": 1748518799,
-                "fetchtime": 1748711825,
+                "fetchtime": 1749379290,
                 "danmaku_count": {
-                    "expected": 373,
-                    "actual": 373
+                    "expected": 430,
+                    "actual": 430
                 }
             },
             "BV1p4jbzLE3x": {
                 "bvid": "BV1p4jbzLE3x",
                 "title": "【参考信息第457期】广西倒查十年；张核子追账卫健局",
+                "duration": 1127,
                 "pubdate": 1748086950,
-                "fetchtime": 1748711863,
+                "fetchtime": 1748950579,
                 "danmaku_count": {
-                    "expected": 671,
-                    "actual": 669
+                    "expected": 691,
+                    "actual": 689
                 }
             },
             "BV1UyE2zCEFP": {
                 "bvid": "BV1UyE2zCEFP",
                 "title": "【参考信息第453期】焦柳铁路装护栏；存5年不如存1年",
+                "duration": 1207,
                 "pubdate": 1747308933,
                 "fetchtime": 1748710876,
                 "danmaku_count": {
@@ -271,11 +415,89 @@
             "BV1vzJwzAEgh": {
                 "bvid": "BV1vzJwzAEgh",
                 "title": "【参考信息第454期】香港假学历判刑；内地炒美股缴税？",
+                "duration": 1161,
                 "pubdate": 1747482058,
                 "fetchtime": 1748710850,
                 "danmaku_count": {
                     "expected": 766,
                     "actual": 766
+                }
+            },
+            "BV1XJ7az6EeA": {
+                "bvid": "BV1XJ7az6EeA",
+                "title": "【参考信息第460期】高考生减少；中学生便秘；车圈恒大",
+                "duration": 1213,
+                "pubdate": 1748949997,
+                "fetchtime": 1749813995,
+                "danmaku_count": {
+                    "expected": 901,
+                    "actual": 884
+                }
+            },
+            "BV1FeTtzJE9X": {
+                "bvid": "BV1FeTtzJE9X",
+                "title": "【参考信息第461期】越南取消计划生育；四川延长婚育假期",
+                "duration": 1241,
+                "pubdate": 1749126890,
+                "fetchtime": 1749990643,
+                "danmaku_count": {
+                    "expected": 1579,
+                    "actual": 1578
+                }
+            },
+            "BV1MKTyzkECs": {
+                "bvid": "BV1MKTyzkECs",
+                "title": "【参考信息第462期】重庆昆明地铁涨价；国足VS苏超",
+                "duration": 1154,
+                "pubdate": 1749296569,
+                "fetchtime": 1750104293,
+                "danmaku_count": {
+                    "expected": 1522,
+                    "actual": 1521
+                }
+            },
+            "BV1ZdTizKECx": {
+                "bvid": "BV1ZdTizKECx",
+                "title": "【参考信息第463期】韦神健康问题；中澳合资铁矿",
+                "duration": 1056,
+                "pubdate": 1749472308,
+                "fetchtime": 1750326186,
+                "danmaku_count": {
+                    "expected": 651,
+                    "actual": 650
+                }
+            },
+            "BV1DsMMz2ECD": {
+                "bvid": "BV1DsMMz2ECD",
+                "title": "【参考信息第464期】茅台定义白酒初心；任正非谈对美差距",
+                "duration": 1112,
+                "pubdate": 1749808800,
+                "fetchtime": 1750326173,
+                "danmaku_count": {
+                    "expected": 1215,
+                    "actual": 1215
+                }
+            },
+            "BV1DiM2zXEW9": {
+                "bvid": "BV1DiM2zXEW9",
+                "title": "【参考信息第465期】苏皖轨交公司；东方理工大学",
+                "duration": 1152,
+                "pubdate": 1749902816,
+                "fetchtime": 1750326145,
+                "danmaku_count": {
+                    "expected": 903,
+                    "actual": 903
+                }
+            },
+            "BV15XNbzMETd": {
+                "bvid": "BV15XNbzMETd",
+                "title": "【参考信息第466期】踢球好进好中学；儿童发展账户",
+                "duration": 1073,
+                "pubdate": 1750074869,
+                "fetchtime": 1750326121,
+                "danmaku_count": {
+                    "expected": 311,
+                    "actual": 311
                 }
             }
         }
@@ -284,32 +506,40 @@
         "name": "章北海official",
         "sex": "男",
         "sign": "分配公平 文化包容 社会平等 舆论开放，这就是社会主义",
-        "fans": 1553569,
-        "recent": [],
+        "fans": 1592113,
+        "recent": [
+            "BV1RsNvzDEAN",
+            "BV1qfMkzHEs3",
+            "BV11nMuzuEBn",
+            "BV1iyM3zhEf4"
+        ],
         "video": {
             "BV16bVbzAEpG": {
                 "bvid": "BV16bVbzAEpG",
                 "title": "2025刚过去一半，年度烂梗已经出现",
+                "duration": 585,
                 "pubdate": 1746616992,
-                "fetchtime": 1748711059,
+                "fetchtime": 1750179453,
                 "danmaku_count": {
-                    "expected": 11999,
-                    "actual": 1200
+                    "expected": 12485,
+                    "actual": 6470
                 }
             },
             "BV1DkEWz2EN8": {
                 "bvid": "BV1DkEWz2EN8",
                 "title": "起底赛博神医张玄化：米汤仙人如何妖言惑众",
+                "duration": 756,
                 "pubdate": 1747366200,
-                "fetchtime": 1748710995,
+                "fetchtime": 1750179621,
                 "danmaku_count": {
-                    "expected": 7213,
-                    "actual": 1800
+                    "expected": 9205,
+                    "actual": 5964
                 }
             },
             "BV1EVJczwEbn": {
                 "bvid": "BV1EVJczwEbn",
                 "title": "普京：一个无名之辈如何成为新沙皇？",
+                "duration": 1028,
                 "pubdate": 1747477800,
                 "fetchtime": 1747560352,
                 "danmaku_count": {
@@ -320,21 +550,111 @@
             "BV1hyE5zsERD": {
                 "bvid": "BV1hyE5zsERD",
                 "title": "留学生痛打大学生，到底谁是达利特领班啊？",
+                "duration": 547,
                 "pubdate": 1747047000,
-                "fetchtime": 1748711007,
+                "fetchtime": 1750179505,
                 "danmaku_count": {
-                    "expected": 5273,
-                    "actual": 1200
+                    "expected": 5644,
+                    "actual": 1876
                 }
             },
             "BV1Tr5KzSEzg": {
                 "bvid": "BV1Tr5KzSEzg",
                 "title": "新建集团，如何撤销又复活？",
+                "duration": 663,
                 "pubdate": 1746713378,
                 "fetchtime": 1748711037,
                 "danmaku_count": {
                     "expected": 168,
                     "actual": 166
+                }
+            },
+            "BV16eTxz6EV8": {
+                "bvid": "BV16eTxz6EV8",
+                "title": "央行罕见表态：不怕涨价，要防低价倾销！",
+                "duration": 712,
+                "pubdate": 1749115489,
+                "fetchtime": 1750179646,
+                "danmaku_count": {
+                    "expected": 8715,
+                    "actual": 1821
+                }
+            },
+            "BV1D6TMzkEoi": {
+                "bvid": "BV1D6TMzkEoi",
+                "title": "黄金超级牛市，暴打A股背后谁是推手？",
+                "duration": 721,
+                "pubdate": 1749215065,
+                "fetchtime": 1750179754,
+                "danmaku_count": {
+                    "expected": 562,
+                    "actual": 340
+                }
+            },
+            "BV1WvTXzREUY": {
+                "bvid": "BV1WvTXzREUY",
+                "title": "注定失败的反游联盟，是封建家庭的谢幕表演",
+                "duration": 558,
+                "pubdate": 1749375113,
+                "fetchtime": 1750238967,
+                "danmaku_count": {
+                    "expected": 5954,
+                    "actual": 3624
+                }
+            },
+            "BV1iyM3zhEf4": {
+                "bvid": "BV1iyM3zhEf4",
+                "title": "特朗普背刺马斯克，大的还在后面呢！",
+                "duration": 662,
+                "pubdate": 1749557966,
+                "fetchtime": 1750326281,
+                "danmaku_count": {
+                    "expected": 1315,
+                    "actual": 1069
+                }
+            },
+            "BV1wsMEztEDK": {
+                "bvid": "BV1wsMEztEDK",
+                "title": "耳环230万，开启对账2.0",
+                "duration": 474,
+                "pubdate": 1749639000,
+                "fetchtime": 1750104354,
+                "danmaku_count": {
+                    "expected": 12756,
+                    "actual": 1200
+                }
+            },
+            "BV11nMuzuEBn": {
+                "bvid": "BV11nMuzuEBn",
+                "title": "热搜第一涨工资，灵活就业交社保，改革要来了？",
+                "duration": 509,
+                "pubdate": 1749823252,
+                "fetchtime": 1750326255,
+                "danmaku_count": {
+                    "expected": 3763,
+                    "actual": 2093
+                }
+            },
+            "BV1qfMkzHEs3": {
+                "bvid": "BV1qfMkzHEs3",
+                "title": "奉劝赖清德，并购要趁早",
+                "duration": 551,
+                "pubdate": 1749894600,
+                "fetchtime": 1750326229,
+                "danmaku_count": {
+                    "expected": 5830,
+                    "actual": 1648
+                }
+            },
+            "BV1RsNvzDEAN": {
+                "bvid": "BV1RsNvzDEAN",
+                "title": "什么是统战价值？手把手教你具有统战价值",
+                "duration": 849,
+                "pubdate": 1750168196,
+                "fetchtime": 1750326216,
+                "danmaku_count": {
+                    "expected": 7481,
+                    "actual": 4726
                 }
             }
         }
