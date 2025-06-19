@@ -16,9 +16,9 @@
         "description": "",
         "article": 0,
         "attentions": [],
-        "fans": 2048839,
-        "friend": 145,
-        "attention": 145,
+        "fans": 2060293,
+        "friend": 150,
+        "attention": 150,
         "sign": "热河省蛮子，刘亦菲粉丝。商务合作微信：MQZ998888",
         "level_info": {
             "current_level": 6,
@@ -38,8 +38,8 @@
         "nameplate": {
             "nid": 3,
             "name": "白银殿堂",
-            "image": "https://i1.hdslb.com/bfs/face/f6a31275029365ae5dc710006585ddcf1139bde1.png",
-            "image_small": "https://i0.hdslb.com/bfs/face/b09cdb4c119c467cf2d15db5263b4f539fa6e30b.png",
+            "image": "https://i2.hdslb.com/bfs/face/f6a31275029365ae5dc710006585ddcf1139bde1.png",
+            "image_small": "https://i2.hdslb.com/bfs/face/b09cdb4c119c467cf2d15db5263b4f539fa6e30b.png",
             "level": "高级勋章",
             "condition": "单个自制视频总播放数>=10万"
         },
@@ -70,8 +70,13 @@
                 "use_img_label": true,
                 "img_label_uri_hans": "",
                 "img_label_uri_hant": "",
-                "img_label_uri_hans_static": "https://i0.hdslb.com/bfs/bangumi/kt/629e28d4426f1b44af1131ade99d27741cc61d4b.png",
-                "img_label_uri_hant_static": "https://i0.hdslb.com/bfs/activity-plat/static/20220614/e369244d0b14644f5e1a06431e22a4d5/VEW8fCC0hg.png"
+                "img_label_uri_hans_static": "https://i0.hdslb.com/bfs/vip/8d4f8bfc713826a5412a0a27eaaac4d6b9ede1d9.png",
+                "img_label_uri_hant_static": "https://i0.hdslb.com/bfs/activity-plat/static/20220614/e369244d0b14644f5e1a06431e22a4d5/VEW8fCC0hg.png",
+                "label_id": -22,
+                "label_goto": {
+                    "mobile": "https://big.bilibili.com/mobile/index?navhide=1&from_spmid=vipicon",
+                    "pc_web": "https://account.bilibili.com/big?from_spmid=vipicon"
+                }
             },
             "avatar_subscript": 1,
             "nickname_color": "#FB7299",
@@ -81,11 +86,8 @@
             "tv_vip_pay_type": 0,
             "tv_due_date": 0,
             "avatar_icon": {
-                "icon_type": 3,
-                "icon_resource": {
-                    "type": 1,
-                    "url": "https://i0.hdslb.com/bfs/bangumi/kt/aba51485c0d02940c89aeefcf6680510d9858472.png"
-                }
+                "icon_type": 1,
+                "icon_resource": {}
             },
             "vipType": 2,
             "vipStatus": 1
@@ -94,12 +96,12 @@
         "name_render": null
     },
     "space": {
-        "s_img": "http://i1.hdslb.com/bfs/activity-plat/static/LRjqHhi0wL.png",
-        "l_img": "http://i1.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png"
+        "s_img": "https://i0.hdslb.com/bfs/activity-plat/static/LRjqHhi0wL.png",
+        "l_img": "https://i0.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png"
     },
     "following": false,
-    "archive_count": 849,
+    "archive_count": 860,
     "article_count": 0,
-    "follower": 2048839,
-    "like_num": 38575742
+    "follower": 2060293,
+    "like_num": 38770309
 }
