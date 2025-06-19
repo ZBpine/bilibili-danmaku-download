@@ -56,9 +56,7 @@ class DMPlayerDOMAdapter {
         let parent = video.parentElement;
         while (parent) {
             const rect = parent.getBoundingClientRect();
-            const widthDiff = Math.abs(rect.width - videoRect.width) / videoRect.width;
-            const heightDiff = Math.abs(rect.height - videoRect.height) / videoRect.height;
-            if (widthDiff < 0.2 && heightDiff < 0.2) return parent;
+            if (rect.width > videoRect.width / 10 && rect.height > videoRect.height / 10) return parent;
             parent = parent.parentElement;
         }
         return null;
@@ -237,7 +235,6 @@ export class BiliDanmakuPlayer {
         console.error(`%c${this.logStyle.tag}`, this.logStyle.errorStyle, ...args);
     }
     init() {
-        this.domAdapter.addContainer(this.container);
         this.domAdapter.injectStyle('dmplayer-style', `
             @keyframes dmplayer-animate-center {
                 from { opacity: 1; }
@@ -282,9 +279,12 @@ export class BiliDanmakuPlayer {
         for (let key in this.options) {
             if (this.options[key].init) this.options[key].execute?.();
         }
-        this.domAdapter.init();
-        this.resize();
         this.logTag('✅ 弹幕播放器初始化完成');
+    }
+    update() {
+        this.domAdapter.init();
+        this.domAdapter.addContainer(this.container);
+        this.resize();
     }
     load(danmakuData) {
         let uid = 0;
@@ -412,7 +412,7 @@ export class BiliDanmakuPlayer {
     }
     _updateTracks() {
         const height = this.containerRect.height * this.options.displayArea.value - 8;
-        const maxTracks = Math.floor(height / this.LINE_HEIGHT);
+        const maxTracks = Math.max(Math.floor(height / this.LINE_HEIGHT), 2);
         // const trackCount = Math.max(3, Math.min(maxTracks, 30)); // 最少 3 条，最多 30 条
 
         const keepTracks = (oldTracks, count) => {

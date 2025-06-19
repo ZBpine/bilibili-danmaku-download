@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube B站弹幕播放器
 // @namespace    https://github.com/ZBpine/bilibili-danmaku-download/
-// @version      1.5.4
+// @version      1.6.0
 // @description  在 YouTube 视频上显示 B站视频弹幕 [ 油管 | Bilibili | 弹幕]
 // @author       ZBpine
 // @match        https://www.youtube.com/*
@@ -9,17 +9,25 @@
 // @grant        unsafeWindow
 // @grant        GM_xmlhttpRequest
 // @connect      api.bilibili.com
+// @require      https://cdn.jsdelivr.net/npm/protobufjs@7.5.3/dist/minimal/protobuf.min.js
 // @license      MIT
 // @run-at       document-end
 // ==/UserScript==
 
 (async () => {
     'use strict';
-
+    if (window.top !== window.self) {
+        console.warn('不是顶层窗口，跳过弹幕播放器');
+        console.log(window.top, window.self);
+        return;
+    }
     class DanmakuControlPanel {
-        constructor() {
+        constructor(dmPlayer, biliUtil, dmStore) {
             this.panelId = 'dm-panel';
-            this.dmPlayer = new BiliDanmakuPlayer();
+            this.isBilibili = location.hostname.includes('bilibili.com');
+            this.dmPlayer = dmPlayer;
+            this.biliUtil = biliUtil;
+            this.dmStore = dmStore;
             this.dmPlayerCall = (methodName, ...args) => {
                 if (this.dmPlayer && typeof this.dmPlayer[methodName] === 'function') {
                     return this.dmPlayer[methodName](...args);
@@ -49,6 +57,63 @@
                 }
             });
         }
+        getCurrentVideoId() {
+            if (this.isBilibili) {
+                const bvidMatch = location.href.match(/BV[a-zA-Z0-9]+/);
+                if (bvidMatch) return bvidMatch[0];
+                const epidMatch = location.href.match(/ep(\d+)/);
+                if (epidMatch) return 'ep' + epidMatch[1];
+            } else {
+                return new URLSearchParams(location.search).get('v');
+            }
+            return null;
+        }
+        observeVideoChange() {
+            let href = null;
+            const updateVideoId = () => {
+                if (location.href === href) return;
+                href = location.href;
+                const newId = this.getCurrentVideoId();
+                if (newId && newId !== this.videoId) {
+                    console.log(`[🎬 检测到视频变化] ${this.videoId} → ${newId}`);
+                    this.dmPlayerCall('clear');
+                    setTimeout(() => this.update(newId), 100);
+                }
+            }
+            updateVideoId();
+            const observer = new MutationObserver(updateVideoId);
+            observer.observe(document.body, { childList: true, subtree: true });
+        }
+        showTip(message, { duration = 3000 } = {}) {
+            const dark = !this.isBilibili;
+            const tip = document.createElement('div');
+            tip.textContent = message;
+            Object.assign(tip.style, {
+                position: 'fixed',
+                bottom: '20px',
+                right: '20px',
+                padding: '10px 14px',
+                borderRadius: '6px',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                fontSize: '14px',
+                zIndex: 9999,
+                whiteSpace: 'pre-line',
+                opacity: '0',
+                transition: 'opacity 0.3s ease',
+                background: dark ? 'rgba(50, 50, 50, 0.9)' : '#f0f0f0',
+                color: dark ? '#fff' : '#000',
+                border: dark ? '1px solid #444' : '1px solid #ccc'
+            });
+            document.body.appendChild(tip);
+            requestAnimationFrame(() => {
+                tip.style.opacity = '1';
+            });
+            setTimeout(() => {
+                tip.style.opacity = '0';
+                tip.addEventListener('transitionend', () => tip.remove());
+            }, duration);
+            console.log('[💡tip]', message);
+        }
         init() {
             if (document.getElementById(this.panelId)) return;
 
@@ -62,13 +127,13 @@
                 fontSize: '14px',
                 width: '100%'
             };
-            if (isBilibili) {
+            if (this.isBilibili) {
                 buttonStyle.background = '#eee';
                 buttonStyle.color = 'black';
                 this.dmPlayer.logStyle.style = 'background: #00a2d8; color: white; padding: 2px 6px; border-radius: 3px;';
                 this.dmPlayer.logStyle.errorStyle = 'background: #ff4d4f; color: white; padding: 2px 6px; border-radius: 3px;';
             }
-            this.dmPlayerCall('setOptions', dmStore.get('settings', {}));
+            this.dmPlayerCall('setOptions', this.dmStore.get('settings', {}));
 
             this.searchBtn = document.createElement('button');
             this.searchBtn.textContent = '🔍';
@@ -106,8 +171,8 @@
                     this.loadBtn.textContent = '💾';
                     this.loadBtn.title = '保存到浏览器本地存储';
                     this.loadBtn.onclick = () => {
-                        dmStore.setCache(this.videoId, this.data[this.videoId]);
-                        showTip('✅ 已保存到本地');
+                        this.dmStore.setCache(this.videoId, this.data[this.videoId]);
+                        this.showTip('✅ 已保存到本地');
                         this.loadCtl.setClear();
                     };
                 },
@@ -115,8 +180,8 @@
                     this.loadBtn.textContent = '🗑️';
                     this.loadBtn.title = '释放浏览器本地存储';
                     this.loadBtn.onclick = () => {
-                        dmStore.removeCache(this.videoId);
-                        showTip('🗑️ 已移除本地存储');
+                        this.dmStore.removeCache(this.videoId);
+                        this.showTip('🗑️ 已移除本地存储');
                         this.loadCtl.setLoad();
                     };
                 }
@@ -136,7 +201,7 @@
                         let data;
                         if (text.startsWith('<')) {
                             // XML 文件
-                            const danmakuData = parseDanmakuXml(text);
+                            const danmakuData = this.biliUtil.parseDanmakuXml(text);
                             data = {
                                 danmakuData,
                                 videoData: { title: file.name }
@@ -160,7 +225,7 @@
                         this.loadCtl.setSave();
                     } catch (err) {
                         this.dmPlayer.logTagError('❌ 加载失败', err);
-                        showTip('❌ 加载失败：' + err.message);
+                        this.showTip('❌ 加载失败：' + err.message);
                     }
                 };
                 reader.readAsText(file);
@@ -187,7 +252,7 @@
                 gridAutoRows: '32px',
                 gap: '6px'
             });
-            if (isBilibili) {
+            if (this.isBilibili) {
                 panel.style.background = '#ccc';
             }
             panel.addEventListener('mouseenter', () => {
@@ -202,29 +267,29 @@
             panel.append(this.searchBtn, this.loadBtn, this.configBtn, this.toggleBtn);
             document.body.appendChild(panel);
             this.bindHotkey();
+            this.dmPlayer.init();
         }
         update(videoId) {
             if (!videoId) return;
-            this.dmPlayer.logTag(`当前视频：${videoId}`);
             this.videoId = videoId;
-            this.dmPlayerCall('clear');
+            this.dmPlayer.update();
+            this.dmPlayer.logTag(`当前视频：${videoId}`);
 
             if (this.data[videoId]) {
-                this.dmPlayer.init();
                 this.dmPlayer.load(this.data[videoId].danmakuData);
                 return;
             }
             // 检查是否已有存储的弹幕
-            const saved = dmStore.getCache(videoId);
+            const saved = this.dmStore.getCache(videoId);
             if (saved) {
                 try {
                     this.loadDanmakuSuccess(saved);
-                    showTip(`📦 自动载入本地弹幕`);
+                    this.showTip(`📦 自动载入本地弹幕`);
                     this.loadCtl.setClear();
                 } catch (err) {
-                    showTip('❌ 本地弹幕解析失败：' + err.message);
+                    this.showTip('❌ 本地弹幕解析失败：' + err.message);
                     this.dmPlayer.logTagError('❌ 本地弹幕解析失败：', err);
-                    dmStore.removeCache(videoId);
+                    this.dmStore.removeCache(videoId);
                     this.loadCtl.setLoad();
                 }
             } else {
@@ -234,14 +299,13 @@
         loadDanmakuSuccess(data) {
             this.applyAlignment(data);
             this.data[this.videoId] = data;
-            this.dmPlayer.init();
             this.dmPlayer.load(data.danmakuData);
 
             const count = data.danmakuData.length;
             const title = data.videoData?.title || '（未知标题）';
             const time = data.fetchtime ?
                 new Date(data.fetchtime * 1000).toLocaleString('zh-CN', { hour12: false }) : '（未知）';
-            showTip(`🎉 成功载入：\n🎬 ${title}\n💬 共 ${count} 条弹幕\n🕒 抓取时间：${time}`);
+            this.showTip(`🎉 成功载入：\n🎬 ${title}\n💬 共 ${count} 条弹幕\n🕒 抓取时间：${time}`);
         }
         applyAlignment(data) {
             if (!data?.alignment || !Array.isArray(data.alignment) || !data.danmakuData) return;
@@ -259,7 +323,7 @@
                     animation-timing-function: cubic-bezier(0,1,1,0) !important;
                 }`
             );
-            const alignments = data.alignment.slice().sort((a, b) => (a.sourceRange?.start || 0) - (b.sourceRange?.start || 0));
+            const alignments = data.alignment.slice().sort((a, b) => (a.source?.start || 0) - (b.source?.start || 0));
             const newDanmakus = [];
             if (!data.danmakuDataOrigin) data.danmakuDataOrigin = data.danmakuData;
             const danmakus = data.danmakuDataOrigin;
@@ -269,12 +333,12 @@
             for (let i = 0; i <= alignments.length; i++) {
                 const align = alignments[i];
                 if (!align) continue;
-                const { sourceRange, targetRange, mode, comment } = align;
+                const { source, target, mode, comment } = align;
 
-                const sStart = sourceRange.start;
-                const sEnd = sourceRange.end;
-                const tStart = targetRange.start;
-                const tEnd = targetRange.end;
+                const sStart = source.start;
+                const sEnd = source.end;
+                const tStart = target.start;
+                const tEnd = target.end;
                 const sDuration = sEnd - sStart;
                 const tDuration = tEnd - tStart;
 
@@ -329,17 +393,54 @@
                 const selected = await this.showSearchSelector();
                 if (!selected) return;
 
-                const data = await getDanmakuDataByBvid(selected.bvid, selected.source);
+                const searchServer = async (bvid) => {
+                    const server = this.dmStore.get('server');
+                    if (server) {
+                        try {
+                            const res = await fetch(`${server}/video?bvid=${bvid}&source=${selected.source}`);
+                            const data = await res.json();
+                            return data;
+                        } catch (e) {
+                            this.showTip('⚠ 请检查服务器是否正确');
+                            console.warn('❌ 远程弹幕获取失败:', e);
+                        }
+                    }
+                    return null;
+                }
+                let data = null;
+                const bvid = selected.bvid;
+                const serverData = await searchServer(bvid);
+                if (serverData) {
+                    data = serverData;
+                    this.loadDanmakuSuccess(data);
+                    this.loadCtl.setSave();
+                    return;
+                }
+                const videoData = await this.biliUtil.getVideoData(bvid);
+                const cid = videoData.cid;
+                let danmakuData = await this.biliUtil.getDanmakuXml(cid);
+                data = {
+                    bvid, cid, videoData, danmakuData,
+                    fetchtime: Math.floor(Date.now() / 1000)
+                };
+                this.loadDanmakuSuccess(data);
+                this.loadCtl.setSave();
+                danmakuData = await this.biliUtil.getDanmakuFull(data);
+                if (danmakuData.length === data.danmakuData.length) return;
+                data = {
+                    bvid, cid, videoData, danmakuData,
+                    fetchtime: Math.floor(Date.now() / 1000)
+                };
                 this.loadDanmakuSuccess(data);
                 this.loadCtl.setSave();
             } catch (err) {
-                showTip(`❌ 请求失败：${err.message}`);
+                this.showTip(`❌ 请求失败：${err.message}`);
                 this.dmPlayer.logTagError('❌ 请求失败：', err);
             }
         }
         async showSearchSelector() {
             let initialKeyword = document.title.replace(' - YouTube', '');
-            if (isBilibili) {
+            if (this.isBilibili) {
                 initialKeyword = document.title.replace(/[-_–—|]+.*?(bilibili|哔哩哔哩).*/gi, '').trim();
             }
             let resolveFn;
@@ -413,6 +514,27 @@
                     }
                 }
                 return duration; // 不合法或未知格式，原样返回
+            };
+            const searchVideosByKeyword = async (keyword) => {
+                const server = this.dmStore.get('server');
+                if (server) {
+                    try {
+                        const res = await fetch(`${server}/search?keyword=${encodeURIComponent(keyword)}&type=video`);
+                        const list = await res.json();
+                        if (Array.isArray(list)) return list;
+                    } catch (e) {
+                        this.showTip('⚠ 请检查服务器是否正确');
+                        console.warn('❌ 远程搜索失败:', e);
+                    }
+                }
+                try {
+                    const list = await this.biliUtil.searchVideo(keyword);
+                    list.forEach(item => item.source = 'bilibili');
+                    return list;
+                } catch (e) {
+                    console.error('❌ GM搜索失败:', e);
+                    throw new Error('搜索失败');
+                }
             };
             const renderResults = async (keyword) => {
                 resultsBox.textContent = '🔍 搜索中...';
@@ -640,7 +762,7 @@
                 const input = document.createElement('input');
                 Object.assign(input, options);
                 if (options.type === 'checkbox') {
-                    input.checked = dmStore.get(keyPath, this.dmPlayer.options[key].value);
+                    input.checked = this.dmStore.get(keyPath, this.dmPlayer.options[key].value);
                     Object.assign(input.style, {
                         width: '20px',
                         height: '20px',
@@ -648,13 +770,13 @@
                     });
                     input.onchange = () => {
                         const val = input.checked;
-                        dmStore.set(keyPath, val);
+                        this.dmStore.set(keyPath, val);
                         this.dmPlayerCall('setOptions', val, key);
-                        showTip(`✅ 已保存 ${labelText}：${val ? '开启' : '关闭'}`);
+                        this.showTip(`✅ 已保存 ${labelText}：${val ? '开启' : '关闭'}`);
                     };
                     controlRow.append(input);
                 } else if (options.type === 'number') {
-                    input.value = dmStore.get(keyPath, this.dmPlayer.options[key].value);
+                    input.value = this.dmStore.get(keyPath, this.dmPlayer.options[key].value);
                     Object.assign(input.style, {
                         width: '60px',
                         height: '20px',
@@ -673,11 +795,11 @@
                     saveBtn.onclick = () => {
                         const val = Number.isInteger(Number(options.step)) ? parseInt(input.value) : parseFloat(input.value);
                         if (!isNaN(val) && val >= options.min && val <= options.max) {
-                            dmStore.set(keyPath, val);
+                            this.dmStore.set(keyPath, val);
                             this.dmPlayerCall('setOptions', val, key);
-                            showTip(`✅ 已保存 ${labelText}：${val}`);
+                            this.showTip(`✅ 已保存 ${labelText}：${val}`);
                         } else {
-                            showTip('❌ 输入不合法');
+                            this.showTip('❌ 输入不合法');
                         }
                     };
                     controlRow.append(input, saveBtn);
@@ -749,7 +871,7 @@
                     [{ type: 0, offset: 1, radius: 1, repeat: 1 }];
                 const shadowHeader = createLabeledButtonRow('🌑 弹幕阴影设置', {
                     textContent: '💾 保存', onclick: () => {
-                        dmStore.set('settings.shadowEffect', shadowConfig);
+                        this.dmStore.set('settings.shadowEffect', shadowConfig);
                         this.dmPlayerCall('setOptions', shadowConfig, 'shadowEffect');
                     }
                 });
@@ -874,9 +996,9 @@
                 const cacheHeader = createLabeledButtonRow('📦 本地缓存弹幕', {
                     textContent: '🧹 清空所有缓存', onclick: () => {
                         if (confirm('确定要清空所有本地缓存弹幕吗？')) {
-                            dmStore.clearAllCache();
+                            this.dmStore.clearAllCache();
                             cacheList.textContent = '📭 所有缓存已清除';
-                            showTip('🧹 所有弹幕缓存已清空');
+                            this.showTip('🧹 所有弹幕缓存已清空');
                         }
                     }
                 });
@@ -884,7 +1006,7 @@
                 cacheList.style.display = 'flex';
                 cacheList.style.flexDirection = 'column';
                 cacheList.style.gap = '8px';
-                const cache = dmStore.get('cache', {});
+                const cache = this.dmStore.get('cache', {});
                 const keys = Object.keys(cache);
                 if (keys.length === 0) {
                     cacheList.textContent = '📭 当前没有缓存弹幕';
@@ -902,7 +1024,7 @@
 
                             const idLine = document.createElement('a');
                             idLine.textContent = `[▶️ ${videoId}]`;
-                            if (isBilibili) {
+                            if (this.isBilibili) {
                                 idLine.href = videoId.startsWith('ep')
                                     ? `https://www.bilibili.com/bangumi/play/${videoId}`
                                     : `https://www.bilibili.com/video/${videoId}`;
@@ -929,9 +1051,9 @@
                             delBtn.style.cursor = 'pointer';
 
                             delBtn.onclick = () => {
-                                dmStore.removeCache(videoId);
+                                this.dmStore.removeCache(videoId);
                                 row.remove();
-                                showTip(`🗑 已删除缓存：${title}`);
+                                this.showTip(`🗑 已删除缓存：${title}`);
                             };
 
                             row.appendChild(label);
@@ -947,13 +1069,13 @@
             createTab('server', '🌐 服务器设置', (page) => {
                 const serverHeader = createLabeledButtonRow('🌐 服务器地址：', {
                     textContent: '💾 保存', onclick: () => {
-                        dmStore.set('server', serverInput.value.trim());
-                        showTip('✅ 地址已保存');
+                        this.dmStore.set('server', serverInput.value.trim());
+                        this.showTip('✅ 地址已保存');
                     }
                 });
 
                 const serverInput = this.createStyledEl('input');
-                serverInput.value = dmStore.get('server', '');
+                serverInput.value = this.dmStore.get('server', '');
                 page.appendChild(serverHeader);
                 page.appendChild(serverInput);
             });
@@ -1003,23 +1125,23 @@
                             };
 
                             // 源视频输入
-                            const sourceStart = createInput('开始时间', formatMsToTime(entry.sourceRange?.start || 0), 80, val => {
-                                entry.sourceRange = entry.sourceRange || {};
-                                entry.sourceRange.start = parseTimeToMs(val);
+                            const sourceStart = createInput('开始时间', formatMsToTime(entry.source?.start || 0), 80, val => {
+                                entry.source = entry.source || {};
+                                entry.source.start = parseTimeToMs(val);
                             });
-                            const sourceEnd = createInput('结束时间', formatMsToTime(entry.sourceRange?.end || 0), 80, val => {
-                                entry.sourceRange = entry.sourceRange || {};
-                                entry.sourceRange.end = parseTimeToMs(val);
+                            const sourceEnd = createInput('结束时间', formatMsToTime(entry.source?.end || 0), 80, val => {
+                                entry.source = entry.source || {};
+                                entry.source.end = parseTimeToMs(val);
                             });
 
                             // 目标视频输入
-                            const targetStart = createInput('开始时间', formatMsToTime(entry.targetRange?.start || 0), 80, val => {
-                                entry.targetRange = entry.targetRange || {};
-                                entry.targetRange.start = parseTimeToMs(val);
+                            const targetStart = createInput('开始时间', formatMsToTime(entry.target?.start || 0), 80, val => {
+                                entry.target = entry.target || {};
+                                entry.target.start = parseTimeToMs(val);
                             });
-                            const targetEnd = createInput('结束时间', formatMsToTime(entry.targetRange?.end || 0), 80, val => {
-                                entry.targetRange = entry.targetRange || {};
-                                entry.targetRange.end = parseTimeToMs(val);
+                            const targetEnd = createInput('结束时间', formatMsToTime(entry.target?.end || 0), 80, val => {
+                                entry.target = entry.target || {};
+                                entry.target.end = parseTimeToMs(val);
                             });
 
                             const modeSelect = createSelect(['map', 'shift'], opt => opt === 'map' ? '映射' : '顺移');
@@ -1071,8 +1193,8 @@
                     buttonRow.style.marginTop = '10px';
                     buttonRow.appendChild(createButton('➕ 添加对齐片段', () => {
                         alignData.push({
-                            sourceRange: { start: 0, end: 0 },
-                            targetRange: { start: 0, end: 0 },
+                            source: { start: 0, end: 0 },
+                            target: { start: 0, end: 0 },
                             mode: 'shift',
                             comment: ''
                         });
@@ -1085,37 +1207,37 @@
 
                             if (!Array.isArray(parsed)) throw new Error('剪贴板内容不是有效的数组');
                             const isValid = parsed.every(item =>
-                                item.sourceRange && item.targetRange && item.mode
+                                item.source && item.target && item.mode
                             );
                             if (!isValid) throw new Error('剪贴板内容不是有效的对齐数据');
 
                             alignData = parsed;
                             render();
-                            showTip('📋 成功粘贴对齐设置');
+                            this.showTip('📋 成功粘贴对齐设置');
                         } catch (err) {
                             this.dmPlayer.logTagError('❌ 粘贴失败：', err);
-                            showTip('❌ 粘贴失败：' + err.message);
+                            this.showTip('❌ 粘贴失败：' + err.message);
                         }
                     }));
                     buttonRow.appendChild(createButton('📋 复制设置', () => {
                         const json = JSON.stringify(alignData, null);
                         navigator.clipboard.writeText(json).then(() => {
-                            showTip('✅ 已复制所有对齐设置');
+                            this.showTip('✅ 已复制所有对齐设置');
                         }).catch(() => {
-                            showTip('❌ 复制失败');
+                            this.showTip('❌ 复制失败');
                         });
                     }));
                     buttonRow.appendChild(createButton('💾 保存', () => {
-                        const cached = dmStore.getCache(this.videoId);
+                        const cached = this.dmStore.getCache(this.videoId);
                         if (cached) {
                             cached.alignment = alignData;
-                            dmStore.setCache(this.videoId, cached);
+                            this.dmStore.setCache(this.videoId, cached);
                         }
                         const data = this.data[this.videoId]
                         data.alignment = alignData;
                         this.applyAlignment(data);
                         this.dmPlayer.load(data.danmakuData);
-                        showTip('✅ 对齐设置已保存');
+                        this.showTip('✅ 对齐设置已保存');
                     }));
 
                     render();
@@ -1201,230 +1323,133 @@
         }
     }
 
-    function showTip(message, { dark = true, duration = 3000 } = {}) {
-        if (isBilibili) dark = false;
-        const tip = document.createElement('div');
-        tip.textContent = message;
-        Object.assign(tip.style, {
-            position: 'fixed',
-            bottom: '20px',
-            right: '20px',
-            padding: '10px 14px',
-            borderRadius: '6px',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-            fontSize: '14px',
-            zIndex: 9999,
-            whiteSpace: 'pre-line',
-            opacity: '0',
-            transition: 'opacity 0.3s ease',
-            background: dark ? 'rgba(50, 50, 50, 0.9)' : '#f0f0f0',
-            color: dark ? '#fff' : '#000',
-            border: dark ? '1px solid #444' : '1px solid #ccc'
-        });
+    let dmPanel;
+    try {
+        const path = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download@1.6.0/tampermonkey/';
+        const { BiliDanmakuPlayer } = await import(path + 'BiliDanmakuPlayer.js');
+        const { BiliProtobufParser } = await import(path + 'BiliProtobufParser.js');
+        const { BiliClientGM } = await import(path + 'BiliClientGM.js');
+        const { BiliAPI } = await import(path + 'BiliAPI.js');
 
-        document.body.appendChild(tip);
-        requestAnimationFrame(() => {
-            tip.style.opacity = '1';
-        });
-
-        setTimeout(() => {
-            tip.style.opacity = '0';
-            tip.addEventListener('transitionend', () => tip.remove());
-        }, duration);
-        console.log('[💡tip]', message);
-    }
-    async function waitForVideo(timeout = 10000) {
-        const start = Date.now();
-        return new Promise((resolve, reject) => {
-            const check = () => {
-                const video = document.querySelector('video');
-                if (video) {
-                    resolve(video);
-                } else if (Date.now() - start >= timeout) {
-                    reject(new Error('⏰ 超时：未检测到 <video> 元素'));
-                } else {
-                    requestAnimationFrame(check);
+        const dmPlayer = new BiliDanmakuPlayer();
+        const pbParser = new BiliProtobufParser(window.protobuf);
+        const biliClient = new BiliClientGM(GM_xmlhttpRequest);
+        await biliClient.init();
+        class BiliUtil extends BiliAPI {
+            constructor(client, pbParser) {
+                super(client);
+                this.pbParser = pbParser;
+            }
+            parseDanmakuXml(xml) {
+                const danmakus = [];
+                const regex = /<d p="([^"]+)">([^<]*)<\/d>/g;
+                let match;
+                while ((match = regex.exec(xml)) !== null) {
+                    const p = match[1].split(",");
+                    if (p.length < 8) continue;
+                    danmakus.push({
+                        progress: Math.trunc(parseFloat(p[0]) * 1000),
+                        mode: parseInt(p[1]),
+                        fontsize: parseInt(p[2]),
+                        color: parseInt(p[3]),
+                        ctime: parseInt(p[4]),
+                        pool: parseInt(p[5]),
+                        midHash: p[6],
+                        id: p[7],
+                        idStr: p[7],
+                        weight: p[8] ? parseInt(p[8]) : 0,
+                        content: match[2].trim()
+                    });
                 }
-            };
-            check();
-        });
-    }
-    function getCurrentVideoId() {
-        if (isBilibili) {
-            const bvidMatch = location.href.match(/BV[a-zA-Z0-9]+/);
-            if (bvidMatch) return bvidMatch[0];
-            const epidMatch = location.href.match(/ep(\d+)/);
-            if (epidMatch) return 'ep' + epidMatch[1];
-        } else {
-            return new URLSearchParams(location.search).get('v');
-        }
-        return null;
-    }
-    function observeVideoChange() {
-        let lastId = '';
-        const observer = new MutationObserver(() => {
-            const newId = getCurrentVideoId();
-            if (newId && newId !== lastId) {
-                console.log(`[🎬 检测到视频变化] ${lastId} → ${newId}`);
-                lastId = newId;
-                if (newId) {
-                    dmPanel.init();
-                    dmPanel.update(newId);
+                return danmakus;
+            }
+            async getDanmakuXml(cid) {
+                const xml = await super.getDanmakuXml(cid);
+                return this.parseDanmakuXml(xml);
+            }
+            async getDanmakuFull(data) {
+                let danmakuList = data.danmakuData || [];
+                try {
+                    console.time("获取Protobuf弹幕 总耗时");
+                    const danmakuDict = {};
+                    danmakuList.forEach(d => danmakuDict[d.idStr] = d);
+
+                    const { cid, aid, duration } = data.videoData;
+                    const pbViewBuf = await this.getDanmakuPbWebView(cid, aid, duration);
+                    const pbView = this.pbParser.parseTry(pbViewBuf, 'DmWebViewReply');
+                    const pageSize = pbView?.dmSge?.pageSize / 1000 || 360;
+                    const segCount = Math.floor(duration / pageSize) + 1;
+                    for (let segIndex = 1; segIndex <= segCount; segIndex++) {
+                        const segBuf = await this.getDanmakuPbSeg(cid, aid, segIndex);
+                        const segData = this.pbParser.parseTry(segBuf, 'DmSegMobileReply');
+                        if (!segData || !segData.elems || segData.elems.length === 0) continue;
+                        for (const elem of segData.elems) {
+                            const dmid = elem.idStr;
+                            if (danmakuDict[dmid]) {
+                                Object.assign(danmakuDict[dmid], elem);
+                            } else {
+                                danmakuDict[dmid] = { ...elem };
+                            }
+                        }
+                    }
+                    danmakuList = Object.values(danmakuDict);
+                    console.timeEnd("获取Protobuf弹幕 总耗时");
+                } catch (e) {
+                    console.warn('获取protobuf弹幕数据失败:', e);
                 }
-            }
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
-    }
-
-    async function searchVideosByKeyword(keyword) {
-        const server = dmStore.get('server');
-        if (server) {
-            try {
-                const res = await fetch(`${server}/search?keyword=${encodeURIComponent(keyword)}&type=video`);
-                const list = await res.json();
-                if (Array.isArray(list)) return list;
-            } catch (e) {
-                showTip('⚠ 请检查服务器是否正确');
-                console.warn('❌ 远程搜索失败:', e);
+                return danmakuList;
             }
         }
-        try {
-            const params = {
-                search_type: 'video',
-                keyword,
-                page: 1
-            };
-            const res = await client.request({
-                url: 'https://api.bilibili.com/x/web-interface/search/type',
-                params,
-                sign: true,
-                desc: `搜索 ${keyword}`
-            });
-            const list = res.data?.result || [];
-            list.forEach(item => item.source = 'bilibili');
-            return list;
-        } catch (e) {
-            console.error('❌ GM搜索失败:', e);
-            throw new Error('搜索失败');
-        }
-    }
-    async function getDanmakuDataByBvid(bvid, source = 'bilibili') {
-        const server = dmStore.get('server');
-        if (server) {
-            try {
-                const res = await fetch(`${server}/video?bvid=${bvid}&source=${source}`);
-                const data = await res.json();
-                return data;
-            } catch (e) {
-                showTip('⚠ 请检查服务器是否正确');
-                console.warn('❌ 远程弹幕获取失败:', e);
+        const biliUtil = new BiliUtil(biliClient, pbParser);
+        unsafeWindow.dmPlayer = dmPlayer;
+        unsafeWindow.dmPlayer.biliUtil = biliUtil;
+        const dmStore = {
+            key: 'dm-player',
+            getConfig() {
+                return JSON.parse(localStorage.getItem(this.key) || '{}');
+            },
+            setConfig(obj) {
+                localStorage.setItem(this.key, JSON.stringify(obj));
+            },
+            get(key, def) {
+                const cfg = this.getConfig();
+                return key.split('.').reduce((o, k) => (o || {})[k], cfg) ?? def;
+            },
+            set(key, value) {
+                const cfg = this.getConfig();
+                const keys = key.split('.');
+                let obj = cfg;
+                for (let i = 0; i < keys.length - 1; i++) {
+                    obj[keys[i]] = obj[keys[i]] || {};
+                    obj = obj[keys[i]];
+                }
+                obj[keys.at(-1)] = value;
+                this.setConfig(cfg);
+            },
+            removeCache(videoId) {
+                const cfg = this.getConfig();
+                if (cfg.cache) delete cfg.cache[videoId];
+                this.setConfig(cfg);
+            },
+            getCache(videoId) {
+                return this.getConfig().cache?.[videoId];
+            },
+            setCache(videoId, json) {
+                const cfg = this.getConfig();
+                cfg.cache = cfg.cache || {};
+                cfg.cache[videoId] = json;
+                this.setConfig(cfg);
+            },
+            clearAllCache() {
+                const cfg = this.getConfig();
+                delete cfg.cache;
+                this.setConfig(cfg);
             }
-        }
-        try {
-            const videoDataRes = await client.request({
-                url: 'https://api.bilibili.com/x/web-interface/view',
-                params: { bvid },
-                desc: `获取视频信息 ${bvid}`
-            });
-            const videoData = videoDataRes.data
-            const cid = videoData.cid;
-            const xml = await client.request({
-                url: 'https://api.bilibili.com/x/v1/dm/list.so',
-                params: { oid: cid },
-                responseType: 'text',
-                desc: `获取弹幕 XML cid=${cid}`
-            });
-            const danmakuData = parseDanmakuXml(xml);
-            return {
-                bvid,
-                cid,
-                videoData,
-                danmakuData,
-                fetchtime: Math.floor(Date.now() / 1000)
-            };
-        } catch (e) {
-            console.error('❌ GM弹幕获取失败:', e);
-            throw new Error('弹幕获取失败');
-        }
+        };
+        dmPanel = new DanmakuControlPanel(dmPlayer, biliUtil, dmStore);
+    } catch (err) {
+        console.error('加载失败:', err);
     }
-    function parseDanmakuXml(xml) {
-        const danmakus = [];
-        const regex = /<d p="([^"]+)">([^<]*)<\/d>/g;
-        let match;
-        while ((match = regex.exec(xml)) !== null) {
-            const p = match[1].split(",");
-            if (p.length < 8) continue;
-            danmakus.push({
-                progress: Math.trunc(parseFloat(p[0]) * 1000),
-                mode: parseInt(p[1]),
-                fontsize: parseInt(p[2]),
-                color: parseInt(p[3]),
-                ctime: parseInt(p[4]),
-                pool: parseInt(p[5]),
-                midHash: p[6],
-                id: p[7],
-                idStr: p[7],
-                weight: p[8] ? parseInt(p[8]) : 0,
-                content: match[2].trim()
-            });
-        }
-        return danmakus;
-    }
-
-    const isBilibili = location.hostname.includes('bilibili.com');
-    const urlOfPlayer = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download@1.5.4/tampermonkey/BiliDanmakuPlayer.js';
-    const urlOfClient = 'https://cdn.jsdelivr.net/gh/ZBpine/bilibili-danmaku-download/tampermonkey/BiliClientGM.js';
-    const { BiliDanmakuPlayer } = await import(urlOfPlayer);
-    const { BiliClientGM } = await import(urlOfClient);
-    const dmPanel = new DanmakuControlPanel();
-    unsafeWindow.dmPlayer = dmPanel.dmPlayer;
-    unsafeWindow.dmVideo = dmPanel.dmPlayer.domAdapter.video;
-    const dmStore = {
-        key: 'dm-player',
-        getConfig() {
-            return JSON.parse(localStorage.getItem(this.key) || '{}');
-        },
-        setConfig(obj) {
-            localStorage.setItem(this.key, JSON.stringify(obj));
-        },
-        get(key, def) {
-            const cfg = this.getConfig();
-            return key.split('.').reduce((o, k) => (o || {})[k], cfg) ?? def;
-        },
-        set(key, value) {
-            const cfg = this.getConfig();
-            const keys = key.split('.');
-            let obj = cfg;
-            for (let i = 0; i < keys.length - 1; i++) {
-                obj[keys[i]] = obj[keys[i]] || {};
-                obj = obj[keys[i]];
-            }
-            obj[keys.at(-1)] = value;
-            this.setConfig(cfg);
-        },
-        removeCache(videoId) {
-            const cfg = this.getConfig();
-            if (cfg.cache) delete cfg.cache[videoId];
-            this.setConfig(cfg);
-        },
-        getCache(videoId) {
-            return this.getConfig().cache?.[videoId];
-        },
-        setCache(videoId, json) {
-            const cfg = this.getConfig();
-            cfg.cache = cfg.cache || {};
-            cfg.cache[videoId] = json;
-            this.setConfig(cfg);
-        },
-        clearAllCache() {
-            const cfg = this.getConfig();
-            delete cfg.cache;
-            this.setConfig(cfg);
-        }
-    };
-
-    const client = new BiliClientGM(GM_xmlhttpRequest);
-    await client.init();
 
     /*
     * chromium的浏览器会自动关闭AdblockPlus拦截Youtube的广告
@@ -1614,11 +1639,30 @@
             document.head.appendChild(tag);
         }
     }
-    if (!isBilibili) loadYouTubeIframeAPI(() => { observeIframePlayer() });
+    if (!dmPanel.isBilibili) loadYouTubeIframeAPI(() => { observeIframePlayer() });
 
+
+    async function waitForVideo(timeout = 10000) {
+        const start = Date.now();
+        return new Promise((resolve, reject) => {
+            const check = () => {
+                const video = document.querySelector('video');
+                if (video) {
+                    console.log('🎥 检测到 <video> 元素');
+                    resolve(video);
+                } else if (Date.now() - start >= timeout) {
+                    reject(new Error('⏰ 超时：未检测到 <video> 元素'));
+                } else {
+                    requestAnimationFrame(check);
+                }
+            };
+            check();
+        });
+    }
     try {
         await waitForVideo();
-        observeVideoChange();
+        dmPanel.init();
+        dmPanel.observeVideoChange();
     } catch (err) {
         console.warn(err);
     }
