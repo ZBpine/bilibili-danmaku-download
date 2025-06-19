@@ -1164,7 +1164,7 @@
                              * @memberof bilibili.community.service.dm.v1
                              * @interface IButton
                              * @property {string|null} [text] Button text
-                             * @property {number|null} [action] Button action
+                             * @property {bilibili.community.service.dm.v1.ToastFunctionType|null} [action] Button action
                              */
     
                             /**
@@ -1192,7 +1192,7 @@
     
                             /**
                              * Button action.
-                             * @member {number} action
+                             * @member {bilibili.community.service.dm.v1.ToastFunctionType} action
                              * @memberof bilibili.community.service.dm.v1.Button
                              * @instance
                              */
@@ -1309,8 +1309,13 @@
                                     if (!$util.isString(message.text))
                                         return "text: string expected";
                                 if (message.action != null && message.hasOwnProperty("action"))
-                                    if (!$util.isInteger(message.action))
-                                        return "action: integer expected";
+                                    switch (message.action) {
+                                    default:
+                                        return "action: enum value expected";
+                                    case 0:
+                                    case 1:
+                                        break;
+                                    }
                                 return null;
                             };
     
@@ -1328,8 +1333,22 @@
                                 var message = new $root.bilibili.community.service.dm.v1.Button();
                                 if (object.text != null)
                                     message.text = String(object.text);
-                                if (object.action != null)
-                                    message.action = object.action | 0;
+                                switch (object.action) {
+                                default:
+                                    if (typeof object.action === "number") {
+                                        message.action = object.action;
+                                        break;
+                                    }
+                                    break;
+                                case "ToastFunctionTypeNone":
+                                case 0:
+                                    message.action = 0;
+                                    break;
+                                case "ToastFunctionTypePostPanel":
+                                case 1:
+                                    message.action = 1;
+                                    break;
+                                }
                                 return message;
                             };
     
@@ -1348,12 +1367,12 @@
                                 var object = {};
                                 if (options.defaults) {
                                     object.text = "";
-                                    object.action = 0;
+                                    object.action = options.enums === String ? "ToastFunctionTypeNone" : 0;
                                 }
                                 if (message.text != null && message.hasOwnProperty("text"))
                                     object.text = message.text;
                                 if (message.action != null && message.hasOwnProperty("action"))
-                                    object.action = message.action;
+                                    object.action = options.enums === String ? $root.bilibili.community.service.dm.v1.ToastFunctionType[message.action] === undefined ? message.action : $root.bilibili.community.service.dm.v1.ToastFunctionType[message.action] : message.action;
                                 return object;
                             };
     
@@ -2283,7 +2302,7 @@
                              * @memberof bilibili.community.service.dm.v1
                              * @interface ICheckBoxV2
                              * @property {string|null} [text] CheckBoxV2 text
-                             * @property {number|null} [type] CheckBoxV2 type
+                             * @property {bilibili.community.service.dm.v1.CheckboxType|null} [type] CheckBoxV2 type
                              * @property {boolean|null} [defaultValue] CheckBoxV2 defaultValue
                              */
     
@@ -2312,7 +2331,7 @@
     
                             /**
                              * CheckBoxV2 type.
-                             * @member {number} type
+                             * @member {bilibili.community.service.dm.v1.CheckboxType} type
                              * @memberof bilibili.community.service.dm.v1.CheckBoxV2
                              * @instance
                              */
@@ -2443,8 +2462,14 @@
                                     if (!$util.isString(message.text))
                                         return "text: string expected";
                                 if (message.type != null && message.hasOwnProperty("type"))
-                                    if (!$util.isInteger(message.type))
-                                        return "type: integer expected";
+                                    switch (message.type) {
+                                    default:
+                                        return "type: enum value expected";
+                                    case 0:
+                                    case 1:
+                                    case 2:
+                                        break;
+                                    }
                                 if (message.defaultValue != null && message.hasOwnProperty("defaultValue"))
                                     if (typeof message.defaultValue !== "boolean")
                                         return "defaultValue: boolean expected";
@@ -2465,8 +2490,26 @@
                                 var message = new $root.bilibili.community.service.dm.v1.CheckBoxV2();
                                 if (object.text != null)
                                     message.text = String(object.text);
-                                if (object.type != null)
-                                    message.type = object.type | 0;
+                                switch (object.type) {
+                                default:
+                                    if (typeof object.type === "number") {
+                                        message.type = object.type;
+                                        break;
+                                    }
+                                    break;
+                                case "CheckboxTypeNone":
+                                case 0:
+                                    message.type = 0;
+                                    break;
+                                case "CheckboxTypeEncourage":
+                                case 1:
+                                    message.type = 1;
+                                    break;
+                                case "CheckboxTypeColorDM":
+                                case 2:
+                                    message.type = 2;
+                                    break;
+                                }
                                 if (object.defaultValue != null)
                                     message.defaultValue = Boolean(object.defaultValue);
                                 return message;
@@ -2487,13 +2530,13 @@
                                 var object = {};
                                 if (options.defaults) {
                                     object.text = "";
-                                    object.type = 0;
+                                    object.type = options.enums === String ? "CheckboxTypeNone" : 0;
                                     object.defaultValue = false;
                                 }
                                 if (message.text != null && message.hasOwnProperty("text"))
                                     object.text = message.text;
                                 if (message.type != null && message.hasOwnProperty("type"))
-                                    object.type = message.type;
+                                    object.type = options.enums === String ? $root.bilibili.community.service.dm.v1.CheckboxType[message.type] === undefined ? message.type : $root.bilibili.community.service.dm.v1.CheckboxType[message.type] : message.type;
                                 if (message.defaultValue != null && message.hasOwnProperty("defaultValue"))
                                     object.defaultValue = message.defaultValue;
                                 return object;
@@ -2977,10 +3020,10 @@
                              * @property {Array.<string>|null} [landscapeText] ClickButtonV2 landscapeText
                              * @property {Array.<string>|null} [portraitTextFocus] ClickButtonV2 portraitTextFocus
                              * @property {Array.<string>|null} [landscapeTextFocus] ClickButtonV2 landscapeTextFocus
-                             * @property {number|null} [renderType] ClickButtonV2 renderType
+                             * @property {bilibili.community.service.dm.v1.RenderType|null} [renderType] ClickButtonV2 renderType
                              * @property {boolean|null} [textInputPost] ClickButtonV2 textInputPost
                              * @property {boolean|null} [exposureOnce] ClickButtonV2 exposureOnce
-                             * @property {number|null} [exposureType] ClickButtonV2 exposureType
+                             * @property {bilibili.community.service.dm.v1.ExposureType|null} [exposureType] ClickButtonV2 exposureType
                              */
     
                             /**
@@ -3036,7 +3079,7 @@
     
                             /**
                              * ClickButtonV2 renderType.
-                             * @member {number} renderType
+                             * @member {bilibili.community.service.dm.v1.RenderType} renderType
                              * @memberof bilibili.community.service.dm.v1.ClickButtonV2
                              * @instance
                              */
@@ -3060,7 +3103,7 @@
     
                             /**
                              * ClickButtonV2 exposureType.
-                             * @member {number} exposureType
+                             * @member {bilibili.community.service.dm.v1.ExposureType} exposureType
                              * @memberof bilibili.community.service.dm.v1.ClickButtonV2
                              * @instance
                              */
@@ -3250,8 +3293,14 @@
                                             return "landscapeTextFocus: string[] expected";
                                 }
                                 if (message.renderType != null && message.hasOwnProperty("renderType"))
-                                    if (!$util.isInteger(message.renderType))
-                                        return "renderType: integer expected";
+                                    switch (message.renderType) {
+                                    default:
+                                        return "renderType: enum value expected";
+                                    case 0:
+                                    case 1:
+                                    case 2:
+                                        break;
+                                    }
                                 if (message.textInputPost != null && message.hasOwnProperty("textInputPost"))
                                     if (typeof message.textInputPost !== "boolean")
                                         return "textInputPost: boolean expected";
@@ -3259,8 +3308,13 @@
                                     if (typeof message.exposureOnce !== "boolean")
                                         return "exposureOnce: boolean expected";
                                 if (message.exposureType != null && message.hasOwnProperty("exposureType"))
-                                    if (!$util.isInteger(message.exposureType))
-                                        return "exposureType: integer expected";
+                                    switch (message.exposureType) {
+                                    default:
+                                        return "exposureType: enum value expected";
+                                    case 0:
+                                    case 1:
+                                        break;
+                                    }
                                 return null;
                             };
     
@@ -3304,14 +3358,46 @@
                                     for (var i = 0; i < object.landscapeTextFocus.length; ++i)
                                         message.landscapeTextFocus[i] = String(object.landscapeTextFocus[i]);
                                 }
-                                if (object.renderType != null)
-                                    message.renderType = object.renderType | 0;
+                                switch (object.renderType) {
+                                default:
+                                    if (typeof object.renderType === "number") {
+                                        message.renderType = object.renderType;
+                                        break;
+                                    }
+                                    break;
+                                case "RenderTypeNone":
+                                case 0:
+                                    message.renderType = 0;
+                                    break;
+                                case "RenderTypeSingle":
+                                case 1:
+                                    message.renderType = 1;
+                                    break;
+                                case "RenderTypeRotation":
+                                case 2:
+                                    message.renderType = 2;
+                                    break;
+                                }
                                 if (object.textInputPost != null)
                                     message.textInputPost = Boolean(object.textInputPost);
                                 if (object.exposureOnce != null)
                                     message.exposureOnce = Boolean(object.exposureOnce);
-                                if (object.exposureType != null)
-                                    message.exposureType = object.exposureType | 0;
+                                switch (object.exposureType) {
+                                default:
+                                    if (typeof object.exposureType === "number") {
+                                        message.exposureType = object.exposureType;
+                                        break;
+                                    }
+                                    break;
+                                case "ExposureTypeNone":
+                                case 0:
+                                    message.exposureType = 0;
+                                    break;
+                                case "ExposureTypeDMSend":
+                                case 1:
+                                    message.exposureType = 1;
+                                    break;
+                                }
                                 return message;
                             };
     
@@ -3335,10 +3421,10 @@
                                     object.landscapeTextFocus = [];
                                 }
                                 if (options.defaults) {
-                                    object.renderType = 0;
+                                    object.renderType = options.enums === String ? "RenderTypeNone" : 0;
                                     object.textInputPost = false;
                                     object.exposureOnce = false;
-                                    object.exposureType = 0;
+                                    object.exposureType = options.enums === String ? "ExposureTypeNone" : 0;
                                 }
                                 if (message.portraitText && message.portraitText.length) {
                                     object.portraitText = [];
@@ -3361,13 +3447,13 @@
                                         object.landscapeTextFocus[j] = message.landscapeTextFocus[j];
                                 }
                                 if (message.renderType != null && message.hasOwnProperty("renderType"))
-                                    object.renderType = message.renderType;
+                                    object.renderType = options.enums === String ? $root.bilibili.community.service.dm.v1.RenderType[message.renderType] === undefined ? message.renderType : $root.bilibili.community.service.dm.v1.RenderType[message.renderType] : message.renderType;
                                 if (message.textInputPost != null && message.hasOwnProperty("textInputPost"))
                                     object.textInputPost = message.textInputPost;
                                 if (message.exposureOnce != null && message.hasOwnProperty("exposureOnce"))
                                     object.exposureOnce = message.exposureOnce;
                                 if (message.exposureType != null && message.hasOwnProperty("exposureType"))
-                                    object.exposureType = message.exposureType;
+                                    object.exposureType = options.enums === String ? $root.bilibili.community.service.dm.v1.ExposureType[message.exposureType] === undefined ? message.exposureType : $root.bilibili.community.service.dm.v1.ExposureType[message.exposureType] : message.exposureType;
                                 return object;
                             };
     
@@ -3408,7 +3494,7 @@
                              * @interface ICommandDm
                              * @property {number|Long|null} [id] CommandDm id
                              * @property {number|Long|null} [oid] CommandDm oid
-                             * @property {string|null} [mid] CommandDm mid
+                             * @property {number|Long|null} [mid] CommandDm mid
                              * @property {string|null} [command] CommandDm command
                              * @property {string|null} [content] CommandDm content
                              * @property {number|null} [progress] CommandDm progress
@@ -3451,11 +3537,11 @@
     
                             /**
                              * CommandDm mid.
-                             * @member {string} mid
+                             * @member {number|Long} mid
                              * @memberof bilibili.community.service.dm.v1.CommandDm
                              * @instance
                              */
-                            CommandDm.prototype.mid = "";
+                            CommandDm.prototype.mid = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
     
                             /**
                              * CommandDm command.
@@ -3542,7 +3628,7 @@
                                 if (message.oid != null && Object.hasOwnProperty.call(message, "oid"))
                                     writer.uint32(/* id 2, wireType 0 =*/16).int64(message.oid);
                                 if (message.mid != null && Object.hasOwnProperty.call(message, "mid"))
-                                    writer.uint32(/* id 3, wireType 2 =*/26).string(message.mid);
+                                    writer.uint32(/* id 3, wireType 0 =*/24).int64(message.mid);
                                 if (message.command != null && Object.hasOwnProperty.call(message, "command"))
                                     writer.uint32(/* id 4, wireType 2 =*/34).string(message.command);
                                 if (message.content != null && Object.hasOwnProperty.call(message, "content"))
@@ -3602,7 +3688,7 @@
                                             break;
                                         }
                                     case 3: {
-                                            message.mid = reader.string();
+                                            message.mid = reader.int64();
                                             break;
                                         }
                                     case 4: {
@@ -3675,8 +3761,8 @@
                                     if (!$util.isInteger(message.oid) && !(message.oid && $util.isInteger(message.oid.low) && $util.isInteger(message.oid.high)))
                                         return "oid: integer|Long expected";
                                 if (message.mid != null && message.hasOwnProperty("mid"))
-                                    if (!$util.isString(message.mid))
-                                        return "mid: string expected";
+                                    if (!$util.isInteger(message.mid) && !(message.mid && $util.isInteger(message.mid.low) && $util.isInteger(message.mid.high)))
+                                        return "mid: integer|Long expected";
                                 if (message.command != null && message.hasOwnProperty("command"))
                                     if (!$util.isString(message.command))
                                         return "command: string expected";
@@ -3732,7 +3818,14 @@
                                     else if (typeof object.oid === "object")
                                         message.oid = new $util.LongBits(object.oid.low >>> 0, object.oid.high >>> 0).toNumber();
                                 if (object.mid != null)
-                                    message.mid = String(object.mid);
+                                    if ($util.Long)
+                                        (message.mid = $util.Long.fromValue(object.mid)).unsigned = false;
+                                    else if (typeof object.mid === "string")
+                                        message.mid = parseInt(object.mid, 10);
+                                    else if (typeof object.mid === "number")
+                                        message.mid = object.mid;
+                                    else if (typeof object.mid === "object")
+                                        message.mid = new $util.LongBits(object.mid.low >>> 0, object.mid.high >>> 0).toNumber();
                                 if (object.command != null)
                                     message.command = String(object.command);
                                 if (object.content != null)
@@ -3774,7 +3867,11 @@
                                         object.oid = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                                     } else
                                         object.oid = options.longs === String ? "0" : 0;
-                                    object.mid = "";
+                                    if ($util.Long) {
+                                        var long = new $util.Long(0, 0, false);
+                                        object.mid = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                                    } else
+                                        object.mid = options.longs === String ? "0" : 0;
                                     object.command = "";
                                     object.content = "";
                                     object.progress = 0;
@@ -3794,7 +3891,10 @@
                                     else
                                         object.oid = options.longs === String ? $util.Long.prototype.toString.call(message.oid) : options.longs === Number ? new $util.LongBits(message.oid.low >>> 0, message.oid.high >>> 0).toNumber() : message.oid;
                                 if (message.mid != null && message.hasOwnProperty("mid"))
-                                    object.mid = message.mid;
+                                    if (typeof message.mid === "number")
+                                        object.mid = options.longs === String ? String(message.mid) : message.mid;
+                                    else
+                                        object.mid = options.longs === String ? $util.Long.prototype.toString.call(message.mid) : options.longs === Number ? new $util.LongBits(message.mid.low >>> 0, message.mid.high >>> 0).toNumber() : message.mid;
                                 if (message.command != null && message.hasOwnProperty("command"))
                                     object.command = message.command;
                                 if (message.content != null && message.hasOwnProperty("content"))
@@ -14553,7 +14653,7 @@
                              * @property {string|null} [title] LabelV2 title
                              * @property {Array.<string>|null} [content] LabelV2 content
                              * @property {boolean|null} [exposureOnce] LabelV2 exposureOnce
-                             * @property {number|null} [exposureType] LabelV2 exposureType
+                             * @property {bilibili.community.service.dm.v1.ExposureType|null} [exposureType] LabelV2 exposureType
                              */
     
                             /**
@@ -14598,7 +14698,7 @@
     
                             /**
                              * LabelV2 exposureType.
-                             * @member {number} exposureType
+                             * @member {bilibili.community.service.dm.v1.ExposureType} exposureType
                              * @memberof bilibili.community.service.dm.v1.LabelV2
                              * @instance
                              */
@@ -14740,8 +14840,13 @@
                                     if (typeof message.exposureOnce !== "boolean")
                                         return "exposureOnce: boolean expected";
                                 if (message.exposureType != null && message.hasOwnProperty("exposureType"))
-                                    if (!$util.isInteger(message.exposureType))
-                                        return "exposureType: integer expected";
+                                    switch (message.exposureType) {
+                                    default:
+                                        return "exposureType: enum value expected";
+                                    case 0:
+                                    case 1:
+                                        break;
+                                    }
                                 return null;
                             };
     
@@ -14768,8 +14873,22 @@
                                 }
                                 if (object.exposureOnce != null)
                                     message.exposureOnce = Boolean(object.exposureOnce);
-                                if (object.exposureType != null)
-                                    message.exposureType = object.exposureType | 0;
+                                switch (object.exposureType) {
+                                default:
+                                    if (typeof object.exposureType === "number") {
+                                        message.exposureType = object.exposureType;
+                                        break;
+                                    }
+                                    break;
+                                case "ExposureTypeNone":
+                                case 0:
+                                    message.exposureType = 0;
+                                    break;
+                                case "ExposureTypeDMSend":
+                                case 1:
+                                    message.exposureType = 1;
+                                    break;
+                                }
                                 return message;
                             };
     
@@ -14791,7 +14910,7 @@
                                 if (options.defaults) {
                                     object.title = "";
                                     object.exposureOnce = false;
-                                    object.exposureType = 0;
+                                    object.exposureType = options.enums === String ? "ExposureTypeNone" : 0;
                                 }
                                 if (message.title != null && message.hasOwnProperty("title"))
                                     object.title = message.title;
@@ -14803,7 +14922,7 @@
                                 if (message.exposureOnce != null && message.hasOwnProperty("exposureOnce"))
                                     object.exposureOnce = message.exposureOnce;
                                 if (message.exposureType != null && message.hasOwnProperty("exposureType"))
-                                    object.exposureType = message.exposureType;
+                                    object.exposureType = options.enums === String ? $root.bilibili.community.service.dm.v1.ExposureType[message.exposureType] === undefined ? message.exposureType : $root.bilibili.community.service.dm.v1.ExposureType[message.exposureType] : message.exposureType;
                                 return object;
                             };
     
@@ -19342,14 +19461,14 @@
                              * @interface IPostPanelV2
                              * @property {number|Long|null} [start] PostPanelV2 start
                              * @property {number|Long|null} [end] PostPanelV2 end
-                             * @property {number|null} [bizType] PostPanelV2 bizType
+                             * @property {bilibili.community.service.dm.v1.PostPanelBizType|null} [bizType] PostPanelV2 bizType
                              * @property {bilibili.community.service.dm.v1.IClickButtonV2|null} [clickButton] PostPanelV2 clickButton
                              * @property {bilibili.community.service.dm.v1.ITextInputV2|null} [textInput] PostPanelV2 textInput
                              * @property {bilibili.community.service.dm.v1.ICheckBoxV2|null} [checkBox] PostPanelV2 checkBox
                              * @property {bilibili.community.service.dm.v1.IToastV2|null} [toast] PostPanelV2 toast
                              * @property {bilibili.community.service.dm.v1.IBubbleV2|null} [bubble] PostPanelV2 bubble
                              * @property {bilibili.community.service.dm.v1.ILabelV2|null} [label] PostPanelV2 label
-                             * @property {number|null} [postStatus] PostPanelV2 postStatus
+                             * @property {bilibili.community.service.dm.v1.PostStatus|null} [postStatus] PostPanelV2 postStatus
                              */
     
                             /**
@@ -19385,7 +19504,7 @@
     
                             /**
                              * PostPanelV2 bizType.
-                             * @member {number} bizType
+                             * @member {bilibili.community.service.dm.v1.PostPanelBizType} bizType
                              * @memberof bilibili.community.service.dm.v1.PostPanelV2
                              * @instance
                              */
@@ -19441,7 +19560,7 @@
     
                             /**
                              * PostPanelV2 postStatus.
-                             * @member {number} postStatus
+                             * @member {bilibili.community.service.dm.v1.PostStatus} postStatus
                              * @memberof bilibili.community.service.dm.v1.PostPanelV2
                              * @instance
                              */
@@ -19609,8 +19728,17 @@
                                     if (!$util.isInteger(message.end) && !(message.end && $util.isInteger(message.end.low) && $util.isInteger(message.end.high)))
                                         return "end: integer|Long expected";
                                 if (message.bizType != null && message.hasOwnProperty("bizType"))
-                                    if (!$util.isInteger(message.bizType))
-                                        return "bizType: integer expected";
+                                    switch (message.bizType) {
+                                    default:
+                                        return "bizType: enum value expected";
+                                    case 0:
+                                    case 1:
+                                    case 2:
+                                    case 3:
+                                    case 4:
+                                    case 5:
+                                        break;
+                                    }
                                 if (message.clickButton != null && message.hasOwnProperty("clickButton")) {
                                     var error = $root.bilibili.community.service.dm.v1.ClickButtonV2.verify(message.clickButton);
                                     if (error)
@@ -19642,8 +19770,13 @@
                                         return "label." + error;
                                 }
                                 if (message.postStatus != null && message.hasOwnProperty("postStatus"))
-                                    if (!$util.isInteger(message.postStatus))
-                                        return "postStatus: integer expected";
+                                    switch (message.postStatus) {
+                                    default:
+                                        return "postStatus: enum value expected";
+                                    case 0:
+                                    case 1:
+                                        break;
+                                    }
                                 return null;
                             };
     
@@ -19677,8 +19810,38 @@
                                         message.end = object.end;
                                     else if (typeof object.end === "object")
                                         message.end = new $util.LongBits(object.end.low >>> 0, object.end.high >>> 0).toNumber();
-                                if (object.bizType != null)
-                                    message.bizType = object.bizType | 0;
+                                switch (object.bizType) {
+                                default:
+                                    if (typeof object.bizType === "number") {
+                                        message.bizType = object.bizType;
+                                        break;
+                                    }
+                                    break;
+                                case "PostPanelBizTypeNone":
+                                case 0:
+                                    message.bizType = 0;
+                                    break;
+                                case "PostPanelBizTypeEncourage":
+                                case 1:
+                                    message.bizType = 1;
+                                    break;
+                                case "PostPanelBizTypeColorDM":
+                                case 2:
+                                    message.bizType = 2;
+                                    break;
+                                case "PostPanelBizTypeNFTDM":
+                                case 3:
+                                    message.bizType = 3;
+                                    break;
+                                case "PostPanelBizTypeFragClose":
+                                case 4:
+                                    message.bizType = 4;
+                                    break;
+                                case "PostPanelBizTypeRecommend":
+                                case 5:
+                                    message.bizType = 5;
+                                    break;
+                                }
                                 if (object.clickButton != null) {
                                     if (typeof object.clickButton !== "object")
                                         throw TypeError(".bilibili.community.service.dm.v1.PostPanelV2.clickButton: object expected");
@@ -19709,8 +19872,22 @@
                                         throw TypeError(".bilibili.community.service.dm.v1.PostPanelV2.label: object expected");
                                     message.label = $root.bilibili.community.service.dm.v1.LabelV2.fromObject(object.label);
                                 }
-                                if (object.postStatus != null)
-                                    message.postStatus = object.postStatus | 0;
+                                switch (object.postStatus) {
+                                default:
+                                    if (typeof object.postStatus === "number") {
+                                        message.postStatus = object.postStatus;
+                                        break;
+                                    }
+                                    break;
+                                case "PostStatusNormal":
+                                case 0:
+                                    message.postStatus = 0;
+                                    break;
+                                case "PostStatusClosed":
+                                case 1:
+                                    message.postStatus = 1;
+                                    break;
+                                }
                                 return message;
                             };
     
@@ -19738,14 +19915,14 @@
                                         object.end = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                                     } else
                                         object.end = options.longs === String ? "0" : 0;
-                                    object.bizType = 0;
+                                    object.bizType = options.enums === String ? "PostPanelBizTypeNone" : 0;
                                     object.clickButton = null;
                                     object.textInput = null;
                                     object.checkBox = null;
                                     object.toast = null;
                                     object.bubble = null;
                                     object.label = null;
-                                    object.postStatus = 0;
+                                    object.postStatus = options.enums === String ? "PostStatusNormal" : 0;
                                 }
                                 if (message.start != null && message.hasOwnProperty("start"))
                                     if (typeof message.start === "number")
@@ -19758,7 +19935,7 @@
                                     else
                                         object.end = options.longs === String ? $util.Long.prototype.toString.call(message.end) : options.longs === Number ? new $util.LongBits(message.end.low >>> 0, message.end.high >>> 0).toNumber() : message.end;
                                 if (message.bizType != null && message.hasOwnProperty("bizType"))
-                                    object.bizType = message.bizType;
+                                    object.bizType = options.enums === String ? $root.bilibili.community.service.dm.v1.PostPanelBizType[message.bizType] === undefined ? message.bizType : $root.bilibili.community.service.dm.v1.PostPanelBizType[message.bizType] : message.bizType;
                                 if (message.clickButton != null && message.hasOwnProperty("clickButton"))
                                     object.clickButton = $root.bilibili.community.service.dm.v1.ClickButtonV2.toObject(message.clickButton, options);
                                 if (message.textInput != null && message.hasOwnProperty("textInput"))
@@ -19772,7 +19949,7 @@
                                 if (message.label != null && message.hasOwnProperty("label"))
                                     object.label = $root.bilibili.community.service.dm.v1.LabelV2.toObject(message.label, options);
                                 if (message.postStatus != null && message.hasOwnProperty("postStatus"))
-                                    object.postStatus = message.postStatus;
+                                    object.postStatus = options.enums === String ? $root.bilibili.community.service.dm.v1.PostStatus[message.postStatus] === undefined ? message.postStatus : $root.bilibili.community.service.dm.v1.PostStatus[message.postStatus] : message.postStatus;
                                 return object;
                             };
     
@@ -21759,7 +21936,7 @@
                              * @memberof bilibili.community.service.dm.v1
                              * @interface IToastButtonV2
                              * @property {string|null} [text] ToastButtonV2 text
-                             * @property {number|null} [action] ToastButtonV2 action
+                             * @property {bilibili.community.service.dm.v1.ToastFunctionType|null} [action] ToastButtonV2 action
                              */
     
                             /**
@@ -21787,7 +21964,7 @@
     
                             /**
                              * ToastButtonV2 action.
-                             * @member {number} action
+                             * @member {bilibili.community.service.dm.v1.ToastFunctionType} action
                              * @memberof bilibili.community.service.dm.v1.ToastButtonV2
                              * @instance
                              */
@@ -21904,8 +22081,13 @@
                                     if (!$util.isString(message.text))
                                         return "text: string expected";
                                 if (message.action != null && message.hasOwnProperty("action"))
-                                    if (!$util.isInteger(message.action))
-                                        return "action: integer expected";
+                                    switch (message.action) {
+                                    default:
+                                        return "action: enum value expected";
+                                    case 0:
+                                    case 1:
+                                        break;
+                                    }
                                 return null;
                             };
     
@@ -21923,8 +22105,22 @@
                                 var message = new $root.bilibili.community.service.dm.v1.ToastButtonV2();
                                 if (object.text != null)
                                     message.text = String(object.text);
-                                if (object.action != null)
-                                    message.action = object.action | 0;
+                                switch (object.action) {
+                                default:
+                                    if (typeof object.action === "number") {
+                                        message.action = object.action;
+                                        break;
+                                    }
+                                    break;
+                                case "ToastFunctionTypeNone":
+                                case 0:
+                                    message.action = 0;
+                                    break;
+                                case "ToastFunctionTypePostPanel":
+                                case 1:
+                                    message.action = 1;
+                                    break;
+                                }
                                 return message;
                             };
     
@@ -21943,12 +22139,12 @@
                                 var object = {};
                                 if (options.defaults) {
                                     object.text = "";
-                                    object.action = 0;
+                                    object.action = options.enums === String ? "ToastFunctionTypeNone" : 0;
                                 }
                                 if (message.text != null && message.hasOwnProperty("text"))
                                     object.text = message.text;
                                 if (message.action != null && message.hasOwnProperty("action"))
-                                    object.action = message.action;
+                                    object.action = options.enums === String ? $root.bilibili.community.service.dm.v1.ToastFunctionType[message.action] === undefined ? message.action : $root.bilibili.community.service.dm.v1.ToastFunctionType[message.action] : message.action;
                                 return object;
                             };
     
