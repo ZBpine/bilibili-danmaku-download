@@ -158,6 +158,15 @@ export class BiliDanmakuPlayer {
                     this._updateDuration();
                 }
             },
+            syncRate: {
+                value: false,
+                setValue: (value) => {
+                    this.options.syncRate.value = !!value;
+                },
+                getValue: () => {
+                    return this.options.syncRate.value;
+                }
+            },
             overlap: {
                 value: true,
                 setValue: (value) => {
@@ -506,6 +515,7 @@ export class BiliDanmakuPlayer {
         const duration = dm.duration ?? this._getDuration(dm.mode);
         if (delay >= duration) return;
 
+        const rate = this.options.syncRate.getValue() ? this.domAdapter.video.playbackRate : 1;
         const type = dm.type ?? (dm.mode === 5 ? 'top' : dm.mode === 4 ? 'bottom' : 'scroll');
         const el = this.domAdapter.createElement({
             elId: dm.id, elContent: dm.content,
@@ -513,8 +523,8 @@ export class BiliDanmakuPlayer {
             elStyle: {
                 fontSize: `${dm.fontsize || 25}px`,
                 color: `#${(dm.color || 0xffffff).toString(16).padStart(6, '0')}`,
-                animationDuration: `${duration}ms`,
-                animationDelay: `${- delay}ms`
+                animationDuration: `${duration / rate}ms`,
+                animationDelay: `${- delay / rate}ms`
             }
         });
         if (dm.count && dm.count > 1) {
