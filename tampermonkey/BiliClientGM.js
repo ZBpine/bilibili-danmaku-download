@@ -91,7 +91,7 @@ export class BiliClientGM {
                         return reject({ code: 412, msg: "请求被拦截" });
                     }
                     console.log(`🌐 [${desc}]`, res);
-                    resolve(res.response);
+                    resolve(res.response ?? res.responseText);
                 },
                 onerror: err => {
                     console.error(`❌ [${desc}] 网络错误`, err);

@@ -26,7 +26,7 @@ export class BiliAPI {
         });
         return episodeDataRes.result || {};
     }
-    async getEpisodeInfo(ep_id){
+    async getEpisodeInfo(ep_id) {
         const episodeInfoRes = await this.client.request({
             url: 'https://api.bilibili.com/pgc/season/episode/web/info',
             params: { ep_id },
@@ -34,11 +34,11 @@ export class BiliAPI {
         });
         return episodeInfoRes.data || {};
     }
-    async getDanmakuXml(cid) {
+    async getDanmakuXml(cid, responseType = 'document') {
         return await this.client.request({
             url: 'https://api.bilibili.com/x/v1/dm/list.so',
             params: { oid: cid },
-            responseType: 'document',
+            responseType,
             desc: `获取弹幕 XML cid=${cid}`
         });
     }

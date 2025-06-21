@@ -61,7 +61,7 @@ export class DMPlayerDOMAdapter {
         }
         return null;
     }
-    init() {
+    update() {
         this.unbindVideoEvent();
         this.bindVideoEvent();
     }
@@ -125,8 +125,8 @@ export class BiliDanmakuPlayer {
         this.container = this.domAdapter.createElement({ elId: 'dmplayer-container' })
         this.logStyle = {
             tag: 'Danmaku Player',
-            style: 'background: #FF0000; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold;',
-            errorStyle: 'background: black; color: #FF0000; padding: 2px 6px; border-radius: 3px; font-weight: bold;'
+            style: 'background: #01a1d6; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold;',
+            errorStyle: 'background: #d63601; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold;'
         };
         this.options = {
             displayArea: {
@@ -291,9 +291,12 @@ export class BiliDanmakuPlayer {
         this.logTag('✅ 弹幕播放器初始化完成');
     }
     update() {
-        this.domAdapter.init();
+        this.domAdapter.update();
         this.domAdapter.addContainer(this.container);
         this.resize();
+        this.domAdapter.paused ?
+            this.pause() :
+            this.play();
     }
     load(danmakuData) {
         let uid = 0;
