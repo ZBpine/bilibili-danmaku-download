@@ -2,6 +2,14 @@ export class BiliAPI {
     constructor(client) {
         this.client = client;
     }
+    async getUserCard(mid) {
+        const userCardRes = await this.client.request({
+            url: 'https://api.bilibili.com/x/space/acc/info',
+            params: { mid, photo: 'true' },
+            desc: `获取用户名片信息 ${mid}`
+        });
+        return userCardRes.data || {};
+    }
     async getVideoData(bvid) {
         const videoDataRes = await this.client.request({
             url: 'https://api.bilibili.com/x/web-interface/view',
@@ -14,15 +22,23 @@ export class BiliAPI {
         const episodeDataRes = await this.client.request({
             url: 'https://api.bilibili.com/pgc/view/web/season',
             params: { ep_id },
-            desc: `获取剧集信息 ${ep_id}`
+            desc: `获取剧集明细 ${ep_id}`
         });
         return episodeDataRes.result || {};
+    }
+    async getEpisodeInfo(ep_id){
+        const episodeInfoRes = await this.client.request({
+            url: 'https://api.bilibili.com/pgc/season/episode/web/info',
+            params: { ep_id },
+            desc: `获取剧集信息 ${ep_id}`
+        });
+        return episodeInfoRes.data || {};
     }
     async getDanmakuXml(cid) {
         return await this.client.request({
             url: 'https://api.bilibili.com/x/v1/dm/list.so',
             params: { oid: cid },
-            responseType: 'text',
+            responseType: 'document',
             desc: `获取弹幕 XML cid=${cid}`
         });
     }
