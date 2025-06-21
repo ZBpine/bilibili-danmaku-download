@@ -1,4 +1,4 @@
-class DMPlayerDOMAdapter {
+export class DMPlayerDOMAdapter {
     constructor(playerInstance) {
         this.videoEl = null;
         this.player = playerInstance;
@@ -159,7 +159,7 @@ export class BiliDanmakuPlayer {
                 }
             },
             syncRate: {
-                value: false,
+                value: true,
                 setValue: (value) => {
                     this.options.syncRate.value = !!value;
                 },

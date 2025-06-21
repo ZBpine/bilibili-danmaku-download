@@ -31,7 +31,7 @@ export class BiliAPI {
             url: 'https://api.bilibili.com/x/v2/dm/web/view',
             params: { "type": 1, "oid": cid, "pid": avid, duration },
             responseType: 'arraybuffer',
-            desc: '获取弹幕元数据 cid=${cid}'
+            desc: `获取弹幕元数据 cid=${cid}`
         });
     }
     async getDanmakuPbSeg(cid, avid, segment_index) {
