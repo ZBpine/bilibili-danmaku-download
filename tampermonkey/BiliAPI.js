@@ -58,6 +58,23 @@ export class BiliAPI {
             desc: `获取弹幕片段 ${segment_index} cid=${cid}`
         });
     }
+    async getDanmakuHisDate(cid, month) {
+        const hisDateRes = await this.client.request({
+            url: 'https://api.bilibili.com/x/v2/dm/history/index',
+            params: { type: 1, oid: cid, month },
+            responseType: 'json',
+            desc: `获取弹幕历史日期 month=${month} cid=${cid}`
+        });
+        return hisDateRes.data || [];
+    }
+    async getDanmakuHisPb(cid, date) {
+        return await this.client.request({
+            url: 'https://api.bilibili.com/x/v2/dm/web/history/seg.so',
+            params: { type: 1, oid: cid, date },
+            responseType: 'arraybuffer',
+            desc: `获取弹幕历史片段 date=${date} cid=${cid}`
+        });
+    }
     async searchVideo(keyword) {
         const searchRes = await this.client.request({
             url: 'https://api.bilibili.com/x/web-interface/search/type',
