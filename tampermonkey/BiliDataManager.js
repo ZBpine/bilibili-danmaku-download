@@ -53,11 +53,11 @@ export function createBiliDataManager(biliApi, pbParser, name = 'B站数据管�
         setData(data) {
             Object.assign(this.data, data);
             this.genInfo();
-            const danmakuList = this.data.danmakuList;
-            if (danmakuList) {
+            const danmakuData = this.data.danmakuData;
+            if (danmakuData) {
                 this.dmDict = {};
-                danmakuList.forEach(dm => this.addDanmaku(dm));
-                this.dmCount = danmakuList.length;
+                danmakuData.forEach(dm => this.addDanmaku(dm));
+                this.dmCount = danmakuData.length;
             }
         }
         parseUrl(url) {
@@ -247,8 +247,8 @@ export function createBiliDataManager(biliApi, pbParser, name = 'B站数据管�
             this.genDmList();
         }
         genDmList() {
-            this.data.danmakuList = Object.values(this.dmDict);
-            this.dmCount = this.data.danmakuList.length;
+            this.data.danmakuData = Object.values(this.dmDict);
+            this.dmCount = this.data.danmakuData.length;
         }
         addDanmaku(danmaku) {
             const dmid = danmaku.idStr;
