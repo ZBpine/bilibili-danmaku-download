@@ -75,12 +75,12 @@ export class BiliAPI {
             desc: `获取弹幕历史片段 date=${date} cid=${cid}`
         });
     }
-    async searchVideo(keyword) {
+    async searchVideo(keyword, search_type = 'video') {
         const searchRes = await this.client.request({
             url: 'https://api.bilibili.com/x/web-interface/search/type',
-            params: { search_type: 'video', keyword, page: 1 },
+            params: { search_type, keyword, page: 1 },
             sign: true,
-            desc: `搜索视频 ${keyword}`
+            desc: `搜索${search_type} ${keyword}`
         });
         return searchRes.data?.result || [];
     }
