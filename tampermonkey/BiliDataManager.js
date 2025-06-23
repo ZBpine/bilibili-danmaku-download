@@ -165,6 +165,7 @@ export function createBiliDataManager(biliApi, pbParser, name = 'B站数据管�
                             info.duration = page.duration ?? info.duration;
                         }
                     }
+                    info.url = 'https://www.bilibili.com/video/' + info.id;
                 }
                 else if (data.episodeData) {
                     const episodeInfo = data.episodeInfo;
@@ -230,6 +231,7 @@ export function createBiliDataManager(biliApi, pbParser, name = 'B站数据管�
                             reply: episodeInfo.stat.reply
                         });
                     }
+                    info.url = 'https://www.bilibili.com/bangumi/play/' + info.id;
                 }
             } catch (e) {
                 console.error('生成视频信息出错', e);
@@ -333,10 +335,10 @@ export function createBiliDataManager(biliApi, pbParser, name = 'B站数据管�
 
 export async function createBiliDataManagerImport(httpRequest, name = 'B站数据管理') {
     const { BiliProtobufParser } = await import('./BiliProtobufParser.js');
-    const { BiliClientGM } = await import('./BiliClientGM.js');
+    const { BiliClient } = await import('./BiliClient.js');
     const { BiliAPI } = await import('./BiliAPI.js');
     const pbParser = new BiliProtobufParser();
-    const biliClient = new BiliClientGM(httpRequest);
+    const biliClient = new BiliClient(httpRequest);
     await biliClient.init();
     const biliApi = new BiliAPI(biliClient);
     return createBiliDataManager(biliApi, pbParser, name);
