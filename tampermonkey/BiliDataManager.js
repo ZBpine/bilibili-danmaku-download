@@ -70,24 +70,34 @@ export function createBiliDataManager(biliApi, pbParser, name = 'B站数据管�
             return dmList;
         }
         static parseUrl(url) {
+            const idObj = {};
             let bvid;
             const bvidMatch = url.match(/BV[a-zA-Z0-9]+/);
             if (bvidMatch) bvid = bvidMatch[0];
             if (bvid) {
+                idObj.bvid = bvid;
+                idObj.id = bvid;
                 const pMatch = url.match(/[?&]p=(\d+)/);
                 if (pMatch) {
                     const p = parseInt(pMatch[1], 10);
-                    if (!isNaN(p) && p >= 1) return { bvid, p, id: `${bvid}?p=${p}` };
+                    if (!isNaN(p) && p >= 1) {
+                        idObj.p = p;
+                        idObj.id = `${bvid}?p=${p}`;
+                    };
                 }
-                return { bvid, id: bvid };
+                idObj.url = 'https://www.bilibili.com/video/' + idObj.id;
             } else {
                 const epidMatch = url.match(/ep(\d+)/);
                 if (epidMatch) {
                     const ep_id = parseInt(epidMatch[1], 10);
-                    if (!isNaN(ep_id)) return { ep_id, id: `ep${ep_id}` };
+                    if (!isNaN(ep_id)) {
+                        idObj.ep_id = ep_id;
+                        idObj.id = `ep${ep_id}`;
+                        idObj.url = 'https://www.bilibili.com/bangumi/play/' + idObj.id;
+                    };
                 }
             }
-            return {};
+            return idObj;
         }
         constructor() {
             // getData 或 setData 应且只应调用一次。若要处理新视频，请新建一个实例。
@@ -244,6 +254,7 @@ export function createBiliDataManager(biliApi, pbParser, name = 'B站数据管�
             }
             info.fetchtime = data.fetchtime || Math.floor(Date.now() / 1000);
             info.id ??= data.id;
+            info.url ??= data.url;
             info.title ??= data.title;
             return info;
         }
