@@ -4,7 +4,7 @@ export class BiliAPI {
     }
     async getUserCard(mid) {
         const userCardRes = await this.client.request({
-            url: 'https://api.bilibili.com/x/space/acc/info',
+            url: 'https://api.bilibili.com/x/web-interface/card',
             params: { mid, photo: 'true' },
             desc: `获取用户名片信息 ${mid}`
         });
