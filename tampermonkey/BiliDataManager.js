@@ -290,7 +290,7 @@ export function createBiliDataManager(biliApi, pbParser, name = 'B站数据管�
             console.log('新增弹幕', this.dmCount - dmCount);
             return this.dmCount - dmCount;
         }
-        async getDanmakuPb() {
+        async getDanmakuPb(onProgress = () => { }) {
             const { cid, aid, duration } = this.info;
             if (!cid || !aid || !duration) {
                 console.warn('获取Protobuf实时弹幕失败，未找到cid/aid/duration，请检查info');
@@ -305,15 +305,17 @@ export function createBiliDataManager(biliApi, pbParser, name = 'B站数据管�
             for (let segIndex = 1; segIndex <= segCount; segIndex++) {
                 const segBuf = await this.constructor.api.getDanmakuPbSeg(cid, aid, segIndex);
                 const segData = this.constructor.parsePb(segBuf, 'DmSegMobileReply');
-                if (!segData || !segData.elems || segData.elems.length === 0) continue;
-                segData.elems.forEach(elem => this.addDanmaku(elem));
+                if (segData?.elems?.length) {
+                    segData.elems.forEach(elem => this.addDanmaku(elem));
+                }
+                onProgress(segIndex, segCount, segIndex);
             }
             this.genDmList();
             console.timeEnd('获取Protobuf实时弹幕 总耗时');
             console.log('新增弹幕', this.dmCount - dmCount);
             return this.dmCount - dmCount;
         }
-        async getDanmakuHisPb(month) {
+        async getDanmakuHisPb(month, onProgress = () => { }) {
             const cid = this.info.cid;
             if (!cid) {
                 console.warn('获取历史弹幕失败，未找到cid，请检查info');
@@ -330,11 +332,15 @@ export function createBiliDataManager(biliApi, pbParser, name = 'B站数据管�
                 return -1;
             }
             const dmCount = this.dmCount;
-            for (const date of dates) {
+            for (let i = 0; i < dates.length; i++) {
+                const date = dates[i];
                 const segBuf = await this.constructor.api.getDanmakuHisPb(cid, date);
                 const segData = this.constructor.parsePb(segBuf, 'DmSegMobileReply');
-                if (!segData || !segData.elems || segData.elems.length === 0) continue;
-                segData.elems.forEach(elem => this.addDanmaku(elem));
+                if (segData?.elems?.length) {
+                    segData.elems.forEach(elem => this.addDanmaku(elem));
+                }
+                // ✅ 进度回调
+                onProgress(i + 1, dates.length, date);
             }
             this.genDmList();
             console.timeEnd(`获取 ${month} 历史弹幕 总耗时`);
