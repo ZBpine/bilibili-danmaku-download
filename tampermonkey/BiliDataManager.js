@@ -308,7 +308,7 @@ export function createBiliDataManager(biliApi, pbParser, name = 'B站数据管�
                 if (segData?.elems?.length) {
                     segData.elems.forEach(elem => this.addDanmaku(elem));
                 }
-                onProgress(segIndex, segCount, segIndex);
+                onProgress(segIndex, segCount, segIndex, segData?.elems?.length ?? 0);
             }
             this.genDmList();
             console.timeEnd('获取Protobuf实时弹幕 总耗时');
@@ -340,7 +340,7 @@ export function createBiliDataManager(biliApi, pbParser, name = 'B站数据管�
                     segData.elems.forEach(elem => this.addDanmaku(elem));
                 }
                 // ✅ 进度回调
-                onProgress(i + 1, dates.length, date);
+                onProgress(i + 1, dates.length, date, segData?.elems?.length);
             }
             this.genDmList();
             console.timeEnd(`获取 ${month} 历史弹幕 总耗时`);
