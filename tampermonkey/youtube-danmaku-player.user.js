@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube B站弹幕播放器
 // @namespace    https://github.com/ZBpine/bilibili-danmaku-download/
-// @version      1.6.1
+// @version      1.6.2
 // @description  在 YouTube 视频上显示 B站视频弹幕 [ 油管 | Bilibili | 弹幕]
 // @author       ZBpine
 // @match        https://www.youtube.com/*
@@ -618,6 +618,17 @@
             const searchingLabel = document.createElement('div');
             searchingLabel.textContent = '🔍 搜索中...';
             const renderResults = (keyword) => {
+                if (keyword.startsWith('url=')) {
+                    const { id } = this.BiliDataManager.parseUrl(keyword.substring(4));
+                    if (id) {
+                        this.loadData({ source: { id, from: 'bilibili' } });
+                        overlay.remove();
+                    }
+                    else {
+                        resultsBox.textContent = '❌ 无效的链接';
+                    }
+                    return;
+                }
                 resultsBox.textContent = '';
                 resultsBox.appendChild(searchingLabel);
 
