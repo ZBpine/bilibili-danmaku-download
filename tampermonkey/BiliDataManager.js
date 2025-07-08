@@ -300,6 +300,7 @@ export function createBiliDataManager(biliApi, pbParser, name = 'B站数据管�
             console.time('获取Protobuf实时弹幕 总耗时');
             const pbViewBuf = await this.constructor.api.getDanmakuPbWebView(cid, aid, duration);
             const pbView = this.constructor.parsePb(pbViewBuf, 'DmWebViewReply');
+            if (pbView.commandDms) this.data.commandDms = pbView.commandDms;
             const pageSize = pbView?.dmSge?.pageSize / 1000 || 360;
             const segCount = Math.floor(duration / pageSize) + 1;
             for (let segIndex = 1; segIndex <= segCount; segIndex++) {
