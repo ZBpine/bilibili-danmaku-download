@@ -352,9 +352,11 @@ export function createBiliDataManager(biliApi, pbParser, name = 'B站数据管�
 }
 
 export async function createBiliDataManagerImport(httpRequest, name = 'B站数据管理', path = './') {
-    const { BiliProtobufParser } = await import(path + 'BiliProtobufParser.js');
-    const { BiliClient } = await import(path + 'BiliClient.js');
-    const { BiliAPI } = await import(path + 'BiliAPI.js');
+    const [{ BiliProtobufParser }, { BiliClient }, { BiliAPI }] = await Promise.all([
+        import(path + 'BiliProtobufParser.js'),
+        import(path + 'BiliClient.js'),
+        import(path + 'BiliAPI.js')
+    ]);
     const pbParser = new BiliProtobufParser();
     const biliClient = new BiliClient(httpRequest);
     await biliClient.init();
