@@ -83,7 +83,7 @@ export class BiliAPI {
             responseType: 'arraybuffer',
             desc: `获取弹幕点赞数 cid=${cid} ids=${ids}`
         });
-        return likesRes.data || [];
+        return likesRes.data || {};
     }
     async searchVideo(keyword, search_type = 'video') {
         const searchRes = await this.client.request({
