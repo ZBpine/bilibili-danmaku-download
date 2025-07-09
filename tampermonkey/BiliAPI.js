@@ -76,11 +76,13 @@ export class BiliAPI {
         });
     }
     async getDanmakuLikes(cid, idList) {
+        if (!idList.length) {
+            return {};
+        }
         const ids = idList.join(',');
         const likesRes = await this.client.request({
             url: 'https://api.bilibili.com/x/v2/dm/thumbup/stats',
             params: { oid: cid, ids },
-            responseType: 'arraybuffer',
             desc: `获取弹幕点赞数 cid=${cid} ids=${ids}`
         });
         return likesRes.data || {};
