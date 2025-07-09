@@ -75,6 +75,16 @@ export class BiliAPI {
             desc: `获取弹幕历史片段 date=${date} cid=${cid}`
         });
     }
+    async getDanmakuLikes(cid, idList) {
+        const ids = idList.join(',');
+        const likesRes = await this.client.request({
+            url: 'https://api.bilibili.com/x/v2/dm/thumbup/stats',
+            params: { oid: cid, ids },
+            responseType: 'arraybuffer',
+            desc: `获取弹幕点赞数 cid=${cid} ids=${ids}`
+        });
+        return likesRes.data || [];
+    }
     async searchVideo(keyword, search_type = 'video') {
         const searchRes = await this.client.request({
             url: 'https://api.bilibili.com/x/web-interface/search/type',
